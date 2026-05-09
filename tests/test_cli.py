@@ -48,7 +48,9 @@ def test_inspect_dashboard_and_report_placeholders(tmp_path, capsys):
     (run_dir / "manifest.yaml").write_text(yaml.safe_dump(manifest), encoding="utf-8")
 
     assert main(["inspect", str(run_dir)]) == 0
-    assert "project: demo" in capsys.readouterr().out
+    output = capsys.readouterr().out
+    assert "Run: baseline" in output
+    assert "Status: running" in output
 
     assert main(["dashboard", str(run_dir)]) == 0
     assert (run_dir / "dashboard.html").exists()
@@ -62,4 +64,12 @@ def test_inspect_missing_manifest_returns_nonzero(tmp_path, capsys):
     run_dir.mkdir()
 
     assert main(["inspect", str(run_dir)]) == 1
-    assert "Manifest not found" in capsys.readouterr().out
+    assert "Manifest not found" in capsys.readouterr().err
+
+
+def test_compare_and_export_table_are_planned_placeholders(capsys):
+    assert main(["compare"]) == 2
+    assert "planned for Week 5 / v0.4" in capsys.readouterr().out
+
+    assert main(["export-table"]) == 2
+    assert "planned for Week 5 / v0.4" in capsys.readouterr().out

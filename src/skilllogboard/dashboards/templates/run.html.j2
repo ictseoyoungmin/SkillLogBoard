@@ -1,8 +1,120 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><title>{{ title }}</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #5b667a;
+      --line: #d7e0ec;
+      --accent: #2457a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header, section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    .meta, .warnings, .files { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 0; list-style: none; }
+    .meta li, .files li, .warnings li {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #fbfdff;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); background: #eef5ff; }
+    a { color: var(--accent); }
+    code { background: #eef2f7; border-radius: 4px; padding: 1px 4px; }
+    .metric-card {
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      max-width: 360px;
+      background: #fbfdff;
+    }
+    .empty { color: var(--muted); }
+    .chart-fallback {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
 <body>
-  <h1>{{ title }}</h1>
-  <p>Week 3 template placeholder.</p>
+  <main>
+    <header>
+      <h1>SkillLogBoard Dashboard</h1>
+      <h2>Run Summary</h2>
+      <ul class="meta">
+        <li>Project: <code>{{ manifest.get("project", "unknown") }}</code></li>
+        <li>Run: <code>{{ manifest.get("run_name", "unknown") }}</code></li>
+        <li>Run ID: <code>{{ manifest.get("run_id", "") }}</code></li>
+        <li>Status: <code>{{ manifest.get("status", "unknown") }}</code></li>
+        {% if manifest.get("created_at") %}<li>Created: <code>{{ manifest.get("created_at") }}</code></li>{% endif %}
+        {% if manifest.get("updated_at") %}<li>Updated: <code>{{ manifest.get("updated_at") }}</code></li>{% endif %}
+      </ul>
+      {% if warnings %}
+      <ul class="warnings">
+        {% for warning in warnings %}
+        <li>{{ warning }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </header>
+
+    <section id="main-metric">
+      <h2>Main Metric</h2>
+      {{ best_metric_html | safe }}
+    </section>
+
+    <section id="metrics">
+      <h2>Metrics</h2>
+      {{ metric_panel_html | safe }}
+    </section>
+
+    <section id="config">
+      <h2>Config</h2>
+      {{ config_table_html | safe }}
+    </section>
+
+    <section id="artifacts">
+      <h2>Artifacts</h2>
+      {{ artifact_table_html | safe }}
+    </section>
+
+    <section id="files">
+      <h2>Files</h2>
+      {% if file_links %}
+      <ul class="files">
+        {% for link in file_links %}
+        <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="empty">No core files are available yet.</p>
+      {% endif %}
+    </section>
+  </main>
 </body>
 </html>

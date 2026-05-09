@@ -5,8 +5,10 @@ from __future__ import annotations
 from argparse import ArgumentParser
 from importlib import resources
 from pathlib import Path
+import sys
 
 from skilllogboard._version import __version__
+from skilllogboard.core.manifest import load_manifest
 
 
 def _default_skills_text() -> str:
@@ -34,19 +36,39 @@ def cmd_init(args) -> int:
 
 
 def cmd_inspect(args) -> int:
-    run_dir = Path(args.run_dir)
-    manifest = run_dir / "manifest.yaml"
-    if not manifest.exists():
-        print(f"Manifest not found: {manifest}")
+    run_dir = _validate_run_dir(args.run_dir)
+    if run_dir is None:
         return 1
-    print(manifest.read_text(encoding="utf-8"))
+    manifest_path = run_dir / "manifest.yaml"
+    if not manifest_path.exists():
+        print(f"Manifest not found: {manifest_path}", file=sys.stderr)
+        return 1
+    manifest = load_manifest(manifest_path)
+    print(f"Run: {manifest.get('run_name', run_dir.name)}")
+    print(f"Run ID: {manifest.get('run_id', run_dir.name)}")
+    print(f"Status: {manifest.get('status', 'unknown')}")
+    if manifest.get("main_metric"):
+        print(f"Main metric: {manifest['main_metric']}")
+    if manifest.get("best_metric"):
+        print(f"Best metric: {manifest['best_metric']}")
+    files = manifest.get("files") or {}
+    if files:
+        print("Files:")
+        for key, value in files.items():
+            print(f"  {key}: {value}")
     return 0
 
 
 def cmd_dashboard(args) -> int:
     from skilllogboard.dashboards.static_builder import build_dashboard
 
-    out = build_dashboard(Path(args.run_dir))
+    run_dir = _validate_run_dir(args.run_dir)
+    if run_dir is None:
+        return 1
+    if not (run_dir / "manifest.yaml").exists():
+        print(f"Manifest not found: {run_dir / 'manifest.yaml'}", file=sys.stderr)
+        return 1
+    out = build_dashboard(run_dir)
     print(f"Dashboard written: {out}")
     return 0
 
@@ -54,9 +76,31 @@ def cmd_dashboard(args) -> int:
 def cmd_report(args) -> int:
     from skilllogboard.reports.markdown_report import build_summary
 
-    out = build_summary(Path(args.run_dir))
+    run_dir = _validate_run_dir(args.run_dir)
+    if run_dir is None:
+        return 1
+    if not (run_dir / "manifest.yaml").exists():
+        print(f"Manifest not found: {run_dir / 'manifest.yaml'}", file=sys.stderr)
+        return 1
+    out = build_summary(run_dir)
     print(f"Summary written: {out}")
     return 0
+
+
+def cmd_planned(args) -> int:
+    print(f"`skilllog {args.command}` is planned for Week 5 / v0.4 and is not implemented yet.")
+    return 2
+
+
+def _validate_run_dir(run_dir: str) -> Path | None:
+    path = Path(run_dir)
+    if not path.exists():
+        print(f"Run directory not found: {path}", file=sys.stderr)
+        return None
+    if not path.is_dir():
+        print(f"Run path is not a directory: {path}", file=sys.stderr)
+        return None
+    return path
 
 
 def build_parser() -> ArgumentParser:
@@ -80,9 +124,11 @@ def build_parser() -> ArgumentParser:
     p_report.add_argument("run_dir")
     p_report.set_defaults(func=cmd_report)
 
-    # Week 5 placeholders
-    sub.add_parser("compare", help="Planned: compare multiple runs")
-    sub.add_parser("export-table", help="Planned: export ablation table")
+    p_compare = sub.add_parser("compare", help="Planned for Week 5/v0.4: compare multiple runs")
+    p_compare.set_defaults(func=cmd_planned)
+
+    p_export = sub.add_parser("export-table", help="Planned for Week 5/v0.4: export ablation table")
+    p_export.set_defaults(func=cmd_planned)
 
     return parser
 

@@ -7,7 +7,7 @@
 | Config/system/git snapshot | Supported | Implemented | v0.1 |
 | Artifact/image/table logging | Supported | Implemented MVP | v0.1 |
 | Summary report | Supported | Implemented MVP | v0.1 |
-| Static Dashboard | Supported | Placeholder | v0.2 |
+| Static Dashboard | Supported | Implemented single-run MVP | v0.2 |
 | Skills.md Rule Engine | Planned | Placeholder | v0.3 |
 | Multi-run compare | Planned | Placeholder | v0.4 |
 | domain_breakdown | Planned | Not implemented | v0.5+ |
