@@ -2,19 +2,17 @@
 
 Portable experiment logging and dashboard package for local-first ML research.
 
-## Week 1 Skeleton
+## v0.1 MVP
 
-This repository skeleton is prepared for Week 1 development:
+SkillLogBoard v0.1 creates a local single-run evidence package:
 
-- package skeleton and `pyproject.toml`
-- `src/skilllogboard` layout
-- CLI entry point
-- run id generation
-- manifest schema
-- event schema and JSONL writer
-- metrics CSV writer placeholder
-- config/git/system snapshot placeholder
-- docs/examples/tests placeholders
+- installable `src/skilllogboard` package
+- `RunLogger` lifecycle: running, completed, failed
+- metrics CSV and event JSONL logging
+- config/system/git snapshots
+- artifact, image-path, and table logging
+- `summary.md` and placeholder `dashboard.html`
+- CLI `init`, `inspect`, `report`, and `dashboard`
 
 ## Install
 
@@ -36,6 +34,21 @@ skilllog inspect runs/demo/latest
 python examples/basic_usage.py
 ```
 
+The example writes a run folder under `runs/demo/<run_id>/` with:
+
+```text
+manifest.yaml
+config.yaml
+system.json
+git.json
+metrics.csv
+events.jsonl
+artifact_index.json
+summary.md
+dashboard.html
+artifacts/
+```
+
 ## Minimal Usage
 
 ```python
@@ -49,8 +62,15 @@ logger = RunLogger(
 )
 
 logger.log_metrics({"train/loss": 1.0, "val/acc": 0.8}, step=0)
+logger.log_note("baseline run")
 logger.finish(build_dashboard=True, build_report=True)
 ```
+
+## Troubleshooting
+
+- If `pytest` is missing, install the dev extras: `pip install -e ".[dev,dashboard]"`.
+- If `skilllog` is not found, activate the virtual environment or reinstall with `pip install -e .`.
+- Generated local runs are written to `runs/`, which is ignored by git.
 
 ## Development Priority
 

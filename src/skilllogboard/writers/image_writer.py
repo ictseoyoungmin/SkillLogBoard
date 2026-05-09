@@ -1,8 +1,12 @@
-"""Image writer placeholder.
+"""Dependency-light image helpers."""
 
-Week 2+ will support PIL/numpy/matplotlib image saving.
-"""
+from __future__ import annotations
+
+from pathlib import Path
 
 
-def save_image_placeholder(*args, **kwargs):
-    raise NotImplementedError("Image writer will be implemented in Week 2.")
+def validate_image_path(image: str | Path) -> Path:
+    path = Path(image)
+    if not path.exists() or not path.is_file():
+        raise FileNotFoundError(f"Image source does not exist or is not a file: {path}")
+    return path

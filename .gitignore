@@ -9,4 +9,4 @@ build/
 .env
 runs/
 .DS_Store
-.devmd
+.devmd/docs/

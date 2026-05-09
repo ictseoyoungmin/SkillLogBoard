@@ -1,4 +1,7 @@
-"""Minimal smoke test for Week 1 skeleton."""
+"""Minimal v0.1 smoke test for SkillLogBoard."""
+
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from skilllogboard import RunLogger
 
@@ -25,7 +28,16 @@ def main() -> None:
                 "val/acc": 0.75 + 0.05 * epoch,
             },
             step=epoch,
+            phase="demo",
         )
+
+    with TemporaryDirectory() as tmp:
+        artifact_source = Path(tmp) / "example_artifact.txt"
+        artifact_source.write_text(
+            "small generated artifact for the basic usage example\n",
+            encoding="utf-8",
+        )
+        logger.log_artifact("example_artifact", artifact_source)
 
     logger.log_note("Minimal smoke test run.")
     logger.finish(build_dashboard=True, build_report=True)
