@@ -6,8 +6,13 @@ from skilllogboard.dashboards.static_builder import build_dashboard
 
 def test_dashboard_template_is_available_as_package_data():
     template = resources.files("skilllogboard.dashboards.templates").joinpath("run.html.j2")
+    text = template.read_text(encoding="utf-8")
 
-    assert template.read_text(encoding="utf-8").startswith("<!doctype html>")
+    assert text.startswith("<!doctype html>")
+    assert "<html" in text
+    assert "SkillLogBoard Dashboard" in text
+    assert "Run Summary" in text
+    assert "Metrics" in text
 
 
 def test_dashboard_links_are_relative(tmp_path):

@@ -12,6 +12,7 @@ from skilllogboard.dashboards.components import (
     render_best_metric_card,
     render_config_table,
     render_metric_panel,
+    render_rule_audit,
 )
 
 
@@ -25,6 +26,7 @@ def build_dashboard(run_dir: str | Path, output_path: str | Path | None = None) 
             "metric_panel_html": render_metric_panel(context["metric_series"]),
             "config_table_html": render_config_table(context["config"]),
             "artifact_table_html": render_artifact_table(context["artifacts"]),
+            "rule_audit_html": render_rule_audit(context["skill_trace"]),
         }
     )
     out.write_text(_render_dashboard(context), encoding="utf-8")

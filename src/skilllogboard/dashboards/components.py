@@ -16,6 +16,7 @@ CORE_FILES = [
     "config.yaml",
     "metrics.csv",
     "events.jsonl",
+    "skill_trace.jsonl",
     "artifact_index.json",
     "summary.md",
     "dashboard.html",
@@ -77,8 +78,9 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     metrics_path = run_dir / "metrics.csv"
     events_path = run_dir / "events.jsonl"
     artifact_index_path = run_dir / "artifact_index.json"
+    skill_trace_path = run_dir / "skill_trace.jsonl"
 
-    for path in [manifest_path, config_path, metrics_path, events_path, artifact_index_path]:
+    for path in [manifest_path, config_path, metrics_path, events_path, artifact_index_path, skill_trace_path]:
         if not path.exists():
             warnings.append(f"Missing optional file: {path.name}")
 
@@ -87,6 +89,7 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
     metrics = load_metrics(metrics_path)
     events = load_events(events_path)
     artifact_index = load_json(artifact_index_path)
+    skill_trace = load_events(skill_trace_path)
     artifacts = list(artifact_index.get("artifacts", []))
     file_links = [
         {"label": name, "href": name}
@@ -102,6 +105,8 @@ def load_run_context(run_dir: str | Path) -> dict[str, Any]:
         "metrics": metrics,
         "metric_series": group_metrics(metrics),
         "events_summary": summarize_events(events),
+        "skill_trace": skill_trace,
+        "rule_audit_summary": summarize_rule_audit(skill_trace),
         "artifacts": artifacts,
         "file_links": file_links,
         "warnings": warnings,
@@ -114,6 +119,17 @@ def summarize_events(events: list[dict[str, Any]]) -> dict[str, Any]:
         event_type = str(event.get("type", "unknown"))
         counts[event_type] = counts.get(event_type, 0) + 1
     return {"count": len(events), "by_type": counts}
+
+
+def summarize_rule_audit(records: list[dict[str, Any]]) -> dict[str, Any]:
+    counts: dict[str, int] = {}
+    actionable = []
+    for record in records:
+        outcome = str(record.get("outcome", "unknown"))
+        counts[outcome] = counts.get(outcome, 0) + 1
+        if outcome in {"warning", "error", "planned"}:
+            actionable.append(record)
+    return {"count": len(records), "by_outcome": counts, "actionable": actionable}
 
 
 def render_best_metric_card(manifest: dict[str, Any]) -> str:
@@ -188,6 +204,27 @@ def render_artifact_table(artifacts: list[dict[str, Any]]) -> str:
             f"<td>{path_html}</td>"
             f"<td>{mode}</td>"
             f"<td>{_esc(item.get('size', ''))}</td>"
+            "</tr>"
+        )
+    rows.append("</tbody></table>")
+    return "\n".join(rows)
+
+
+def render_rule_audit(records: list[dict[str, Any]]) -> str:
+    if not records:
+        return '<p class="empty">No skill_trace.jsonl rule results are available.</p>'
+    rows = [
+        "<table><thead><tr><th>Rule</th><th>Type</th><th>Status</th><th>Outcome</th><th>Severity</th><th>Message</th></tr></thead><tbody>"
+    ]
+    for record in records:
+        rows.append(
+            "<tr>"
+            f"<td>{_esc(record.get('rule_id', ''))}</td>"
+            f"<td>{_esc(record.get('rule_type', ''))}</td>"
+            f"<td>{_esc(record.get('status', ''))}</td>"
+            f"<td>{_esc(record.get('outcome', ''))}</td>"
+            f"<td>{_esc(record.get('severity', ''))}</td>"
+            f"<td>{_esc(record.get('message', ''))}</td>"
             "</tr>"
         )
     rows.append("</tbody></table>")

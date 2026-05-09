@@ -161,6 +161,15 @@ class RunLogger:
     def log_note(self, text: str) -> None:
         self.events.write(Event(type="note", key="note", value=text))
 
+    def run_skill_checks(self, skills_path: str | Path = "Skills.md", stage: str | None = None) -> list[Any]:
+        from skilllogboard.skills.rule_engine import RuleEngine
+
+        engine = RuleEngine.from_file(skills_path)
+        results = engine.run(self.run_dir, write_trace=True, stage=stage)
+        self.manifest.files["skill_trace"] = "skill_trace.jsonl"
+        self.manifest.save(self.run_dir / "manifest.yaml")
+        return results
+
     def build_dashboard(self) -> None:
         from skilllogboard.dashboards.static_builder import build_dashboard
 

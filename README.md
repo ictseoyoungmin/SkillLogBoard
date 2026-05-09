@@ -80,6 +80,7 @@ logger.finish(build_dashboard=True, build_report=True)
 - If `skilllog` is not found, activate the virtual environment or reinstall with `pip install -e .`.
 - Generated local runs are written to `runs/`, which is ignored by git.
 - `skilllog compare` and `skilllog export-table` are visible placeholders for Week 5/v0.4.
+- Skills.md v0.3 executes MVP rules and records results in `skill_trace.jsonl`.
 
 ## Development Priority
 
