@@ -9,7 +9,12 @@
 | Summary report | Supported | Implemented MVP | v0.1 |
 | Static Dashboard | Supported | Implemented single-run MVP | v0.2 |
 | Skills.md Rule Engine | Supported | Implemented MVP rules | v0.3 |
-| Multi-run compare | Planned | Placeholder | v0.4 |
+| skill_trace.jsonl | Supported | Implemented rule trace output | v0.3 |
+| RunLogger.run_skill_checks | Supported | Implemented API hook | v0.3 |
+| Dashboard Rule Audit | Supported | Implemented MVP | v0.3 |
+| Multi-run Compare | Supported | Implemented MVP | v0.4 |
+| compare.csv / compare.md / compare.html | Supported | Implemented static exports | v0.4 |
+| export-table CSV/Markdown/LaTeX | Supported | Implemented MVP | v0.4 |
 | domain_breakdown | Planned | Not implemented | v0.5+ |
 | dashboard_panel | Planned | Not implemented | v0.5+ |
 | IR-drop Template | Planned | Placeholder | v0.5 |

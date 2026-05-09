@@ -10,9 +10,13 @@ def test_dashboard_template_is_available_as_package_data():
 
     assert text.startswith("<!doctype html>")
     assert "<html" in text
+    assert "<head>" in text
+    assert '<meta charset="utf-8">' in text
+    assert "<body>" in text
     assert "SkillLogBoard Dashboard" in text
     assert "Run Summary" in text
     assert "Metrics" in text
+    assert "Rule Audit" in text
 
 
 def test_dashboard_links_are_relative(tmp_path):

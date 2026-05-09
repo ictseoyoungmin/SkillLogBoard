@@ -4,7 +4,7 @@ day: cleanup
 slice: "01_update_readme_for_v03_rule_engine"
 title: "update README for v0.3 rule engine"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.3-cleanup"
 ---
 
@@ -78,17 +78,17 @@ pytest -q
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 00:36  
+**Completed by:** coding agent  
+**Verification command(s):** python - <<'PY' README v0.3 checks; pytest -q  
+**Notes:** Completed and verified for the requested scope.
 
-<!-- AGENT_STATUS: PENDING -->
+<!-- AGENT_STATUS: COMPLETED -->
 

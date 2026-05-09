@@ -55,15 +55,27 @@ def test_required_metric_pass_and_missing():
 
 def test_metric_threshold_max_and_min_modes():
     max_pass = execute_rule(
-        RuleSpec("RULE-THRESH-001", "metric_threshold", params={"metric": "val/acc", "threshold": 0.8, "mode": "max"}),
+        RuleSpec(
+            "RULE-THRESH-001",
+            "metric_threshold",
+            params={"metric": "val/acc", "threshold": 0.8, "mode": "max"},
+        ),
         _context(),
     )
     min_pass = execute_rule(
-        RuleSpec("RULE-THRESH-002", "metric_threshold", params={"metric": "val/loss", "threshold": 0.45, "mode": "min"}),
+        RuleSpec(
+            "RULE-THRESH-002",
+            "metric_threshold",
+            params={"metric": "val/loss", "threshold": 0.45, "mode": "min"},
+        ),
         _context(),
     )
     max_fail = execute_rule(
-        RuleSpec("RULE-THRESH-003", "metric_threshold", params={"metric": "val/acc", "threshold": 0.95, "mode": "max"}),
+        RuleSpec(
+            "RULE-THRESH-003",
+            "metric_threshold",
+            params={"metric": "val/acc", "threshold": 0.95, "mode": "max"},
+        ),
         _context(),
     )
 
@@ -75,11 +87,19 @@ def test_metric_threshold_max_and_min_modes():
 
 def test_best_last_gap_rule():
     ok = execute_rule(
-        RuleSpec("RULE-GAP-001", "best_last_gap", params={"metric": "val/acc", "threshold": 0.1, "mode": "max"}),
+        RuleSpec(
+            "RULE-GAP-001",
+            "best_last_gap",
+            params={"metric": "val/acc", "threshold": 0.1, "mode": "max"},
+        ),
         _context(),
     )
     warn = execute_rule(
-        RuleSpec("RULE-GAP-002", "best_last_gap", params={"metric": "val/acc", "threshold": 0.01, "mode": "max"}),
+        RuleSpec(
+            "RULE-GAP-002",
+            "best_last_gap",
+            params={"metric": "val/acc", "threshold": 0.01, "mode": "max"},
+        ),
         _context(),
     )
 
@@ -101,3 +121,29 @@ def test_artifact_required_and_planned_rule():
     assert artifact.outcome == "passed"
     assert planned.outcome == "planned"
     assert planned.status == "Planned"
+
+
+def test_missing_required_rule_fields_return_results():
+    cases = [
+        RuleSpec("RULE-CONFIG-MISSING", "required_config"),
+        RuleSpec("RULE-METRIC-MISSING", "required_metric"),
+        RuleSpec("RULE-THRESH-MISSING-METRIC", "metric_threshold", params={"threshold": 1}),
+        RuleSpec("RULE-THRESH-MISSING-VALUE", "metric_threshold", params={"metric": "val/acc"}),
+        RuleSpec("RULE-GAP-BAD-VALUE", "best_last_gap", params={"metric": "val/acc", "threshold": "bad"}),
+        RuleSpec("RULE-ART-MISSING", "artifact_required"),
+    ]
+
+    results = [execute_rule(spec, _context()) for spec in cases]
+
+    assert all(result.outcome == "warning" for result in results)
+    assert all("Missing" in result.message for result in results)
+
+
+def test_uppercase_error_severity_is_normalized():
+    result = execute_rule(
+        RuleSpec("RULE-CONFIG-UPPER", "required_config", severity="ERROR", params={"keys": ["lr"]}),
+        _context(),
+    )
+
+    assert result.outcome == "error"
+    assert result.severity == "error"

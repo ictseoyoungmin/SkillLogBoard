@@ -27,3 +27,7 @@ Supported fields: `type`, `keys`, `artifacts`, `metric`, `threshold`, `mode`,
 
 Status labels are `MVP`, `Planned`, and `Experimental`. Planned rules are
 parsed and traced as planned, but they are not executed as MVP checks.
+
+Malformed MVP rule blocks do not execute arbitrary code. Missing required fields
+or invalid thresholds produce readable rule results in `skill_trace.jsonl`
+instead of crashing the run.

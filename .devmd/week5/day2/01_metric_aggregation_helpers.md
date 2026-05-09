@@ -4,7 +4,7 @@ day: 2
 slice: "01_metric_aggregation_helpers"
 title: "metric aggregation helpers"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.4-compare"
 ---
 
@@ -66,17 +66,17 @@ pytest -q tests/test_leaderboard.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 00:36  
+**Completed by:** coding agent  
+**Verification command(s):** pytest -q tests/test_leaderboard.py  
+**Notes:** Completed and verified for the requested scope.
 
-<!-- AGENT_STATUS: PENDING -->
+<!-- AGENT_STATUS: COMPLETED -->
 

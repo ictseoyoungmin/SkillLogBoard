@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #5b667a;
+      --line: #d7e0ec;
+      --accent: #2457a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header, section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); background: #eef5ff; }
+    a { color: var(--accent); }
+    .runs { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 0; list-style: none; }
+    .runs li {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #fbfdff;
+    }
+    .empty { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>SkillLogBoard Compare</h1>
+      <ul class="runs">
+        {% for record in records %}
+        <li>
+          {% if record.dashboard_href %}
+          <a href="{{ record.dashboard_href }}">{{ record.run_id }}</a>
+          {% else %}
+          {{ record.run_id }}
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </header>
+
+    <section id="leaderboard">
+      <h2>Leaderboard</h2>
+      {{ leaderboard_html | safe }}
+    </section>
+
+    <section id="config-diff">
+      <h2>Config Diff</h2>
+      {{ config_diff_html | safe }}
+    </section>
+
+    <section id="ablation-axes">
+      <h2>Ablation Axes</h2>
+      {{ ablation_axes_html | safe }}
+    </section>
+
+    <section id="seed-summary">
+      <h2>Seed Summary</h2>
+      {{ seed_summary_html | safe }}
+    </section>
+  </main>
+</body>
+</html>

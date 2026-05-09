@@ -1,8 +1,17 @@
 # Changelog
 
-## v0.3 rule engine candidate
+## 0.4.0-dev compare candidate
 
-- Added Week 4 Skills.md parser, MVP rule engine, skill_trace logging, RunLogger skill checks, and dashboard Rule Audit.
+- Added Week 5 multi-run run discovery and manifest/config/metric indexing.
+- Added compare leaderboard, config diff, ablation axis extraction, and seed summary helpers.
+- Added static `compare.csv`, `compare.md`, and `compare.html` report generation.
+- Added working `skilllog compare` and `skilllog export-table` commands.
+
+## 0.3.0-dev rule engine candidate
+
+- Added Week 4 Skills.md RULE block parser and RuleSpec/RuleResult schema.
+- Added MVP rules: required_config, required_metric, metric_threshold, best_last_gap, artifact_required.
+- Added RuleEngine execution, `skill_trace.jsonl` logging, `RunLogger.run_skill_checks`, and dashboard Rule Audit.
 
 ## v0.2 dashboard candidate
 

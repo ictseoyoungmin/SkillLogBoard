@@ -3,7 +3,7 @@ import sys
 
 import yaml
 
-from skilllogboard.cli.main import main
+from skilllogboard.cli.main import build_parser, main
 
 
 def test_cli_help_and_version():
@@ -67,9 +67,7 @@ def test_inspect_missing_manifest_returns_nonzero(tmp_path, capsys):
     assert "Manifest not found" in capsys.readouterr().err
 
 
-def test_compare_and_export_table_are_planned_placeholders(capsys):
-    assert main(["compare"]) == 2
-    assert "planned for Week 5 / v0.4" in capsys.readouterr().out
-
-    assert main(["export-table"]) == 2
-    assert "planned for Week 5 / v0.4" in capsys.readouterr().out
+def test_compare_and_export_table_are_registered_commands():
+    help_text = build_parser().format_help()
+    assert "compare" in help_text
+    assert "export-table" in help_text

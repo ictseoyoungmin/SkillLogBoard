@@ -87,6 +87,57 @@ def cmd_report(args) -> int:
     return 0
 
 
+def cmd_compare(args) -> int:
+    from skilllogboard.compare.leaderboard import leaderboard_to_markdown
+    from skilllogboard.compare.run_index import build_run_index
+    from skilllogboard.dashboards.compare_builder import build_compare_report
+
+    records = build_run_index(args.runs_dir)
+    if not records:
+        print(f"No run folders with manifest.yaml found under {args.runs_dir}", file=sys.stderr)
+        return 1
+    paths = build_compare_report(
+        args.runs_dir,
+        metric=args.metric,
+        mode=args.mode,
+        output_dir=args.output_dir,
+    )
+    from skilllogboard.compare.leaderboard import build_leaderboard
+
+    rows = build_leaderboard(records, metric=args.metric, mode=args.mode)
+    print(leaderboard_to_markdown(rows))
+    print(f"compare.csv: {paths['csv']}")
+    print(f"compare.md: {paths['md']}")
+    print(f"compare.html: {paths['html']}")
+    return 0
+
+
+def cmd_export_table(args) -> int:
+    from skilllogboard.compare.leaderboard import (
+        build_leaderboard,
+        leaderboard_to_markdown,
+        rows_to_latex,
+        write_leaderboard_csv,
+    )
+    from skilllogboard.compare.run_index import build_run_index
+
+    records = build_run_index(args.runs_dir)
+    if not records:
+        print(f"No run folders with manifest.yaml found under {args.runs_dir}", file=sys.stderr)
+        return 1
+    rows = build_leaderboard(records, metric=args.metric, mode=args.mode)
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    if args.format == "csv":
+        write_leaderboard_csv(rows, output)
+    elif args.format == "md":
+        output.write_text(leaderboard_to_markdown(rows) + "\n", encoding="utf-8")
+    else:
+        output.write_text(rows_to_latex(rows) + "\n", encoding="utf-8")
+    print(f"Table written: {output}")
+    return 0
+
+
 def cmd_planned(args) -> int:
     print(f"`skilllog {args.command}` is planned for Week 5 / v0.4 and is not implemented yet.")
     return 2
@@ -124,11 +175,20 @@ def build_parser() -> ArgumentParser:
     p_report.add_argument("run_dir")
     p_report.set_defaults(func=cmd_report)
 
-    p_compare = sub.add_parser("compare", help="Planned for Week 5/v0.4: compare multiple runs")
-    p_compare.set_defaults(func=cmd_planned)
+    p_compare = sub.add_parser("compare", help="Compare multiple run folders")
+    p_compare.add_argument("runs_dir")
+    p_compare.add_argument("--metric", required=True)
+    p_compare.add_argument("--mode", choices=["max", "min"], default="max")
+    p_compare.add_argument("--output-dir")
+    p_compare.set_defaults(func=cmd_compare)
 
-    p_export = sub.add_parser("export-table", help="Planned for Week 5/v0.4: export ablation table")
-    p_export.set_defaults(func=cmd_planned)
+    p_export = sub.add_parser("export-table", help="Export a compare leaderboard table")
+    p_export.add_argument("runs_dir")
+    p_export.add_argument("--metric", required=True)
+    p_export.add_argument("--mode", choices=["max", "min"], default="max")
+    p_export.add_argument("--format", choices=["csv", "md", "latex"], default="csv")
+    p_export.add_argument("--output", required=True)
+    p_export.set_defaults(func=cmd_export_table)
 
     return parser
 

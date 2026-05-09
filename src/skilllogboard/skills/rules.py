@@ -53,6 +53,8 @@ def execute_rule(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
 def required_config(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
     config = context.get("config") or {}
     keys = _as_list(spec.params.get("keys"))
+    if not keys:
+        return _failure(spec, "Missing required field for required_config: keys", {"missing": ["keys"]})
     missing = [key for key in keys if key not in config]
     if missing:
         return _failure(spec, f"Missing required config keys: {', '.join(missing)}", {"missing": missing})
@@ -62,6 +64,8 @@ def required_config(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
 def required_metric(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
     available = set(context.get("metric_series", {}).keys())
     keys = _as_list(spec.params.get("keys"))
+    if not keys:
+        return _failure(spec, "Missing required field for required_metric: keys", {"missing": ["keys"]})
     missing = [key for key in keys if key not in available]
     if missing:
         return _failure(spec, f"Missing required metrics: {', '.join(missing)}", {"missing": missing})
@@ -69,8 +73,16 @@ def required_metric(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
 
 
 def metric_threshold(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
-    metric = str(spec.params.get("metric", ""))
-    threshold = float(spec.params.get("threshold"))
+    metric = str(spec.params.get("metric", "")).strip()
+    if not metric:
+        return _failure(spec, "Missing required field for metric_threshold: metric", {"missing": ["metric"]})
+    threshold = _as_float(spec.params.get("threshold"))
+    if threshold is None:
+        return _failure(
+            spec,
+            "Missing or invalid required field for metric_threshold: threshold",
+            {"missing": ["threshold"]},
+        )
     mode = str(spec.params.get("mode", "max"))
     series = context.get("metric_series", {}).get(metric, [])
     if not series:
@@ -84,8 +96,16 @@ def metric_threshold(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
 
 
 def best_last_gap(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
-    metric = str(spec.params.get("metric", ""))
-    threshold = float(spec.params.get("threshold"))
+    metric = str(spec.params.get("metric", "")).strip()
+    if not metric:
+        return _failure(spec, "Missing required field for best_last_gap: metric", {"missing": ["metric"]})
+    threshold = _as_float(spec.params.get("threshold"))
+    if threshold is None:
+        return _failure(
+            spec,
+            "Missing or invalid required field for best_last_gap: threshold",
+            {"missing": ["threshold"]},
+        )
     mode = str(spec.params.get("mode", "max"))
     series = context.get("metric_series", {}).get(metric, [])
     if len(series) < 2:
@@ -102,6 +122,12 @@ def best_last_gap(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
 
 def artifact_required(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
     required = _as_list(spec.params.get("artifacts", spec.params.get("keys")))
+    if not required:
+        return _failure(
+            spec,
+            "Missing required field for artifact_required: artifacts or keys",
+            {"missing": ["artifacts"]},
+        )
     records = context.get("artifacts") or []
     available = {record.get("name") for record in records}
     missing = [name for name in required if name not in available]
@@ -120,7 +146,8 @@ BUILTIN_RULES: dict[str, RuleExecutor] = {
 
 
 def _failure(spec: RuleSpec, message: str, details: dict[str, Any] | None = None) -> RuleResult:
-    return _result(spec, OUTCOME_ERROR if spec.severity == "error" else OUTCOME_WARNING, message, details)
+    severity = spec.severity.lower()
+    return _result(spec, OUTCOME_ERROR if severity == "error" else OUTCOME_WARNING, message, details)
 
 
 def _result(
@@ -132,7 +159,7 @@ def _result(
     return RuleResult(
         rule_id=spec.rule_id,
         rule_type=spec.rule_type,
-        severity=spec.severity,
+        severity=spec.severity.lower(),
         status=spec.status,
         outcome=outcome,
         message=message,
@@ -146,3 +173,10 @@ def _as_list(value: Any) -> list[str]:
     if isinstance(value, list):
         return [str(item) for item in value]
     return [str(value)]
+
+
+def _as_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
