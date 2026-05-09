@@ -3,23 +3,32 @@
 from __future__ import annotations
 
 from argparse import ArgumentParser
+from importlib import resources
 from pathlib import Path
 
 from skilllogboard._version import __version__
+
+
+def _default_skills_text() -> str:
+    try:
+        return resources.files("skilllogboard.skills").joinpath("default_skills.md").read_text(
+            encoding="utf-8"
+        )
+    except Exception:
+        return (
+            "# Experiment Skills\n\n"
+            "## RULE-CONFIG-001\n"
+            "- type: required_config\n"
+            "- keys: [model_name, dataset_name, seed, optimizer, lr, batch_size]\n"
+            "- severity: warning\n"
+        )
 
 
 def cmd_init(args) -> int:
     Path("runs").mkdir(exist_ok=True)
     skills = Path("Skills.md")
     if not skills.exists():
-        skills.write_text(
-            "# Experiment Skills\n\n"
-            "## RULE-CONFIG-001\n"
-            "- type: required_config\n"
-            "- keys: [model_name, dataset_name, seed, optimizer, lr, batch_size]\n"
-            "- severity: warning\n",
-            encoding="utf-8",
-        )
+        skills.write_text(_default_skills_text(), encoding="utf-8")
     print("Initialized SkillLogBoard workspace: runs/, Skills.md")
     return 0
 

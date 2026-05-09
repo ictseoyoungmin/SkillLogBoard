@@ -30,6 +30,12 @@ skilllog init
 skilllog inspect runs/demo/latest
 ```
 
+## Smoke Test
+
+```bash
+python examples/basic_usage.py
+```
+
 ## Minimal Usage
 
 ```python
