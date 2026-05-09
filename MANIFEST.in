@@ -1,0 +1,2 @@
+recursive-include src/skilllogboard/skills *.md
+recursive-include src/skilllogboard/dashboards/templates *.j2

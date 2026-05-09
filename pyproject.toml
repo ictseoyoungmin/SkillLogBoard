@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skilllogboard"
+version = "0.1.0"
+description = "Portable experiment logging and dashboard package"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+  { name = "SkillLogBoard Contributors" }
+]
+dependencies = [
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.4",
+  "build>=1.2",
+]
+dashboard = [
+  "jinja2>=3.0",
+  "plotly>=5.0",
+]
+table = [
+  "pandas>=2.0",
+]
+torch = [
+  "torch",
+]
+all = [
+  "jinja2>=3.0",
+  "plotly>=5.0",
+  "pandas>=2.0",
+]
+
+[project.scripts]
+skilllog = "skilllogboard.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+skilllogboard = [
+  "skills/default_skills.md",
+  "dashboards/templates/*.j2",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
