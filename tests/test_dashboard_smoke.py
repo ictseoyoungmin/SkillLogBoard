@@ -1,4 +1,5 @@
 from skilllogboard import RunLogger
+from tests.helpers import assert_contains_sections, assert_html_document
 
 
 def test_dashboard_smoke_contains_core_sections(tmp_path):
@@ -21,5 +22,8 @@ def test_dashboard_smoke_contains_core_sections(tmp_path):
 
     html = (logger.run_dir / "dashboard.html").read_text(encoding="utf-8")
     assert (logger.run_dir / "dashboard.html").stat().st_size > 0
-    for section in ["Run Summary", "Metrics", "Config", "Artifacts", "Files"]:
-        assert section in html
+    assert_html_document(html)
+    assert_contains_sections(
+        html,
+        ["Run Summary", "Main Metric", "Metrics", "Config", "Artifacts", "Rule Audit", "Files"],
+    )

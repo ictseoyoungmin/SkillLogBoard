@@ -4,7 +4,7 @@ day: 4
 slice: "01_pytorch_helper_optional_import_policy"
 title: "PyTorch helper optional import policy"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-research-templates"
 ---
 
@@ -64,17 +64,16 @@ pytest -q tests/test_optional_integrations.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:51  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pytest -q tests/test_optional_integrations.py tests/test_examples.py  
+**Notes:** Added lazy PyTorch helper functions and clear optional dependency errors; torch remains optional.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

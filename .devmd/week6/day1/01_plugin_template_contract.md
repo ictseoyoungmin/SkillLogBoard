@@ -4,7 +4,7 @@ day: 1
 slice: "01_plugin_template_contract"
 title: "plugin and template contract"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-research-templates"
 ---
 
@@ -66,17 +66,16 @@ pytest -q tests/test_plugins.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:44  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pytest -q tests/test_plugins.py tests/test_cli_templates.py  
+**Notes:** Added dependency-free `SkillLogTemplate` descriptors and registry coverage.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

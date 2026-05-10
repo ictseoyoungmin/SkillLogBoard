@@ -6,10 +6,11 @@ from tempfile import TemporaryDirectory
 from skilllogboard import RunLogger
 
 
-def main() -> None:
+def main(root_dir: str | Path = "runs") -> Path:
     logger = RunLogger(
         project="demo",
         run_name="baseline",
+        root_dir=root_dir,
         config={
             "model_name": "TinyNet",
             "dataset_name": "Synthetic",
@@ -40,8 +41,19 @@ def main() -> None:
         logger.log_artifact("example_artifact", artifact_source)
 
     logger.log_note("Minimal smoke test run.")
+    skills_path = logger.run_dir / "Skills.default.md"
+    from importlib import resources
+
+    skills_path.write_text(
+        resources.files("skilllogboard.skills")
+        .joinpath("default_skills.md")
+        .read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    logger.run_skill_checks(skills_path)
     logger.finish(build_dashboard=True, build_report=True)
     print(f"Run written to: {logger.run_dir}")
+    return logger.run_dir
 
 
 if __name__ == "__main__":

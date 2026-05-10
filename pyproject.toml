@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skilllogboard"
-version = "0.4.0.dev0"
+version = "0.5.0.dev0"
 description = "Portable experiment logging and dashboard package"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -30,6 +30,9 @@ table = [
 ]
 torch = [
   "torch",
+]
+lightning = [
+  "lightning",
 ]
 all = [
   "jinja2>=3.0",

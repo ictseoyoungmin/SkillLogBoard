@@ -9,6 +9,7 @@ import sys
 
 from skilllogboard._version import __version__
 from skilllogboard.core.manifest import load_manifest
+from skilllogboard.core.config_capture import save_config
 
 
 def _default_skills_text() -> str:
@@ -28,10 +29,54 @@ def _default_skills_text() -> str:
 
 def cmd_init(args) -> int:
     Path("runs").mkdir(exist_ok=True)
+    if args.template:
+        return _init_template(args.template)
     skills = Path("Skills.md")
     if not skills.exists():
         skills.write_text(_default_skills_text(), encoding="utf-8")
     print("Initialized SkillLogBoard workspace: runs/, Skills.md")
+    return 0
+
+
+def _init_template(template_name: str) -> int:
+    from skilllogboard.plugins.registry import get_template
+
+    try:
+        template = get_template(template_name)
+    except KeyError:
+        print(f"Unknown template: {template_name}", file=sys.stderr)
+        return 1
+    if not template.is_implemented:
+        print(f"Template '{template.name}' is {template.status}; no files were generated.")
+        return 2
+
+    written = []
+    skipped = []
+    skills = Path("Skills.md")
+    if skills.exists():
+        skipped.append(str(skills))
+    else:
+        skills.write_text(template.default_skills or _default_skills_text(), encoding="utf-8")
+        written.append(str(skills))
+
+    if template.default_config:
+        config_path = Path("template_config.yaml")
+        if config_path.exists():
+            skipped.append(str(config_path))
+        else:
+            save_config(template.default_config, config_path)
+            written.append(str(config_path))
+
+    Path("runs").mkdir(exist_ok=True)
+    print(f"Initialized SkillLogBoard workspace for template '{template.name}'.")
+    if written:
+        print("Written:")
+        for path in written:
+            print(f"  {path}")
+    if skipped:
+        print("Skipped existing files:")
+        for path in skipped:
+            print(f"  {path}")
     return 0
 
 
@@ -138,6 +183,15 @@ def cmd_export_table(args) -> int:
     return 0
 
 
+def cmd_templates(args) -> int:
+    from skilllogboard.plugins.registry import list_templates
+
+    print("Templates:")
+    for template in list_templates():
+        print(f"- {template.name}: {template.status} - {template.description}")
+    return 0
+
+
 def cmd_planned(args) -> int:
     print(f"`skilllog {args.command}` is planned for Week 5 / v0.4 and is not implemented yet.")
     return 2
@@ -161,7 +215,11 @@ def build_parser() -> ArgumentParser:
     sub = parser.add_subparsers(dest="command")
 
     p_init = sub.add_parser("init", help="Create default runs/ and Skills.md")
+    p_init.add_argument("--template", help="Initialize Skills.md and config for a template")
     p_init.set_defaults(func=cmd_init)
+
+    p_templates = sub.add_parser("templates", help="List available research templates")
+    p_templates.set_defaults(func=cmd_templates)
 
     p_inspect = sub.add_parser("inspect", help="Print manifest for a run directory")
     p_inspect.add_argument("run_dir")

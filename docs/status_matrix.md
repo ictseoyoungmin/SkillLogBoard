@@ -15,8 +15,14 @@
 | Multi-run Compare | Supported | Implemented MVP | v0.4 |
 | compare.csv / compare.md / compare.html | Supported | Implemented static exports | v0.4 |
 | export-table CSV/Markdown/LaTeX | Supported | Implemented MVP | v0.4 |
+| Template registry | Supported | Implemented dependency-free descriptors | v0.5 |
+| `skilllog templates` | Supported | Implemented CLI listing | v0.5 |
+| `skilllog init --template` | Supported | Implemented for v0.5 templates | v0.5 |
+| IR-drop Template | Supported | Implemented lightweight template and synthetic example | v0.5 |
+| Trajectory Template | Supported | Implemented lightweight template and synthetic example | v0.5 |
+| Classification Template | Planned | Not implemented | v0.5+ |
+| Segmentation Template | Planned | Not implemented | v0.5+ |
+| Finance Dashboard Template | Planned | Not implemented | v0.5+ |
 | domain_breakdown | Planned | Not implemented | v0.5+ |
 | dashboard_panel | Planned | Not implemented | v0.5+ |
-| IR-drop Template | Planned | Placeholder | v0.5 |
-| Trajectory Template | Planned | Placeholder | v0.5 |
 | scikit-learn | Core logger example | Placeholder | v0.5 |

@@ -4,7 +4,7 @@ day: 2
 slice: "01_ir_drop_template_definition"
 title: "IR-drop template definition"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-research-templates"
 ---
 
@@ -67,17 +67,16 @@ pytest -q tests/test_ir_drop_template.py tests/test_skills_parser.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:46  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pytest -q tests/test_ir_drop_template.py tests/test_skills_parser.py tests/test_plugins.py tests/test_cli_templates.py  
+**Notes:** Added registered `ir-drop` descriptor, default config, default skills, and high-drop metric convention.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

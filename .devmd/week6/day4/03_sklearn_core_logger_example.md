@@ -4,7 +4,7 @@ day: 4
 slice: "03_sklearn_core_logger_example"
 title: "scikit-learn core logger example"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-research-templates"
 ---
 
@@ -66,17 +66,16 @@ python examples/sklearn_example.py || true
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:51  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pytest -q tests/test_optional_integrations.py tests/test_examples.py; .venv/bin/python examples/sklearn_example.py  
+**Notes:** Added sklearn-style core logger example that avoids importing scikit-learn.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

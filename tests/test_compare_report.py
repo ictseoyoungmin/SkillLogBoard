@@ -1,5 +1,6 @@
 from skilllogboard import RunLogger
 from skilllogboard.dashboards.compare_builder import build_compare_report
+from tests.helpers import assert_contains_sections, assert_html_document
 
 
 def _make_runs(tmp_path):
@@ -32,9 +33,6 @@ def test_build_compare_report_writes_csv_markdown_and_html(tmp_path):
     assert "## Config Diff" in md
     assert "## Ablation Axes" in md
     assert "## Seed Summary" in md
-    assert "<!doctype html>" in html
-    assert "Leaderboard" in html
-    assert "Config Diff" in html
-    assert "Ablation Axes" in html
-    assert "Seed Summary" in html
+    assert_html_document(html)
+    assert_contains_sections(html, ["Leaderboard", "Config Diff", "Ablation Axes", "Seed Summary"])
     assert "dashboard.html" in html

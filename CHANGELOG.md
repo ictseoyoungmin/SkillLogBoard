@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0-dev research templates candidate
+
+- Added dependency-free research template descriptors and registry.
+- Added `skilllog templates` and `skilllog init --template` for implemented/planned templates.
+- Added implemented `ir-drop` and `trajectory` templates with default configs and Skills.md rules.
+- Added synthetic IR-drop, trajectory, and sklearn-style examples plus smoke tests.
+- Added optional PyTorch and Lightning helper skeletons with lazy imports.
+
 ## 0.4.0-dev compare candidate
 
 - Added Week 5 multi-run run discovery and manifest/config/metric indexing.

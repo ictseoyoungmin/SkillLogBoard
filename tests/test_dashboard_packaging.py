@@ -2,21 +2,28 @@ from importlib import resources
 
 from skilllogboard import RunLogger
 from skilllogboard.dashboards.static_builder import build_dashboard
+from tests.helpers import assert_contains_sections, assert_html_document
 
 
 def test_dashboard_template_is_available_as_package_data():
     template = resources.files("skilllogboard.dashboards.templates").joinpath("run.html.j2")
     text = template.read_text(encoding="utf-8")
 
-    assert text.startswith("<!doctype html>")
-    assert "<html" in text
-    assert "<head>" in text
-    assert '<meta charset="utf-8">' in text
-    assert "<body>" in text
+    assert_html_document(text)
     assert "SkillLogBoard Dashboard" in text
-    assert "Run Summary" in text
-    assert "Metrics" in text
-    assert "Rule Audit" in text
+    assert_contains_sections(
+        text,
+        ["Run Summary", "Main Metric", "Metrics", "Config", "Artifacts", "Rule Audit", "Files"],
+    )
+
+
+def test_compare_template_is_available_as_package_data():
+    template = resources.files("skilllogboard.dashboards.templates").joinpath("compare.html.j2")
+    text = template.read_text(encoding="utf-8")
+
+    assert_html_document(text)
+    assert "SkillLogBoard Compare" in text
+    assert_contains_sections(text, ["Leaderboard", "Config Diff", "Ablation Axes", "Seed Summary"])
 
 
 def test_dashboard_links_are_relative(tmp_path):
@@ -24,6 +31,7 @@ def test_dashboard_links_are_relative(tmp_path):
     logger.finish(build_dashboard=True, build_report=True)
 
     html = (logger.run_dir / "dashboard.html").read_text(encoding="utf-8")
+    assert_html_document(html)
     assert 'href="manifest.yaml"' in html
     assert "file://" not in html
     assert "http://" not in html

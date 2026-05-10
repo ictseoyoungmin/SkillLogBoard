@@ -4,7 +4,7 @@ day: 5
 slice: "03_week6_final_verification_and_v05_candidate"
 title: "Week 6 final verification and v0.5 candidate"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-research-templates"
 ---
 
@@ -72,17 +72,16 @@ python examples/trajectory_example.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:57  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pip install -e ".[dev,dashboard]"; .venv/bin/skilllog --help; .venv/bin/skilllog --version; .venv/bin/pytest -q; .venv/bin/python examples/basic_usage.py; .venv/bin/python examples/ir_drop_example.py; .venv/bin/python examples/trajectory_example.py  
+**Notes:** Completed v0.5 candidate verification. Full pytest passed with 127 tests; examples succeeded.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

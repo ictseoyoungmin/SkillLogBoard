@@ -4,7 +4,7 @@ day: cleanup
 slice: "05_compare_html_render_smoke_test_strengthening"
 title: "compare HTML render smoke test strengthening"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.4-cleanup"
 ---
 
@@ -66,17 +66,16 @@ pytest -q
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED  
+**Completed at:** 2026-05-10 19:40  
+**Completed by:** coding agent  
+**Verification command(s):** .venv/bin/pytest -q tests/test_dashboard_smoke.py tests/test_compare_report.py tests/test_dashboard_packaging.py tests/test_dashboard_rule_trace.py; .venv/bin/pytest -q  
+**Notes:** Added no-browser HTML document and core-section assertions for dashboard and compare outputs.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

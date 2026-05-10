@@ -29,7 +29,7 @@ pip install -e ".[dev,dashboard]"
 ```bash
 skilllog --help
 skilllog init
-skilllog inspect runs/demo/latest
+skilllog inspect runs/demo/<run_id>
 skilllog compare runs/demo --metric val/acc --mode max --output-dir runs/demo/compare
 skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/compare.md
 ```
@@ -40,7 +40,8 @@ skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/
 python examples/basic_usage.py
 ```
 
-The example writes a run folder under `runs/demo/<run_id>/` with:
+The example writes a run folder under `runs/demo/<run_id>/`, where `<run_id>` is generated from
+the run name and timestamp:
 
 ```text
 manifest.yaml
@@ -121,7 +122,36 @@ skilllog export-table runs/demo --metric val/acc --format latex --output compare
 ```
 
 Compare includes a leaderboard, config diff, inferred ablation axes, and seed summary. Research
-plugins such as IR-drop and trajectory analysis remain planned.
+templates build on these static outputs without adding mandatory domain dependencies.
+
+## v0.5 Research Templates
+
+List lightweight research templates:
+
+```bash
+skilllog templates
+```
+
+Initialize dependency-free template files:
+
+```bash
+skilllog init --template ir-drop
+skilllog init --template trajectory
+python examples/ir_drop_example.py
+python examples/trajectory_example.py
+python examples/sklearn_example.py
+```
+
+Implemented templates are `ir-drop` and `trajectory`. Planned templates are `classification`,
+`segmentation`, and `finance-dashboard`. Optional integrations remain optional; core install does
+not require torch, lightning, sklearn, pandas, or domain-specific packages.
+
+The `ir-drop` template uses synthetic data and the metric convention `train/loss`, `val/mae`,
+`val/high_drop_f1`, and `val/raw_mae`; it does not include a model or private dataset.
+The `trajectory` template uses synthetic values and the metric convention `train/loss`,
+`val/loss`, `val/pb_score`, and `val/endpoint_error`; model training is user-provided.
+The `sklearn_example.py` file is a core `RunLogger` usage example with sklearn-style metrics, not
+a required scikit-learn adapter.
 
 ## Troubleshooting
 
