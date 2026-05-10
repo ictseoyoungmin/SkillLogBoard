@@ -4,6 +4,24 @@ from examples.sklearn_example import main as run_sklearn_example
 from examples.trajectory_example import main as run_trajectory_example
 
 
+def test_documented_examples_exist():
+    from pathlib import Path
+
+    docs = (
+        Path("README.md").read_text(encoding="utf-8")
+        + "\n"
+        + Path("docs/templates.md").read_text(encoding="utf-8")
+    )
+    for path in [
+        "examples/basic_usage.py",
+        "examples/ir_drop_example.py",
+        "examples/trajectory_example.py",
+        "examples/sklearn_example.py",
+    ]:
+        assert path in docs
+        assert Path(path).exists()
+
+
 def _assert_core_outputs(run_dir, expect_skill_trace=True):
     assert (run_dir / "metrics.csv").exists()
     assert (run_dir / "dashboard.html").exists()

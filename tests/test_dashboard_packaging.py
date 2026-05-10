@@ -26,6 +26,14 @@ def test_compare_template_is_available_as_package_data():
     assert_contains_sections(text, ["Leaderboard", "Config Diff", "Ablation Axes", "Seed Summary"])
 
 
+def test_default_skills_are_available_as_package_data():
+    default_skills = resources.files("skilllogboard.skills").joinpath("default_skills.md")
+    text = default_skills.read_text(encoding="utf-8")
+
+    assert "RULE-CONFIG-001" in text
+    assert "required_config" in text
+
+
 def test_dashboard_links_are_relative(tmp_path):
     logger = RunLogger(project="demo", run_name="relative", root_dir=tmp_path / "runs")
     logger.finish(build_dashboard=True, build_report=True)

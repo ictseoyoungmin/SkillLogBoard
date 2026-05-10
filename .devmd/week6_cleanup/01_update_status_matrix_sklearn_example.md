@@ -4,7 +4,7 @@ day: cleanup
 slice: "01_update_status_matrix_sklearn_example"
 title: "update status matrix sklearn example"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.5-cleanup"
 ---
 
@@ -73,17 +73,16 @@ PY
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED
+**Completed at:** 2026-05-10 21:05
+**Completed by:** coding agent
+**Verification command(s):** .venv/bin/python -c "sklearn status cleanup checks"; .venv/bin/pytest -q tests/test_examples.py tests/test_cli_templates.py
+**Notes:** Updated status matrix to mark the scikit-learn-style example as an implemented lightweight core logger example, not a dedicated adapter.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

@@ -25,4 +25,4 @@
 | Finance Dashboard Template | Planned | Not implemented | v0.5+ |
 | domain_breakdown | Planned | Not implemented | v0.5+ |
 | dashboard_panel | Planned | Not implemented | v0.5+ |
-| scikit-learn | Core logger example | Placeholder | v0.5 |
+| scikit-learn-style example | Core logger example | Implemented lightweight example, not a dedicated adapter | v0.5 |

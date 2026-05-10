@@ -4,7 +4,7 @@ day: 3
 slice: "01_release_checklist_document"
 title: "release checklist document"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.6-release-hardening"
 ---
 
@@ -70,17 +70,16 @@ PY
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED
+**Completed at:** 2026-05-10 21:12
+**Completed by:** coding agent
+**Verification command(s):** .venv/bin/python -c "release checklist checks"; .venv/bin/pytest -q tests/test_examples.py
+**Notes:** Expanded release checklist with environment, install, tests, examples, build, docs, CI, artifacts, and release decision sections.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

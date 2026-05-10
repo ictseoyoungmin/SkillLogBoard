@@ -1,7 +1,29 @@
 import pytest
+from pathlib import Path
+try:
+    import tomllib
+except ModuleNotFoundError:  # pragma: no cover - Python < 3.11
+    import tomli as tomllib
 
 from skilllogboard.integrations.lightning import create_lightning_callback, require_lightning
 from skilllogboard.integrations.pytorch import log_torch_metrics, require_torch, scalar_to_float
+
+
+def test_core_dependencies_remain_lightweight():
+    pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+    dependencies = "\n".join(pyproject["project"]["dependencies"]).lower()
+
+    for package in ["torch", "lightning", "sklearn", "scikit", "pandas"]:
+        assert package not in dependencies
+
+
+def test_optional_extras_keep_heavy_packages_optional():
+    pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+    optional = pyproject["project"]["optional-dependencies"]
+
+    assert "torch" in optional
+    assert "lightning" in optional
+    assert "pandas" in "\n".join(optional["table"]).lower()
 
 
 def _missing_importer(name):

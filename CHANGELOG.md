@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0-dev release hardening candidate
+
+- Started Week 7 release hardening for packaging metadata, optional extras, build verification, CI, and release documentation.
+- Normalized package version metadata for the v0.6 candidate.
+- Added package-data and optional-dependency verification coverage.
+- Added release checklist, release notes draft, smoke scripts, wheel install verification, and optional Docker test file.
+
 ## 0.5.0-dev research templates candidate
 
 - Added dependency-free research template descriptors and registry.

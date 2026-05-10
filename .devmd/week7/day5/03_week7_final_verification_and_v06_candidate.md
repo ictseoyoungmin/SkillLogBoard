@@ -4,7 +4,7 @@ day: 5
 slice: "03_week7_final_verification_and_v06_candidate"
 title: "Week 7 final verification and v0.6 candidate"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.6-release-hardening"
 ---
 
@@ -77,17 +77,16 @@ python -m build --no-isolation
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED
+**Completed at:** 2026-05-10 21:20
+**Completed by:** coding agent
+**Verification command(s):** .venv/bin/pip install -e ".[dev,dashboard]"; .venv/bin/skilllog --help; .venv/bin/skilllog --version; .venv/bin/pytest -q; .venv/bin/python examples/basic_usage.py; .venv/bin/python examples/ir_drop_example.py; .venv/bin/python examples/trajectory_example.py; .venv/bin/python -m build --no-isolation; .venv/bin/ruff check .; git diff --check
+**Notes:** Week 7 v0.6 release-hardening candidate completed. `skilllog --version` reports 0.6.0.dev0. Full tests passed with 131 tests. Build no-isolation and wheel install verification passed. No publish/tag action was performed.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->

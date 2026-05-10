@@ -160,6 +160,17 @@ a required scikit-learn adapter.
 - Generated local runs are written to `runs/`, which is ignored by git.
 - Skills.md v0.3 executes MVP rules and records results in `skill_trace.jsonl`.
 
+## Release Verification
+
+```bash
+bash scripts/smoke_test.sh
+bash scripts/verify_fresh_venv.sh
+python -m build --no-isolation
+```
+
+Before publishing, isolated `python -m build` should pass in CI or Docker. Local environments that
+cannot create isolated build environments can use the no-isolation build as a local smoke check.
+
 ## Development Priority
 
 1. Keep the run folder schema stable.

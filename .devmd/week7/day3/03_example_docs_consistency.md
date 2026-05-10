@@ -4,7 +4,7 @@ day: 3
 slice: "03_example_docs_consistency"
 title: "example docs consistency"
 priority: "P0"
-status: "pending"
+status: "completed"
 target_version: "v0.6-release-hardening"
 ---
 
@@ -69,17 +69,16 @@ python examples/trajectory_example.py
 
 > The agent must update this block after finishing the slice.
 
-- [ ] Implementation completed
-- [ ] Acceptance criteria verified
-- [ ] Tests or smoke checks executed
-- [ ] No unrelated files changed
-- [ ] Notes added below if anything was skipped or deferred
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
 
-**Status:** PENDING  
-**Completed at:**  
-**Completed by:**  
-**Verification command(s):**  
-**Notes:**  
+**Status:** COMPLETED
+**Completed at:** 2026-05-10 21:12
+**Completed by:** coding agent
+**Verification command(s):** .venv/bin/pytest -q tests/test_examples.py; .venv/bin/python examples/basic_usage.py; .venv/bin/python examples/ir_drop_example.py; .venv/bin/python examples/trajectory_example.py
+**Notes:** Added documented-example existence coverage and verified lightweight examples run successfully.
 
-<!-- AGENT_STATUS: PENDING -->
-
+<!-- AGENT_STATUS: COMPLETED -->
