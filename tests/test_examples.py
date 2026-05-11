@@ -4,6 +4,15 @@ from examples.sklearn_example import main as run_sklearn_example
 from examples.trajectory_example import main as run_trajectory_example
 
 
+def test_examples_are_import_safe_on_python39():
+    from pathlib import Path
+
+    for path in Path("examples").glob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        if " | " in text:
+            assert "from __future__ import annotations" in text, path
+
+
 def test_documented_examples_exist():
     from pathlib import Path
 

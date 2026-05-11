@@ -111,7 +111,7 @@ rm -rf build/ dist/ *.egg-info src/*.egg-info .pytest_cache/ .ruff_cache/
 
 ## Release Decision
 
-- [x] Record the release readiness decision before publishing.
+- [ ] Record the release readiness decision before publishing.
 - [ ] Do not publish to PyPI or create a GitHub release until the decision record is complete.
 
 ## Template Status

@@ -1,5 +1,8 @@
 """Minimal v0.1 smoke test for SkillLogBoard."""
 
+from __future__ import annotations
+
+from importlib import resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -42,7 +45,6 @@ def main(root_dir: str | Path = "runs") -> Path:
 
     logger.log_note("Minimal smoke test run.")
     skills_path = logger.run_dir / "Skills.default.md"
-    from importlib import resources
 
     skills_path.write_text(
         resources.files("skilllogboard.skills")

@@ -2,10 +2,10 @@
 
 ## Decision
 
-Status: GO for v0.6 release-candidate handoff.
+Status: HOLD until GitHub Actions is green on Python 3.9, 3.10, and 3.11.
 
-The candidate is ready for an internal tag or TestPyPI preparation after CI confirms the isolated
-`python -m build` path. No PyPI publication or GitHub release has been performed.
+The candidate must not be tagged, uploaded to TestPyPI/PyPI, or marked ready while CI is failing.
+No PyPI publication or GitHub release has been performed.
 
 ## Verification Summary
 
@@ -24,7 +24,9 @@ Passed locally:
 
 ## Blockers
 
-- None for local v0.6 release-candidate handoff.
+- GitHub Actions `packaging #12` failed in `test (3.9)` during `pytest -q`.
+- The release-candidate decision stays on hold until the follow-up CI run is green across all
+  supported Python versions.
 
 ## Deferred Checks
 
@@ -41,5 +43,5 @@ Passed locally:
 
 ## Next Step
 
-Run CI, confirm isolated build, then decide whether to create a release tag or TestPyPI upload in a
-separate explicit release task.
+Fix CI, confirm Python 3.9/3.10/3.11 are green, then decide whether to create a release tag or
+TestPyPI upload in a separate explicit release task.
