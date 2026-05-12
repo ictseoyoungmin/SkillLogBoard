@@ -26,3 +26,14 @@
 | domain_breakdown | Planned | Not implemented | v0.5+ |
 | dashboard_panel | Planned | Not implemented | v0.5+ |
 | scikit-learn-style example | Core logger example | Implemented lightweight example, not a dedicated adapter | v0.5 |
+| ReportArtifact / ReportManifest schema | Supported | Implemented | v0.7 |
+| ReportSpec.md parser | Supported | Implemented simple Markdown block parser | v0.7 |
+| Report tables | Supported | Implemented leaderboard, seed summary, ablation summary, config diff, rule audit | v0.7 |
+| `skilllog export-table --table ...` | Supported | Implemented extended table types and CSV/Markdown/LaTeX/HTML/JSON | v0.7 |
+| Optional report figures | Supported | Implemented with optional `report` extra and skipped-warning fallback | v0.7 |
+| `skilllog export-figure` | Supported | Implemented optional figure command | v0.7 |
+| `skilllog report build` | Supported | Implemented report package builder | v0.7 |
+| `skilllog report check` | Supported | Implemented report artifact validation checks | v0.7 |
+| Agent Research Layer | Planned | Not implemented | v0.8 |
+| Template Forge | Planned | Not implemented | v0.9 |
+| Local-first Live Board | Planned | Not implemented | v1.0 |

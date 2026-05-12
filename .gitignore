@@ -11,3 +11,4 @@ build/
 runs/
 .DS_Store
 .devmd/docs/
+.vscode/

@@ -15,13 +15,18 @@ and multi-run comparison reports:
 - `summary.md` and single-run `dashboard.html`
 - Skills.md v0.3 MVP rule checks with `skill_trace.jsonl`
 - v0.4 multi-run compare outputs: `compare.csv`, `compare.md`, and `compare.html`
+- v0.7 report artifact packages: `report.md`, `report.html`, `report_manifest.yaml`,
+  report tables, and optional figures
 - CLI `init`, `inspect`, `report`, and `dashboard`
-- CLI `compare` and `export-table`
+- CLI `compare`, `export-table`, `export-figure`, and `report build/check`
 
 ## Install
 
 ```bash
 pip install -e ".[dev,dashboard]"
+
+# Optional PNG figure export for v0.7 report artifacts.
+pip install -e ".[dev,dashboard,report]"
 ```
 
 ## CLI
@@ -32,6 +37,8 @@ skilllog init
 skilllog inspect runs/demo/<run_id>
 skilllog compare runs/demo --metric val/acc --mode max --output-dir runs/demo/compare
 skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/compare.md
+skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report
+skilllog report check runs/demo/report --required-table leaderboard
 ```
 
 ## Smoke Test
@@ -123,6 +130,41 @@ skilllog export-table runs/demo --metric val/acc --format latex --output compare
 
 Compare includes a leaderboard, config diff, inferred ablation axes, and seed summary. Research
 templates build on these static outputs without adding mandatory domain dependencies.
+
+## v0.7 Report Artifact Layer
+
+Generate a report-ready artifact package from existing run folders:
+
+```bash
+skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report
+```
+
+This writes:
+
+```text
+report.md
+report.html
+report_manifest.yaml
+tables/
+figures/
+```
+
+Report tables are available independently through `export-table`:
+
+```bash
+skilllog export-table runs/demo --table leaderboard --metric val/acc --format md --output leaderboard.md
+skilllog export-table runs/demo --table seed-summary --metric val/acc --group-by model --format csv --output seeds.csv
+skilllog export-table runs/demo --table rule-audit --format latex --output rule_audit.tex
+```
+
+Figure export is optional and requires the `report` extra:
+
+```bash
+skilllog export-figure runs/demo --type metric-curve-overlay --metric val/acc --output curve.png
+```
+
+Without the optional plotting dependency, report builds still produce tables, Markdown, HTML, and
+`report_manifest.yaml`, while recording a skipped-figure warning.
 
 ## v0.5 Research Templates
 

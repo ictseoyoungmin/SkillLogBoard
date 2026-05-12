@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser
+from argparse import ArgumentParser, REMAINDER
 from importlib import resources
 from pathlib import Path
 import sys
@@ -119,9 +119,21 @@ def cmd_dashboard(args) -> int:
 
 
 def cmd_report(args) -> int:
+    report_args = list(args.report_args)
+    if report_args and report_args[0] == "build":
+        return _cmd_report_build(args, report_args[1:])
+    if report_args and report_args[0] == "check":
+        return _cmd_report_check(args, report_args[1:])
+    return _cmd_report_summary(report_args)
+
+
+def _cmd_report_summary(report_args: list[str]) -> int:
     from skilllogboard.reports.markdown_report import build_summary
 
-    run_dir = _validate_run_dir(args.run_dir)
+    if not report_args:
+        print("Usage: skilllog report RUN_DIR | skilllog report build ROOT_OR_RUN_DIR", file=sys.stderr)
+        return 2
+    run_dir = _validate_run_dir(report_args[0])
     if run_dir is None:
         return 1
     if not (run_dir / "manifest.yaml").exists():
@@ -130,6 +142,58 @@ def cmd_report(args) -> int:
     out = build_summary(run_dir)
     print(f"Summary written: {out}")
     return 0
+
+
+def _cmd_report_build(parent_args, report_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog report build")
+    parser.add_argument("root_or_run_dir")
+    parser.add_argument("--metric", required=True)
+    parser.add_argument("--mode", choices=["max", "min"], default="max")
+    parser.add_argument("--spec")
+    parser.add_argument("--output-dir")
+    parser.add_argument("--group-by", action="append")
+    parsed = parser.parse_args(report_args)
+
+    from skilllogboard.reports.report_builder import build_report_package
+
+    try:
+        result = build_report_package(
+            parsed.root_or_run_dir,
+            metric=parsed.metric,
+            mode=parsed.mode,
+            output_dir=parsed.output_dir,
+            group_by=parsed.group_by,
+            spec_path=parsed.spec,
+        )
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"Report directory: {result.report_dir}")
+    print(f"report.md: {result.report_md}")
+    print(f"report.html: {result.report_html}")
+    print(f"report_manifest.yaml: {result.report_manifest}")
+    for warning in result.warnings:
+        print(f"Warning: {warning}")
+    return 0
+
+
+def _cmd_report_check(parent_args, report_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog report check")
+    parser.add_argument("root_or_report_dir")
+    parser.add_argument("--required-table", action="append", default=[])
+    parser.add_argument("--required-figure", action="append", default=[])
+    parsed = parser.parse_args(report_args)
+
+    from skilllogboard.skills.report_rules import check_report_artifacts
+
+    results = check_report_artifacts(
+        parsed.root_or_report_dir,
+        required_tables=parsed.required_table,
+        required_figures=parsed.required_figure,
+    )
+    for result in results:
+        print(f"{result.outcome}: {result.rule_type}: {result.message}")
+    return 1 if any(result.outcome == "error" for result in results) else 0
 
 
 def cmd_compare(args) -> int:
@@ -158,28 +222,96 @@ def cmd_compare(args) -> int:
 
 
 def cmd_export_table(args) -> int:
-    from skilllogboard.compare.leaderboard import (
-        build_leaderboard,
-        leaderboard_to_markdown,
-        rows_to_latex,
-        write_leaderboard_csv,
+    from skilllogboard.reports.table_builder import (
+        build_report_table,
+        table_to_csv_string,
+        table_to_html,
+        table_to_latex,
+        table_to_markdown,
     )
-    from skilllogboard.compare.run_index import build_run_index
 
-    records = build_run_index(args.runs_dir)
-    if not records:
-        print(f"No run folders with manifest.yaml found under {args.runs_dir}", file=sys.stderr)
+    try:
+        table = build_report_table(
+            args.table,
+            args.runs_dir,
+            metric=args.metric or "",
+            mode=args.mode,
+            group_by=args.group_by,
+        )
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
         return 1
-    rows = build_leaderboard(records, metric=args.metric, mode=args.mode)
+    if not table.rows and args.table not in {"rule-audit", "config-diff"}:
+        print(f"No rows generated for table: {args.table}", file=sys.stderr)
+        return 1
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     if args.format == "csv":
-        write_leaderboard_csv(rows, output)
+        output.write_text(table_to_csv_string(table), encoding="utf-8")
     elif args.format == "md":
-        output.write_text(leaderboard_to_markdown(rows) + "\n", encoding="utf-8")
+        output.write_text(table_to_markdown(table) + "\n", encoding="utf-8")
+    elif args.format == "latex":
+        output.write_text(table_to_latex(table) + "\n", encoding="utf-8")
+    elif args.format == "html":
+        output.write_text(table_to_html(table) + "\n", encoding="utf-8")
     else:
-        output.write_text(rows_to_latex(rows) + "\n", encoding="utf-8")
+        import json
+
+        output.write_text(json.dumps(table.to_dict(), indent=2, sort_keys=True), encoding="utf-8")
     print(f"Table written: {output}")
+    return 0
+
+
+def cmd_export_figure(args) -> int:
+    from skilllogboard.reports.figure_builder import (
+        OptionalFigureDependencyError,
+        build_ablation_bar_figure,
+        build_metric_curve_figure,
+        build_metric_curve_overlay_figure,
+        build_seed_errorbar_figure,
+    )
+    from skilllogboard.reports.table_builder import (
+        build_ablation_summary_table,
+        build_seed_summary_table,
+    )
+
+    output = Path(args.output)
+    try:
+        if args.type == "metric-curve":
+            metrics = args.metrics or ([args.metric] if args.metric else [])
+            if not metrics:
+                print("--metric or --metrics is required for metric-curve", file=sys.stderr)
+                return 2
+            build_metric_curve_figure(args.root_or_run_dir, metrics, output, format=args.format)
+        elif args.type == "metric-curve-overlay":
+            if not args.metric:
+                print("--metric is required for metric-curve-overlay", file=sys.stderr)
+                return 2
+            build_metric_curve_overlay_figure(args.root_or_run_dir, args.metric, output, mode=args.mode)
+        elif args.type == "seed-errorbar":
+            if not args.metric:
+                print("--metric is required for seed-errorbar", file=sys.stderr)
+                return 2
+            table = build_seed_summary_table(
+                args.root_or_run_dir,
+                metric=args.metric,
+                mode=args.mode,
+                group_by=args.group_by,
+            )
+            build_seed_errorbar_figure(table.rows, output)
+        else:
+            if not args.metric:
+                print("--metric is required for ablation-bar", file=sys.stderr)
+                return 2
+            table = build_ablation_summary_table(args.root_or_run_dir, metric=args.metric, mode=args.mode)
+            build_ablation_bar_figure(table.rows, output)
+    except OptionalFigureDependencyError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"Figure written: {output}")
     return 0
 
 
@@ -229,8 +361,11 @@ def build_parser() -> ArgumentParser:
     p_dashboard.add_argument("run_dir")
     p_dashboard.set_defaults(func=cmd_dashboard)
 
-    p_report = sub.add_parser("report", help="Build placeholder summary.md for a run directory")
-    p_report.add_argument("run_dir")
+    p_report = sub.add_parser(
+        "report",
+        help="Build summary.md, or use 'report build/check' for v0.7 report artifacts",
+    )
+    p_report.add_argument("report_args", nargs=REMAINDER)
     p_report.set_defaults(func=cmd_report)
 
     p_compare = sub.add_parser("compare", help="Compare multiple run folders")
@@ -240,13 +375,36 @@ def build_parser() -> ArgumentParser:
     p_compare.add_argument("--output-dir")
     p_compare.set_defaults(func=cmd_compare)
 
-    p_export = sub.add_parser("export-table", help="Export a compare leaderboard table")
+    p_export = sub.add_parser("export-table", help="Export a compare/report table")
     p_export.add_argument("runs_dir")
-    p_export.add_argument("--metric", required=True)
+    p_export.add_argument("--table", default="leaderboard", choices=[
+        "leaderboard",
+        "seed-summary",
+        "ablation-summary",
+        "config-diff",
+        "rule-audit",
+    ])
+    p_export.add_argument("--metric")
     p_export.add_argument("--mode", choices=["max", "min"], default="max")
-    p_export.add_argument("--format", choices=["csv", "md", "latex"], default="csv")
+    p_export.add_argument("--group-by", action="append")
+    p_export.add_argument("--format", choices=["csv", "md", "latex", "html", "json"], default="csv")
     p_export.add_argument("--output", required=True)
     p_export.set_defaults(func=cmd_export_table)
+
+    p_figure = sub.add_parser("export-figure", help="Export an optional report figure")
+    p_figure.add_argument("root_or_run_dir")
+    p_figure.add_argument(
+        "--type",
+        choices=["metric-curve", "metric-curve-overlay", "seed-errorbar", "ablation-bar"],
+        default="metric-curve-overlay",
+    )
+    p_figure.add_argument("--metric")
+    p_figure.add_argument("--metrics", action="append")
+    p_figure.add_argument("--mode", choices=["max", "min"], default="max")
+    p_figure.add_argument("--group-by", action="append")
+    p_figure.add_argument("--format", default="png")
+    p_figure.add_argument("--output", required=True)
+    p_figure.set_defaults(func=cmd_export_figure)
 
     return parser
 

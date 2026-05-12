@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0-dev report artifact layer candidate
+
+- Added report artifact schemas, `report_manifest.yaml` read/write helpers, and a simple `ReportSpec.md` parser.
+- Added report table builders for leaderboard, seed summary, ablation summary, config diff, and rule audit outputs.
+- Added optional figure builders behind the `report` extra so matplotlib is not a core dependency.
+- Added `skilllog report build`, `skilllog report check`, `skilllog export-figure`, and extended `export-table --table ...`.
+- Added static `report.md` and `report.html` package generation with provenance and skipped-figure warnings.
+
 ## 0.6.0-dev release hardening candidate
 
 - Started Week 7 release hardening for packaging metadata, optional extras, build verification, CI, and release documentation.
