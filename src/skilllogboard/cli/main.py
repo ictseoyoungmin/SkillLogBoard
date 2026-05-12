@@ -368,6 +368,7 @@ def _cmd_agent_log_action(agent_args: list[str]) -> int:
     parser.add_argument("--target", default="")
     parser.add_argument("--command", default="")
     parser.add_argument("--output", action="append", default=[])
+    parser.add_argument("--file-changed", action="append", default=[])
     parser.add_argument("--metadata-json", default="{}")
     parsed = parser.parse_args(agent_args)
 
@@ -378,6 +379,11 @@ def _cmd_agent_log_action(agent_args: list[str]) -> int:
     except json.JSONDecodeError as exc:
         print(f"Invalid --metadata-json: {exc}", file=sys.stderr)
         return 2
+    if parsed.file_changed:
+        existing_files = metadata.get("files_changed", [])
+        if isinstance(existing_files, str):
+            existing_files = [existing_files]
+        metadata["files_changed"] = [*list(existing_files or []), *parsed.file_changed]
     path = append_agent_action(
         parsed.run_dir,
         {
@@ -420,6 +426,7 @@ def _cmd_agent_check(agent_args: list[str]) -> int:
     parser = ArgumentParser(prog="skilllog agent check")
     parser.add_argument("run_dir")
     parser.add_argument("--require-report", action="store_true")
+    parser.add_argument("--strict", action="store_true")
     parser.add_argument("--json", action="store_true")
     parsed = parser.parse_args(agent_args)
 
@@ -432,7 +439,8 @@ def _cmd_agent_check(agent_args: list[str]) -> int:
     else:
         for result in results:
             print(f"{result.outcome}: {result.name}: {result.message}")
-    return 1 if any(result.outcome == "error" for result in results) else 0
+    failure_outcomes = {"error", "warning"} if parsed.strict else {"error"}
+    return 1 if any(result.outcome in failure_outcomes for result in results) else 0
 
 
 def _cmd_agent_inspect(agent_args: list[str]) -> int:

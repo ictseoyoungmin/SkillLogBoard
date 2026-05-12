@@ -47,6 +47,8 @@ def test_cli_agent_log_action_handoff_check_and_inspect(tmp_path, capsys):
             "pytest -q",
             "--output",
             "agent/handoff.md",
+            "--file-changed",
+            "src/skilllogboard/cli/main.py",
         ]
     )
     handed = main(["agent", "handoff", str(run_dir), "--actor", "codex", "--task", "handoff"])
@@ -59,6 +61,7 @@ def test_cli_agent_log_action_handoff_check_and_inspect(tmp_path, capsys):
     assert inspected == 0
     assert (run_dir / "agent" / "actions.jsonl").exists()
     assert (run_dir / "agent" / "handoff.md").exists()
+    assert "src/skilllogboard/cli/main.py" in (run_dir / "agent" / "handoff.md").read_text(encoding="utf-8")
     assert "Check errors: 0" in capsys.readouterr().out
 
 
@@ -70,3 +73,29 @@ def test_cli_agent_check_json_returns_nonzero_for_missing_files(tmp_path, capsys
     assert result == 1
     data = json.loads(capsys.readouterr().out)
     assert any(item["outcome"] == "error" for item in data)
+
+
+def test_cli_agent_check_strict_returns_nonzero_for_warnings(tmp_path):
+    run_dir = _make_run(tmp_path)
+    main(
+        [
+            "agent",
+            "log-action",
+            str(run_dir),
+            "--actor",
+            "codex",
+            "--action",
+            "run tests",
+            "--status",
+            "completed",
+            "--command",
+            "pytest -q",
+        ]
+    )
+    main(["agent", "handoff", str(run_dir), "--actor", "codex", "--task", "strict check"])
+
+    soft = main(["agent", "check", str(run_dir)])
+    strict = main(["agent", "check", str(run_dir), "--strict"])
+
+    assert soft == 0
+    assert strict == 1

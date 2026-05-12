@@ -31,14 +31,24 @@ For each run, the agent layer can write:
 ## CLI Workflow
 
 ```bash
-skilllog agent log-action runs/demo/{run_id} --actor codex --action "run tests" --status completed --command "pytest -q"
+skilllog agent log-action runs/demo/{run_id} --actor codex --action "run tests" --status completed --command "pytest -q" --file-changed tests/test_agent_rules.py
 skilllog agent handoff runs/demo/{run_id} --actor codex --task "finish report review"
 skilllog agent check runs/demo/{run_id} --require-report
 skilllog agent inspect runs/demo/{run_id}
 ```
 
 `skilllog agent check` returns a non-zero exit code when error-level completion checks fail. Use
-`--json` for machine-readable output.
+`--strict` to also fail on warnings, and `--json` for machine-readable output.
+
+`agent/handoff.md` is grounded in files that already exist in the run directory: `manifest.yaml`,
+`metrics.csv`, `skill_trace.jsonl`, `report/report_manifest.yaml`, and `agent/actions.jsonl`.
+Files changed are rendered from action-log evidence, either `--file-changed`, `target`, or
+`metadata.files_changed`; v0.8 does not infer a git diff automatically.
+
+Agent-specific rule checks include `agent_handoff_required`, `agent_actions_required`,
+`agent_no_error_rules`, and `agent_required_commands`. `agent_required_commands` accepts
+`keys: [...]` or `commands: [...]` and matches required command substrings against completed,
+passed, success, or ok action-log entries.
 
 ## Non-Goals
 

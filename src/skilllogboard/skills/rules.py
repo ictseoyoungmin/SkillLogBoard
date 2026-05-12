@@ -23,6 +23,7 @@ MVP_RULE_TYPES = {
     "agent_handoff_required",
     "agent_actions_required",
     "agent_no_error_rules",
+    "agent_required_commands",
 }
 
 
@@ -174,6 +175,48 @@ def agent_no_error_rules(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
     return _result(spec, OUTCOME_PASSED, spec.message or "No error-level rule results found.", {})
 
 
+def agent_required_commands(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
+    required = _as_list(spec.params.get("commands", spec.params.get("keys")))
+    if not required:
+        return _failure(
+            spec,
+            "Missing required field for agent_required_commands: commands or keys",
+            {"missing": ["commands"]},
+        )
+    path = _run_dir(context) / "agent" / "actions.jsonl"
+    if not path.exists():
+        return _failure(spec, f"Missing agent actions: {path}", {"path": str(path), "missing": required})
+
+    import json
+
+    success_statuses = {"completed", "passed", "success", "ok"}
+    matched: dict[str, str] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        command = str(record.get("command", ""))
+        status = str(record.get("status", "")).lower()
+        if not command or status not in success_statuses:
+            continue
+        for required_command in required:
+            if required_command in command and required_command not in matched:
+                matched[required_command] = command
+
+    missing = [command for command in required if command not in matched]
+    if missing:
+        return _failure(spec, f"Missing required agent commands: {', '.join(missing)}", {"missing": missing})
+    return _result(
+        spec,
+        OUTCOME_PASSED,
+        spec.message or "Required agent commands were logged.",
+        {"commands": required, "matched": matched},
+    )
+
+
 BUILTIN_RULES: dict[str, RuleExecutor] = {
     "required_config": required_config,
     "required_metric": required_metric,
@@ -183,6 +226,7 @@ BUILTIN_RULES: dict[str, RuleExecutor] = {
     "agent_handoff_required": agent_handoff_required,
     "agent_actions_required": agent_actions_required,
     "agent_no_error_rules": agent_no_error_rules,
+    "agent_required_commands": agent_required_commands,
 }
 
 

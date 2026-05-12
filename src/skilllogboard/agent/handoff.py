@@ -119,6 +119,12 @@ def _render_handoff(
         lines.extend(f"- `{output}`" for output in outputs)
     else:
         lines.append("- No outputs were logged.")
+    lines.extend(["", "## Files Changed", ""])
+    files_changed = _collect_files_changed(evidence.actions)
+    if files_changed:
+        lines.extend(f"- `{path}`" for path in files_changed)
+    else:
+        lines.append("- No files changed were logged.")
     lines.extend(["", "## Rule Status", ""])
     if evidence.rule_summary:
         for key in sorted(evidence.rule_summary):
@@ -132,6 +138,32 @@ def _render_handoff(
         lines.append("- None recorded.")
     lines.extend(["", "## Next Recommended Task", "", next_steps or "- Review evidence and choose the next experiment step.", ""])
     return "\n".join(lines)
+
+
+def _collect_files_changed(actions: list[dict[str, Any]]) -> list[str]:
+    files: list[str] = []
+    seen: set[str] = set()
+    for action in actions:
+        for path in _metadata_files_changed(action.get("metadata", {})):
+            if path not in seen:
+                files.append(path)
+                seen.add(path)
+        target = str(action.get("target", "")).strip()
+        if target and target not in seen:
+            files.append(target)
+            seen.add(target)
+    return files
+
+
+def _metadata_files_changed(metadata: Any) -> list[str]:
+    if not isinstance(metadata, dict):
+        return []
+    value = metadata.get("files_changed", [])
+    if isinstance(value, str):
+        return [value]
+    if isinstance(value, list):
+        return [str(item) for item in value]
+    return []
 
 
 def _load_yaml(path: Path, warnings: list[str]) -> dict[str, Any]:

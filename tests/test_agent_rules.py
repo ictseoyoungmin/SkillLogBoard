@@ -6,6 +6,7 @@ from skilllogboard.skills.agent_rules import (
     agent_actions_required,
     agent_handoff_required,
     agent_no_error_rules,
+    agent_required_commands,
 )
 from skilllogboard.skills.parser import RuleSpec
 from skilllogboard.skills.rules import execute_rule
@@ -37,3 +38,36 @@ def test_agent_rules_integrate_with_builtin_executor(tmp_path):
     )
 
     assert result.outcome == "passed"
+
+
+def test_agent_required_commands_checks_completed_command_substrings(tmp_path):
+    append_agent_action(
+        tmp_path,
+        {
+            "actor": "codex",
+            "action": "run tests",
+            "status": "completed",
+            "command": "pytest -q tests/test_agent_rules.py",
+        },
+    )
+    append_agent_action(
+        tmp_path,
+        {
+            "actor": "codex",
+            "action": "run lint",
+            "status": "failed",
+            "command": "ruff check .",
+        },
+    )
+
+    passed = agent_required_commands(tmp_path, ["pytest -q"])
+    missing = agent_required_commands(tmp_path, ["ruff check ."], severity="warning")
+    builtin = execute_rule(
+        RuleSpec("RULE-CMD", "agent_required_commands", params={"keys": ["pytest -q"]}),
+        {"run_dir": str(tmp_path)},
+    )
+
+    assert passed.outcome == "passed"
+    assert missing.outcome == "warning"
+    assert missing.details["missing"] == ["ruff check ."]
+    assert builtin.outcome == "passed"

@@ -7,6 +7,7 @@
 - Added evidence-grounded `agent/handoff.md` generation and `agent/decisions.md` helpers.
 - Added agent completion checks and agent-specific rule executors.
 - Added `skilllog agent init`, `log-action`, `handoff`, `check`, and `inspect`.
+- Cleanup: exported the documented `skilllogboard.agent` public API, added `agent_required_commands`, `skilllog agent check --strict`, and action-log files-changed evidence for handoffs.
 - Documented that v0.8 does not include built-in LLM inference, cloud sync, or automatic code generation.
 
 ## 0.7.0-dev report artifact layer candidate

@@ -131,6 +131,7 @@ def test_missing_required_rule_fields_return_results():
         RuleSpec("RULE-THRESH-MISSING-VALUE", "metric_threshold", params={"metric": "val/acc"}),
         RuleSpec("RULE-GAP-BAD-VALUE", "best_last_gap", params={"metric": "val/acc", "threshold": "bad"}),
         RuleSpec("RULE-ART-MISSING", "artifact_required"),
+        RuleSpec("RULE-AGENT-CMD-MISSING", "agent_required_commands"),
     ]
 
     results = [execute_rule(spec, _context()) for spec in cases]

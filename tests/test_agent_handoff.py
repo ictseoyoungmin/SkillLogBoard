@@ -35,7 +35,9 @@ def test_build_agent_handoff_references_actions_and_sections(tmp_path):
             "action": "test",
             "status": "completed",
             "command": "pytest -q",
+            "target": "src/skilllogboard/agent/handoff.py",
             "outputs": ["report.md"],
+            "metadata": {"files_changed": ["tests/test_agent_handoff.py"]},
         },
     )
 
@@ -45,4 +47,7 @@ def test_build_agent_handoff_references_actions_and_sections(tmp_path):
     assert "## Task" in text
     assert "## Source Evidence" in text
     assert "`pytest -q`" in text
+    assert "## Files Changed" in text
+    assert "`src/skilllogboard/agent/handoff.py`" in text
+    assert "`tests/test_agent_handoff.py`" in text
     assert "Run next seed." in text

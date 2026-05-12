@@ -189,14 +189,15 @@ This creates `.skilllog/agent_skills.md`, `.skilllog/experiment_plan.md`, `.skil
 For a run folder, agents can log actions, generate handoff notes, and run local completion checks:
 
 ```bash
-skilllog agent log-action runs/demo/{run_id} --actor codex --action "run tests" --status completed --command "pytest -q"
+skilllog agent log-action runs/demo/{run_id} --actor codex --action "run tests" --status completed --command "pytest -q" --file-changed tests/test_agent_rules.py
 skilllog agent handoff runs/demo/{run_id} --actor codex --task "summarize current run"
-skilllog agent check runs/demo/{run_id} --require-report
+skilllog agent check runs/demo/{run_id} --require-report --strict
 ```
 
 SkillLogBoard v0.8 does not include built-in LLM inference, cloud sync, or automatic code
 generation. It provides local files and validation gates that humans or external coding agents can
-use.
+use. Handoff files list changed files only when they are logged as action evidence; SkillLogBoard
+does not infer a git diff automatically.
 
 ## v0.5 Research Templates
 

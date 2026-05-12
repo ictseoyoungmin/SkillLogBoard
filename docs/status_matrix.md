@@ -39,12 +39,13 @@
 | `.skilllog/experiment_plan.md` | Supported | Implemented project control file | v0.8 |
 | `.skilllog/rules.md` / `.skilllog/report_spec.md` | Supported | Implemented default generated files | v0.8 |
 | `agent/actions.jsonl` | Supported | Implemented append/read helpers and CLI | v0.8 |
-| `agent/handoff.md` | Supported | Implemented evidence-grounded handoff builder | v0.8 |
+| `agent/handoff.md` | Supported | Implemented evidence-grounded handoff builder; files changed come from action-log/manual evidence | v0.8 |
 | `agent/decisions.md` | Supported | Implemented append helper | v0.8 |
+| `agent_required_commands` | Supported | Implemented command substring checks against successful agent actions | v0.8-cleanup |
 | `skilllog agent init` | Supported | Implemented | v0.8 |
-| `skilllog agent log-action` | Supported | Implemented | v0.8 |
+| `skilllog agent log-action` | Supported | Implemented with optional `--file-changed` evidence | v0.8-cleanup |
 | `skilllog agent handoff` | Supported | Implemented | v0.8 |
-| `skilllog agent check` | Supported | Implemented readable and JSON output | v0.8 |
+| `skilllog agent check` | Supported | Implemented readable, JSON, and `--strict` output policy | v0.8-cleanup |
 | `skilllog agent inspect` | Supported | Implemented compact inspection | v0.8 |
 | Template Forge | Planned | Not implemented | v0.9 |
 | Local-first Live Board | Planned | Not implemented | v1.0 |
