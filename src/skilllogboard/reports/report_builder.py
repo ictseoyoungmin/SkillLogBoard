@@ -21,11 +21,7 @@ from skilllogboard.reports.report_manifest import (
 from skilllogboard.reports.report_spec import ReportSpecItem, parse_report_spec
 from skilllogboard.reports.table_builder import (
     ReportTable,
-    build_ablation_summary_table,
-    build_leaderboard_table,
     build_report_table,
-    build_rule_audit_table,
-    build_seed_summary_table,
     table_to_csv_string,
     table_to_html,
     table_to_latex,
