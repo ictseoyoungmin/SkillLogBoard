@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0-dev agent research layer candidate
+
+- Added local-first agent action logs with `agent/actions.jsonl`.
+- Added `.skilllog/` project control plane generation with agent skills, experiment plan, rules, and report spec templates.
+- Added evidence-grounded `agent/handoff.md` generation and `agent/decisions.md` helpers.
+- Added agent completion checks and agent-specific rule executors.
+- Added `skilllog agent init`, `log-action`, `handoff`, `check`, and `inspect`.
+- Documented that v0.8 does not include built-in LLM inference, cloud sync, or automatic code generation.
+
 ## 0.7.0-dev report artifact layer candidate
 
 - Added report artifact schemas, `report_manifest.yaml` read/write helpers, and a simple `ReportSpec.md` parser.
@@ -7,6 +16,7 @@
 - Added optional figure builders behind the `report` extra so matplotlib is not a core dependency.
 - Added `skilllog report build`, `skilllog report check`, `skilllog export-figure`, and extended `export-table --table ...`.
 - Added static `report.md` and `report.html` package generation with provenance and skipped-figure warnings.
+- Cleanup: exported documented report APIs, aligned `ReportSpec.md` FIG block execution with report builds, and added optional report-extra figure CI coverage.
 
 ## 0.6.0-dev release hardening candidate
 

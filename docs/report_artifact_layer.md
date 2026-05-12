@@ -42,8 +42,9 @@ pip install -e ".[report]"
 skilllog export-figure runs/demo --type metric-curve-overlay --metric val/acc --output curve.png
 ```
 
-When the optional dependency is missing, report builds keep going and record a warning instead of
-failing the table and report generation path.
+When the optional dependency is missing, report builds keep going and record a warning plus a
+skipped figure entry in `report_manifest.yaml` instead of failing the table and report generation
+path.
 
 ## ReportSpec Blocks
 
@@ -62,7 +63,22 @@ failing the table and report generation path.
 - output: report/figures/curve.png
 ```
 
+Supported `FIG-*` blocks are executed by `skilllog report build`. Supported figure types are
+`metric-curve`, `metric-curve-overlay`, `seed-errorbar`, and `ablation-bar`. Unsupported figure
+types are recorded as skipped warnings in `report_manifest.yaml`.
+
 The parser intentionally stays small and ignores unrelated Markdown.
+
+## Public API
+
+```python
+from skilllogboard.reports import (
+    build_report_package,
+    build_report_table,
+    parse_report_spec_text,
+    read_report_manifest,
+)
+```
 
 ## Validation
 

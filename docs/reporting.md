@@ -4,7 +4,7 @@ Use `summary.md` for a compact single-run summary and `skilllog report build` fo
 artifact packages.
 
 ```bash
-skilllog report runs/demo/<run_id>
+skilllog report runs/demo/{run_id}
 skilllog report build runs/demo --metric val/acc --output-dir runs/demo/report
 ```
 

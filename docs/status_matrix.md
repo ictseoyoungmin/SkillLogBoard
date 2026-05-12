@@ -34,6 +34,17 @@
 | `skilllog export-figure` | Supported | Implemented optional figure command | v0.7 |
 | `skilllog report build` | Supported | Implemented report package builder | v0.7 |
 | `skilllog report check` | Supported | Implemented report artifact validation checks | v0.7 |
-| Agent Research Layer | Planned | Not implemented | v0.8 |
+| Agent Research Layer | Supported | Implemented local file workflow | v0.8 |
+| `.skilllog/agent_skills.md` | Supported | Implemented project control file | v0.8 |
+| `.skilllog/experiment_plan.md` | Supported | Implemented project control file | v0.8 |
+| `.skilllog/rules.md` / `.skilllog/report_spec.md` | Supported | Implemented default generated files | v0.8 |
+| `agent/actions.jsonl` | Supported | Implemented append/read helpers and CLI | v0.8 |
+| `agent/handoff.md` | Supported | Implemented evidence-grounded handoff builder | v0.8 |
+| `agent/decisions.md` | Supported | Implemented append helper | v0.8 |
+| `skilllog agent init` | Supported | Implemented | v0.8 |
+| `skilllog agent log-action` | Supported | Implemented | v0.8 |
+| `skilllog agent handoff` | Supported | Implemented | v0.8 |
+| `skilllog agent check` | Supported | Implemented readable and JSON output | v0.8 |
+| `skilllog agent inspect` | Supported | Implemented compact inspection | v0.8 |
 | Template Forge | Planned | Not implemented | v0.9 |
 | Local-first Live Board | Planned | Not implemented | v1.0 |

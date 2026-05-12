@@ -20,6 +20,9 @@ MVP_RULE_TYPES = {
     "metric_threshold",
     "best_last_gap",
     "artifact_required",
+    "agent_handoff_required",
+    "agent_actions_required",
+    "agent_no_error_rules",
 }
 
 
@@ -136,12 +139,50 @@ def artifact_required(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
     return _result(spec, OUTCOME_PASSED, spec.message or "Required artifacts found.", {"artifacts": required})
 
 
+def agent_handoff_required(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
+    path = _run_dir(context) / "agent" / "handoff.md"
+    if path.exists():
+        return _result(spec, OUTCOME_PASSED, spec.message or "Agent handoff found.", {"path": str(path)})
+    return _failure(spec, f"Missing agent handoff: {path}", {"path": str(path)})
+
+
+def agent_actions_required(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
+    path = _run_dir(context) / "agent" / "actions.jsonl"
+    if path.exists() and path.read_text(encoding="utf-8").strip():
+        return _result(spec, OUTCOME_PASSED, spec.message or "Agent actions found.", {"path": str(path)})
+    return _failure(spec, f"Missing agent actions: {path}", {"path": str(path)})
+
+
+def agent_no_error_rules(spec: RuleSpec, context: dict[str, Any]) -> RuleResult:
+    path = _run_dir(context) / "skill_trace.jsonl"
+    if not path.exists():
+        return _failure(spec, f"Missing skill trace: {path}", {"path": str(path)})
+    errors = []
+    import json
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if record.get("outcome") == "error" or record.get("severity") == "error":
+            errors.append(record.get("rule_id", "unknown"))
+    if errors:
+        return _failure(spec, "Error-level rule results found.", {"rules": errors})
+    return _result(spec, OUTCOME_PASSED, spec.message or "No error-level rule results found.", {})
+
+
 BUILTIN_RULES: dict[str, RuleExecutor] = {
     "required_config": required_config,
     "required_metric": required_metric,
     "metric_threshold": metric_threshold,
     "best_last_gap": best_last_gap,
     "artifact_required": artifact_required,
+    "agent_handoff_required": agent_handoff_required,
+    "agent_actions_required": agent_actions_required,
+    "agent_no_error_rules": agent_no_error_rules,
 }
 
 
@@ -180,3 +221,9 @@ def _as_float(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _run_dir(context: dict[str, Any]):
+    from pathlib import Path
+
+    return Path(str(context.get("run_dir") or "."))

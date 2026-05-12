@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skilllogboard"
-version = "0.7.0.dev0"
+version = "0.8.0.dev0"
 description = "Portable experiment logging and dashboard package"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -55,6 +55,7 @@ where = ["src"]
 skilllogboard = [
   "skills/default_skills.md",
   "dashboards/templates/*.j2",
+  "agent/templates/*.md",
 ]
 
 [tool.ruff]

@@ -5,6 +5,7 @@ from __future__ import annotations
 from argparse import ArgumentParser, REMAINDER
 from importlib import resources
 from pathlib import Path
+import json
 import sys
 
 from skilllogboard._version import __version__
@@ -315,6 +316,146 @@ def cmd_export_figure(args) -> int:
     return 0
 
 
+def cmd_agent(args) -> int:
+    agent_args = list(args.agent_args)
+    if not agent_args:
+        print("Usage: skilllog agent init|log-action|handoff|check|inspect ...", file=sys.stderr)
+        return 2
+    command = agent_args[0]
+    rest = agent_args[1:]
+    if command == "init":
+        return _cmd_agent_init(rest)
+    if command == "log-action":
+        return _cmd_agent_log_action(rest)
+    if command == "handoff":
+        return _cmd_agent_handoff(rest)
+    if command == "check":
+        return _cmd_agent_check(rest)
+    if command == "inspect":
+        return _cmd_agent_inspect(rest)
+    print(f"Unknown agent command: {command}", file=sys.stderr)
+    return 2
+
+
+def _cmd_agent_init(agent_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog agent init")
+    parser.add_argument("--root-dir", default=".")
+    parser.add_argument("--template")
+    parser.add_argument("--force", action="store_true")
+    parsed = parser.parse_args(agent_args)
+
+    from skilllogboard.agent.skills import ensure_skilllog_control_plane
+
+    result = ensure_skilllog_control_plane(parsed.root_dir, template=parsed.template, force=parsed.force)
+    print(f"Initialized agent control plane: {result.skilllog_dir}")
+    if result.created:
+        print("Created:")
+        for path in result.created:
+            print(f"  {path}")
+    if result.skipped:
+        print("Skipped existing:")
+        for path in result.skipped:
+            print(f"  {path}")
+    return 0
+
+
+def _cmd_agent_log_action(agent_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog agent log-action")
+    parser.add_argument("run_dir")
+    parser.add_argument("--actor", default="agent")
+    parser.add_argument("--action", required=True)
+    parser.add_argument("--status", default="completed")
+    parser.add_argument("--target", default="")
+    parser.add_argument("--command", default="")
+    parser.add_argument("--output", action="append", default=[])
+    parser.add_argument("--metadata-json", default="{}")
+    parsed = parser.parse_args(agent_args)
+
+    from skilllogboard.agent.action_log import append_agent_action
+
+    try:
+        metadata = json.loads(parsed.metadata_json)
+    except json.JSONDecodeError as exc:
+        print(f"Invalid --metadata-json: {exc}", file=sys.stderr)
+        return 2
+    path = append_agent_action(
+        parsed.run_dir,
+        {
+            "actor": parsed.actor,
+            "action": parsed.action,
+            "status": parsed.status,
+            "target": parsed.target,
+            "command": parsed.command,
+            "outputs": parsed.output,
+            "metadata": metadata,
+        },
+    )
+    print(f"Agent action logged: {path}")
+    return 0
+
+
+def _cmd_agent_handoff(agent_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog agent handoff")
+    parser.add_argument("run_dir")
+    parser.add_argument("--actor")
+    parser.add_argument("--task")
+    parser.add_argument("--next", dest="next_steps")
+    parser.add_argument("--output")
+    parsed = parser.parse_args(agent_args)
+
+    from skilllogboard.agent.handoff import build_agent_handoff
+
+    out = build_agent_handoff(
+        parsed.run_dir,
+        actor=parsed.actor,
+        task=parsed.task,
+        next_steps=parsed.next_steps,
+        output_path=parsed.output,
+    )
+    print(f"Agent handoff written: {out}")
+    return 0
+
+
+def _cmd_agent_check(agent_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog agent check")
+    parser.add_argument("run_dir")
+    parser.add_argument("--require-report", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    parsed = parser.parse_args(agent_args)
+
+    from skilllogboard.agent.checks import check_agent_completion
+
+    results = check_agent_completion(parsed.run_dir, require_report=parsed.require_report)
+    data = [result.to_dict() for result in results]
+    if parsed.json:
+        print(json.dumps(data, indent=2, sort_keys=True))
+    else:
+        for result in results:
+            print(f"{result.outcome}: {result.name}: {result.message}")
+    return 1 if any(result.outcome == "error" for result in results) else 0
+
+
+def _cmd_agent_inspect(agent_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog agent inspect")
+    parser.add_argument("run_dir")
+    parsed = parser.parse_args(agent_args)
+
+    from skilllogboard.agent.action_log import read_agent_actions
+    from skilllogboard.agent.checks import check_agent_completion
+
+    run_dir = Path(parsed.run_dir)
+    actions = read_agent_actions(run_dir)
+    print(f"Agent actions: {len(actions)}")
+    if actions:
+        latest = actions[-1]
+        print(f"Latest action: {latest.get('action')} ({latest.get('status')})")
+    print(f"Handoff: {'yes' if (run_dir / 'agent' / 'handoff.md').exists() else 'no'}")
+    print(f"Decisions: {'yes' if (run_dir / 'agent' / 'decisions.md').exists() else 'no'}")
+    errors = [result for result in check_agent_completion(run_dir) if result.outcome == "error"]
+    print(f"Check errors: {len(errors)}")
+    return 0
+
+
 def cmd_templates(args) -> int:
     from skilllogboard.plugins.registry import list_templates
 
@@ -352,6 +493,10 @@ def build_parser() -> ArgumentParser:
 
     p_templates = sub.add_parser("templates", help="List available research templates")
     p_templates.set_defaults(func=cmd_templates)
+
+    p_agent = sub.add_parser("agent", help="Manage local agent research workflow files")
+    p_agent.add_argument("agent_args", nargs=REMAINDER)
+    p_agent.set_defaults(func=cmd_agent)
 
     p_inspect = sub.add_parser("inspect", help="Print manifest for a run directory")
     p_inspect.add_argument("run_dir")

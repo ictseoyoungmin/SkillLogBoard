@@ -65,6 +65,7 @@ class RuleEngine:
         metrics = load_metrics(run_dir / "metrics.csv")
         artifact_index = load_json(run_dir / "artifact_index.json")
         return {
+            "run_dir": str(run_dir),
             "manifest": load_yaml(run_dir / "manifest.yaml"),
             "config": load_yaml(run_dir / "config.yaml"),
             "metrics": metrics,

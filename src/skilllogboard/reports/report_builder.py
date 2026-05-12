@@ -10,7 +10,11 @@ from typing import Any
 from skilllogboard.compare.run_index import build_run_index
 from skilllogboard.reports.figure_builder import (
     OptionalFigureDependencyError,
+    ReportFigure,
+    build_ablation_bar_figure,
+    build_metric_curve_figure,
     build_metric_curve_overlay_figure,
+    build_seed_errorbar_figure,
 )
 from skilllogboard.reports.report_manifest import (
     ReportArtifact,
@@ -100,25 +104,20 @@ def build_report_package(
             )
         )
 
-    try:
-        figure_path = figures_dir / "metric-curve-overlay.png"
-        figure = build_metric_curve_overlay_figure(root, metric=metric, output_path=figure_path, mode=mode)
-        figure_paths.append(figure_path)
-        outputs.append(
-            ReportArtifact(
-                id=figure.figure_id,
-                type="figure",
-                kind=figure.figure_type,
-                title=f"Metric Curve Overlay: {metric}",
-                path=relative_artifact_path(figure_path, report_dir),
-                source_files=figure.source_files,
-                metadata=figure.metadata,
-            )
-        )
-    except OptionalFigureDependencyError as exc:
-        warnings.append(str(exc))
-    except ValueError as exc:
-        warnings.append(str(exc))
+    figure_specs = _figure_specs(spec_path, metric, mode)
+    generated_figures, skipped_figure_artifacts = _build_figures(
+        specs=figure_specs,
+        root=root,
+        records=records,
+        figures_dir=figures_dir,
+        report_dir=report_dir,
+        metric=metric,
+        mode=mode,
+        warnings=warnings,
+    )
+    figure_paths.extend(report_dir / artifact.path for artifact in generated_figures)
+    outputs.extend(generated_figures)
+    outputs.extend(skipped_figure_artifacts)
 
     report_md = report_dir / "report.md"
     report_html = report_dir / "report.html"
@@ -202,6 +201,136 @@ def _table_specs(
     ]
 
 
+def _figure_specs(
+    spec_path: str | Path | None,
+    metric: str,
+    mode: str,
+) -> list[ReportSpecItem]:
+    if spec_path:
+        parsed = [item for item in parse_report_spec(spec_path) if item.kind == "figure"]
+        if parsed:
+            return parsed
+    return [
+        ReportSpecItem(
+            "FIG-METRIC-CURVE-OVERLAY",
+            "figure",
+            "metric-curve-overlay",
+            metric=metric,
+            mode=mode,
+            output="figures/metric-curve-overlay.png",
+        )
+    ]
+
+
+def _build_figures(
+    specs: list[ReportSpecItem],
+    root: Path,
+    records: list[dict[str, Any]],
+    figures_dir: Path,
+    report_dir: Path,
+    metric: str,
+    mode: str,
+    warnings: list[str],
+) -> tuple[list[ReportArtifact], list[ReportArtifact]]:
+    generated: list[ReportArtifact] = []
+    skipped: list[ReportArtifact] = []
+    for spec in specs:
+        figure_path = _figure_output_path(spec, figures_dir)
+        try:
+            figure = _dispatch_figure(spec, root, records, figure_path, metric=metric, mode=mode)
+        except OptionalFigureDependencyError as exc:
+            message = f"Skipped {spec.id}: {exc}"
+            warnings.append(message)
+            skipped.append(_skipped_figure_artifact(spec, figure_path, report_dir, message))
+            continue
+        except ValueError as exc:
+            message = f"Skipped {spec.id}: {exc}"
+            warnings.append(message)
+            skipped.append(_skipped_figure_artifact(spec, figure_path, report_dir, message))
+            continue
+        generated.append(_figure_artifact(spec, figure, figure_path, report_dir))
+    return generated, skipped
+
+
+def _dispatch_figure(
+    spec: ReportSpecItem,
+    root: Path,
+    records: list[dict[str, Any]],
+    output_path: Path,
+    metric: str,
+    mode: str,
+) -> ReportFigure:
+    figure_type = spec.type
+    selected_metric = spec.metric or metric
+    if figure_type == "metric-curve-overlay":
+        return build_metric_curve_overlay_figure(root, metric=selected_metric, output_path=output_path, mode=mode)
+    if figure_type == "metric-curve":
+        metrics = spec.metrics or [selected_metric]
+        run_dir = root if (root / "manifest.yaml").exists() else Path(str(records[0].get("run_dir", "")))
+        return build_metric_curve_figure(run_dir, metrics=metrics, output_path=output_path)
+    if figure_type == "seed-errorbar":
+        table = build_report_table(
+            "seed-summary",
+            records,
+            metric=selected_metric,
+            mode=spec.mode or mode,
+            group_by=spec.group_by,
+        )
+        return build_seed_errorbar_figure(table.rows, output_path)
+    if figure_type == "ablation-bar":
+        table = build_report_table(
+            "ablation-summary",
+            records,
+            metric=selected_metric,
+            mode=spec.mode or mode,
+        )
+        return build_ablation_bar_figure(table.rows, output_path)
+    raise ValueError(f"Unsupported report figure type: {figure_type}")
+
+
+def _figure_output_path(spec: ReportSpecItem, figures_dir: Path) -> Path:
+    if spec.output:
+        path = Path(spec.output)
+        if path.is_absolute():
+            return path
+        return figures_dir / path.name
+    return figures_dir / f"{spec.type}.png"
+
+
+def _figure_artifact(
+    spec: ReportSpecItem,
+    figure: ReportFigure,
+    figure_path: Path,
+    report_dir: Path,
+) -> ReportArtifact:
+    return ReportArtifact(
+        id=Path(spec.output).stem if spec.output else figure.figure_id,
+        type="figure",
+        kind=figure.figure_type,
+        title=spec.title or figure.figure_type.replace("-", " ").title(),
+        path=relative_artifact_path(figure_path, report_dir),
+        source_files=figure.source_files,
+        metadata={**figure.metadata, "status": "generated"},
+    )
+
+
+def _skipped_figure_artifact(
+    spec: ReportSpecItem,
+    figure_path: Path,
+    report_dir: Path,
+    message: str,
+) -> ReportArtifact:
+    return ReportArtifact(
+        id=Path(spec.output).stem if spec.output else spec.type,
+        type="figure",
+        kind=spec.type,
+        title=spec.title or spec.type.replace("-", " ").title(),
+        path=relative_artifact_path(figure_path, report_dir),
+        source_files=[],
+        metadata={"status": "skipped", "warning": message},
+    )
+
+
 def _table_id(spec: ReportSpecItem, table: ReportTable) -> str:
     if spec.output:
         return Path(spec.output).stem
@@ -275,7 +404,11 @@ def _append_artifact_links(
     artifacts: list[ReportArtifact],
     kind: str | None = None,
 ) -> None:
-    selected = [artifact for artifact in artifacts if kind is None or artifact.kind == kind]
+    selected = [
+        artifact
+        for artifact in artifacts
+        if (kind is None or artifact.kind == kind) and artifact.metadata.get("status") != "skipped"
+    ]
     if not selected:
         lines.append("No artifacts generated for this section.")
         return
@@ -295,9 +428,12 @@ def _render_html_report(
         f"<section><h3>{_escape_html(table.table_id)}</h3>{table_to_html(table)}</section>"
         for table in tables
     )
+    visible_figures = [
+        artifact for artifact in figure_artifacts if artifact.metadata.get("status") != "skipped"
+    ]
     figures = "\n".join(
         f'<figure><img src="{_escape_html(artifact.path)}" alt="{_escape_html(artifact.title)}"></figure>'
-        for artifact in figure_artifacts
+        for artifact in visible_figures
     )
     run_items = "\n".join(
         f"<li>{_escape_html(str(record.get('run_id', '')))} - {_escape_html(str(record.get('status', '')))}</li>"

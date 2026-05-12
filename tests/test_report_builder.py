@@ -48,3 +48,39 @@ def test_build_report_package_writes_reports_and_manifest(tmp_path):
     assert manifest["source"]["run_count"] == 2
     assert any(output["type"] == "table" for output in manifest["outputs"])
     assert manifest["parameters"]["metric"] == "val/acc"
+
+
+def test_build_report_package_executes_spec_fig_blocks_or_records_skip(tmp_path):
+    runs_root = _make_runs(tmp_path)
+    spec = tmp_path / "ReportSpec.md"
+    spec.write_text(
+        """
+## TABLE-LEADERBOARD
+- type: leaderboard
+- metric: val/acc
+- output: report/tables/custom_leaderboard.md
+
+## FIG-OVERLAY
+- type: metric-curve-overlay
+- metric: val/acc
+- output: report/figures/custom_overlay.png
+""",
+        encoding="utf-8",
+    )
+    out_dir = tmp_path / "report"
+
+    result = build_report_package(
+        runs_root,
+        metric="val/acc",
+        output_dir=out_dir,
+        spec_path=spec,
+    )
+
+    assert (out_dir / "tables" / "custom_leaderboard.md").exists()
+    manifest = read_report_manifest(result.report_manifest)
+    figures = [output for output in manifest["outputs"] if output["type"] == "figure"]
+    assert figures
+    assert figures[0]["kind"] == "metric-curve-overlay"
+    assert figures[0]["metadata"]["status"] in {"generated", "skipped"}
+    if figures[0]["metadata"]["status"] == "skipped":
+        assert result.warnings

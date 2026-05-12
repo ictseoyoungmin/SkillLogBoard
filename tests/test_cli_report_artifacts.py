@@ -1,3 +1,5 @@
+import pytest
+
 from skilllogboard import RunLogger
 from skilllogboard.cli.main import main
 
@@ -94,3 +96,31 @@ def test_cli_export_figure_missing_dependency_is_readable(tmp_path, capsys, monk
 
     assert result == 2
     assert "missing report extra" in capsys.readouterr().err
+
+
+def test_cli_export_figure_builds_when_report_extra_available(tmp_path):
+    import skilllogboard.reports.figure_builder as figure_builder
+
+    try:
+        figure_builder.require_matplotlib()
+    except figure_builder.OptionalFigureDependencyError as exc:
+        pytest.skip(str(exc))
+
+    runs_root = _make_runs(tmp_path)
+    out = tmp_path / "curve.png"
+
+    result = main(
+        [
+            "export-figure",
+            str(runs_root),
+            "--type",
+            "metric-curve-overlay",
+            "--metric",
+            "val/acc",
+            "--output",
+            str(out),
+        ]
+    )
+
+    assert result == 0
+    assert out.exists()

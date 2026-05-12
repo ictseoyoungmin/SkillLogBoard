@@ -17,8 +17,10 @@ and multi-run comparison reports:
 - v0.4 multi-run compare outputs: `compare.csv`, `compare.md`, and `compare.html`
 - v0.7 report artifact packages: `report.md`, `report.html`, `report_manifest.yaml`,
   report tables, and optional figures
+- v0.8 agent research workflow files: `.skilllog/`, `agent/actions.jsonl`,
+  `agent/handoff.md`, and local completion checks
 - CLI `init`, `inspect`, `report`, and `dashboard`
-- CLI `compare`, `export-table`, `export-figure`, and `report build/check`
+- CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
 
 ## Install
 
@@ -34,11 +36,12 @@ pip install -e ".[dev,dashboard,report]"
 ```bash
 skilllog --help
 skilllog init
-skilllog inspect runs/demo/<run_id>
+skilllog inspect runs/demo/{run_id}
 skilllog compare runs/demo --metric val/acc --mode max --output-dir runs/demo/compare
 skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/compare.md
 skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report
 skilllog report check runs/demo/report --required-table leaderboard
+skilllog agent init
 ```
 
 ## Smoke Test
@@ -47,7 +50,7 @@ skilllog report check runs/demo/report --required-table leaderboard
 python examples/basic_usage.py
 ```
 
-The example writes a run folder under `runs/demo/<run_id>/`, where `<run_id>` is generated from
+The example writes a run folder under `runs/demo/{run_id}/`, where `{run_id}` is generated from
 the run name and timestamp:
 
 ```text
@@ -67,9 +70,9 @@ artifacts/
 Open the generated dashboard directly from the run folder:
 
 ```bash
-# Replace <run_id> with the path printed by the example.
+# Replace {run_id} with the path printed by the example.
 python examples/basic_usage.py
-# then open runs/demo/<run_id>/dashboard.html in your browser
+# then open runs/demo/{run_id}/dashboard.html in your browser
 ```
 
 ## Minimal Usage
@@ -165,6 +168,35 @@ skilllog export-figure runs/demo --type metric-curve-overlay --metric val/acc --
 
 Without the optional plotting dependency, report builds still produce tables, Markdown, HTML, and
 `report_manifest.yaml`, while recording a skipped-figure warning.
+
+Report APIs can also be imported directly:
+
+```python
+from skilllogboard.reports import build_report_package, parse_report_spec_text
+```
+
+## v0.8 Agent Research Layer
+
+Initialize local agent workflow files:
+
+```bash
+skilllog agent init --root-dir . --template trajectory
+```
+
+This creates `.skilllog/agent_skills.md`, `.skilllog/experiment_plan.md`, `.skilllog/rules.md`,
+`.skilllog/report_spec.md`, and `.skilllog/README.md`.
+
+For a run folder, agents can log actions, generate handoff notes, and run local completion checks:
+
+```bash
+skilllog agent log-action runs/demo/{run_id} --actor codex --action "run tests" --status completed --command "pytest -q"
+skilllog agent handoff runs/demo/{run_id} --actor codex --task "summarize current run"
+skilllog agent check runs/demo/{run_id} --require-report
+```
+
+SkillLogBoard v0.8 does not include built-in LLM inference, cloud sync, or automatic code
+generation. It provides local files and validation gates that humans or external coding agents can
+use.
 
 ## v0.5 Research Templates
 
