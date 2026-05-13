@@ -7,6 +7,7 @@ from importlib import resources
 from pathlib import Path
 import json
 import sys
+import webbrowser
 
 from skilllogboard._version import __version__
 from skilllogboard.core.manifest import load_manifest
@@ -625,6 +626,40 @@ def _cmd_forge_validate(forge_args: list[str]) -> int:
     return 1 if any(result.outcome == "error" for result in results) else 0
 
 
+def cmd_watch(args) -> int:
+    target = Path(args.target_dir)
+    if not target.exists():
+        print(f"Watch target not found: {target}", file=sys.stderr)
+        return 1
+    from skilllogboard.live.server import (
+        LiveDependencyError,
+        LiveServerOptions,
+        require_live_dependencies,
+        run_live_server,
+    )
+
+    options = LiveServerOptions(
+        project=args.project,
+        latest=args.latest,
+        log_file=args.log_file,
+        poll_interval=args.poll_interval,
+        monitor_system=args.monitor_system,
+        monitor_gpu=args.monitor_gpu,
+    )
+    url = f"http://{args.host}:{args.port}"
+    print(f"SkillLogBoard Live Board: {url}")
+    print(f"Watching: {target}")
+    try:
+        require_live_dependencies()
+        if not args.no_open:
+            webbrowser.open(url)
+        run_live_server(target, host=args.host, port=args.port, options=options)
+    except LiveDependencyError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
+    return 0
+
+
 def cmd_templates(args) -> int:
     from skilllogboard.plugins.registry import list_templates
 
@@ -666,6 +701,19 @@ def build_parser() -> ArgumentParser:
     p_agent = sub.add_parser("agent", help="Manage local agent research workflow files")
     p_agent.add_argument("agent_args", nargs=REMAINDER)
     p_agent.set_defaults(func=cmd_agent)
+
+    p_watch = sub.add_parser("watch", help="Start local-first Live Board for a run or project")
+    p_watch.add_argument("target_dir")
+    p_watch.add_argument("--host", default="127.0.0.1")
+    p_watch.add_argument("--port", type=int, default=8765)
+    p_watch.add_argument("--poll-interval", type=float, default=1.0)
+    p_watch.add_argument("--project", action="store_true")
+    p_watch.add_argument("--latest", action="store_true")
+    p_watch.add_argument("--monitor-system", action="store_true")
+    p_watch.add_argument("--monitor-gpu", action="store_true")
+    p_watch.add_argument("--log-file")
+    p_watch.add_argument("--no-open", action="store_true")
+    p_watch.set_defaults(func=cmd_watch)
 
     p_forge = sub.add_parser(
         "forge",

@@ -24,6 +24,8 @@ def test_optional_extras_keep_heavy_packages_optional():
     assert "torch" in optional
     assert "lightning" in optional
     assert "pandas" in "\n".join(optional["table"]).lower()
+    assert "live" in optional
+    assert "fastapi" in "\n".join(optional["live"]).lower()
 
 
 def _missing_importer(name):

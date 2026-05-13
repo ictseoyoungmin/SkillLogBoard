@@ -59,4 +59,7 @@
 | Cloud sync / multi-user auth | Out of scope | Not implemented | v1.0+ |
 | TensorBoard/W&B import | Out of scope | Not implemented as a built-in importer | v1.0+ |
 | Prometheus/Grafana integration | Out of scope | Not implemented | v1.0+ |
-| Local-first Live Board | Planned | Not implemented | v1.0 |
+| Local-first Live Board | Supported | Implemented optional FastAPI/uvicorn extra over local run files | v1.0 |
+| `skilllog watch` | Supported | Implemented run/project modes with optional browser open | v1.0 |
+| `/api/state` / `/api/health` | Supported | Implemented for run and project Live Board state | v1.0 |
+| `monitoring.jsonl` | Supported | Implemented optional system/process/GPU sampling with skipped warnings | v1.0 |

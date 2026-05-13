@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "skilllogboard"
-version = "0.9.0.dev0"
+version = "1.0.0.dev0"
 description = "Portable experiment logging and dashboard package"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -32,6 +32,11 @@ table = [
 report = [
   "matplotlib>=3.8",
 ]
+live = [
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+  "psutil>=5.9",
+]
 torch = [
   "torch",
 ]
@@ -43,6 +48,9 @@ all = [
   "plotly>=5.0",
   "pandas>=2.0",
   "matplotlib>=3.8",
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+  "psutil>=5.9",
 ]
 
 [project.scripts]
@@ -58,6 +66,7 @@ skilllogboard = [
   "agent/templates/*.md",
   "template_forge/harness/*.md",
   "template_forge/harness/*.txt",
+  "live/templates/*.html",
 ]
 
 [tool.ruff]

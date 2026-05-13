@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillLogBoard Live</title>
+  <style>
+    body { margin: 0; font: 14px system-ui, sans-serif; background: #f6f7f9; color: #1f2933; }
+    header { padding: 14px 20px; background: #111827; color: white; display: flex; justify-content: space-between; }
+    main { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 50px); }
+    aside { background: #e9edf2; padding: 16px; border-right: 1px solid #d7dde5; }
+    section { padding: 16px; }
+    h1, h2 { margin: 0 0 12px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .panel { background: white; border: 1px solid #d8dee8; border-radius: 6px; padding: 12px; }
+    .muted { color: #667085; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; border-bottom: 1px solid #e5e7eb; padding: 6px; }
+    pre { overflow: auto; white-space: pre-wrap; max-height: 260px; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>SkillLogBoard Live</strong>
+    <span id="status" class="muted">connecting</span>
+  </header>
+  <main>
+    <aside>
+      <h2>Overview</h2>
+      <div id="overview">Loading...</div>
+    </aside>
+    <section>
+      <div class="grid">
+        <div class="panel"><h2>Run Status</h2><div id="run-status"></div></div>
+        <div class="panel"><h2>Metric Curves</h2><div id="metrics"></div></div>
+        <div class="panel"><h2>Rule Audit</h2><div id="rules"></div></div>
+        <div class="panel"><h2>Artifact Feed</h2><div id="artifacts"></div></div>
+        <div class="panel"><h2>Event Timeline</h2><div id="events"></div></div>
+        <div class="panel"><h2>Log Tail</h2><pre id="logs"></pre></div>
+        <div class="panel"><h2>Project Runs</h2><div id="project-runs"></div></div>
+        <div class="panel"><h2>Resource Summary</h2><div id="monitoring"></div></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    async function refresh() {
+      const res = await fetch('/api/state');
+      const state = await res.json();
+      document.getElementById('status').textContent = state.mode || 'unknown';
+      if (state.mode === 'project') renderProject(state); else renderRun(state);
+    }
+    function renderRun(state) {
+      document.getElementById('overview').textContent = state.manifest?.run_name || state.run_dir;
+      document.getElementById('run-status').textContent = state.status;
+      document.getElementById('metrics').innerHTML = list(Object.entries(state.metrics || {}).map(([k,v]) => k + ': ' + v.value));
+      document.getElementById('rules').innerHTML = list((state.rules || []).map(r => (r.outcome || r.severity || 'rule') + ': ' + (r.rule_id || r.type || 'unknown')));
+      document.getElementById('artifacts').innerHTML = list((state.artifacts || []).map(a => a.name || a.path));
+      document.getElementById('events').innerHTML = list((state.events || []).map(e => (e.type || 'event') + ': ' + (e.key || e.value || '')));
+      document.getElementById('logs').textContent = (state.logs || []).join('\n');
+      document.getElementById('monitoring').innerHTML = list((state.monitoring || []).map(m => m.source + ': ' + JSON.stringify(m.metrics || {})));
+    }
+    function renderProject(state) {
+      document.getElementById('overview').textContent = 'Project: ' + state.root_dir;
+      document.getElementById('run-status').textContent = JSON.stringify(state.status_counts || {});
+      document.getElementById('project-runs').innerHTML = table(state.runs || []);
+    }
+    function list(items) { return '<ul>' + items.slice(-20).map(x => '<li>' + escapeHtml(String(x || '')) + '</li>').join('') + '</ul>'; }
+    function table(rows) { return '<table><tr><th>Run</th><th>Status</th></tr>' + rows.map(r => '<tr><td>' + escapeHtml(r.run_id) + '</td><td>' + escapeHtml(r.status) + '</td></tr>').join('') + '</table>'; }
+    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+    refresh();
+    setInterval(refresh, 1000);
+  </script>
+</body>
+</html>

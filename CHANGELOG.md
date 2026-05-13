@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.0-dev live board candidate
+
+- Added optional local-first Live Board package with run and project state readers.
+- Added `skilllog watch` with host, port, project, latest, log tail, system monitor, GPU monitor, and browser-open controls.
+- Added packaged self-contained Live Board HTML served by optional FastAPI/uvicorn dependencies.
+- Added `monitoring.jsonl` helpers plus optional psutil and `nvidia-smi` monitor sampling.
+- Added `examples/live_demo.py`, Live Board docs, and live-extra CI coverage.
+- Kept static dashboards, reports, compare outputs, Template Forge, and core logging independent from live dependencies.
+
 ## 0.9.0-dev template forge candidate
 
 - Added Template Forge contracts for `ResearchBrief.md` and `TemplateSpec.md`.

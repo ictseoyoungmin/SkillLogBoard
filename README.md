@@ -21,9 +21,11 @@ and multi-run comparison reports:
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
   and template validation
+- v1.0 optional local-first Live Board for watching run folders and project roots
 - CLI `init`, `inspect`, `report`, and `dashboard`
 - CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
 - CLI `forge init-brief`, `forge plan`, `forge scaffold`, and `forge validate`
+- CLI `watch`
 
 ## Install
 
@@ -32,6 +34,9 @@ pip install -e ".[dev,dashboard]"
 
 # Optional PNG figure export for v0.7 report artifacts.
 pip install -e ".[dev,dashboard,report]"
+
+# Optional local Live Board server.
+pip install -e ".[dev,dashboard,live]"
 ```
 
 ## CLI
@@ -46,6 +51,7 @@ skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/de
 skilllog report check runs/demo/report --required-table leaderboard
 skilllog agent init
 skilllog forge init-brief --output ResearchBrief.md
+skilllog watch runs/demo/{run_id} --no-open
 ```
 
 ## Smoke Test
@@ -221,6 +227,30 @@ agent or human to fill. SkillLogBoard does not call LLMs, does not contact cloud
 generate final domain-specific research code automatically.
 
 Detailed workflow: [Template Forge](docs/template_forge.md).
+
+## v1.0 Live Board
+
+Watch a local run folder with the optional Live Board server:
+
+```bash
+pip install -e ".[dev,dashboard,live]"
+python examples/live_demo.py
+skilllog watch runs/live_demo/{run_id} --no-open
+```
+
+The board serves `/`, `/api/state`, and `/api/health` from local files only. It can read
+`manifest.yaml`, `metrics.csv`, `events.jsonl`, `skill_trace.jsonl`, `artifact_index.json`,
+`monitoring.jsonl`, and an optional log file:
+
+```bash
+skilllog watch runs/demo/{run_id} --log-file train.log --monitor-system --monitor-gpu
+skilllog watch runs/demo --project --latest --no-open
+```
+
+Live dependencies are optional. Core logging, static dashboards, reports, compare outputs, and
+Template Forge continue to work without FastAPI, uvicorn, psutil, or GPU tooling.
+
+Detailed workflow: [Live Board](docs/live_board.md).
 
 ## v0.5 Research Templates
 
