@@ -21,7 +21,7 @@ and multi-run comparison reports:
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
   and template validation
-- v1.0 optional local-first Live Board for watching run folders and project roots
+- v1.1 optional local-first Live Board with chart-first Metric Workspace and project overview
 - CLI `init`, `inspect`, `report`, and `dashboard`
 - CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
 - CLI `forge init-brief`, `forge plan`, `forge scaffold`, and `forge validate`
@@ -228,7 +228,7 @@ generate final domain-specific research code automatically.
 
 Detailed workflow: [Template Forge](docs/template_forge.md).
 
-## v1.0 Live Board
+## v1.1 Live Board
 
 Watch a local run folder with the optional Live Board server:
 
@@ -250,6 +250,11 @@ skilllog watch runs/demo --project --latest --no-open
 `--poll-interval` controls both browser refresh timing and active monitor sampling, with a safe
 minimum interval. Project mode uses bounded manifest discovery and skips cache, virtualenv, report,
 artifact, and hidden directories.
+
+The v1.1 UI is a quiet command center by default: a compact overview, a dominant Metric Workspace,
+metric catalog search/pinning, smoothing/scale/alignment controls, compare mode, bottom context
+tray, run detail drawer, artifact/report browser, agent workspace summary, and full-screen Metric
+Lab. Preferences are stored only in browser `localStorage`.
 
 Live dependencies are optional. Core logging, static dashboards, reports, compare outputs, and
 Template Forge continue to work without FastAPI, uvicorn, psutil, or GPU tooling.

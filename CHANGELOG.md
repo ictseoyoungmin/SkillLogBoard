@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0-dev UI/UX redesign candidate
+
+- Redesigned the optional Live Board into a minimal command center with a chart-first Metric Workspace.
+- Added metric catalog, deterministic selection, pinning, smoothing, scale, x-axis alignment, compare toggle, and full-screen Metric Lab UI.
+- Added context markers, report artifact summaries, and agent workspace summaries to the run-mode Live Board state.
+- Added drawer, tray, project overview, artifact/report browser, local-only UI preference persistence, and accessibility labels.
+- Added packaged UI design tokens without external CDN, font, or frontend build-tool dependencies.
+
 ## 1.0.0-dev live board candidate
 
 - Added optional local-first Live Board package with run and project state readers.

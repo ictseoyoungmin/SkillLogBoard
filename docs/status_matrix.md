@@ -66,3 +66,5 @@
 | Live Board bounded project discovery | Supported | Implemented depth-limited manifest walk with ignored cache/non-run folders | v1.0-cleanup |
 | Live Board HTTP smoke coverage | Supported | Implemented uvicorn/urllib smoke test when live dependencies are installed | v1.0-cleanup |
 | GPU empty parse warning | Supported | Implemented skipped warning for empty or malformed `nvidia-smi` output | v1.0-cleanup |
+| Live Board Metric Workspace | Supported | Implemented metric catalog, selection, pins, transforms, compare toggle, context tray, drawer, and full-screen lab | v1.1 |
+| Live Board local UI preferences | Supported | Implemented browser-only localStorage state; no server sessions | v1.1 |

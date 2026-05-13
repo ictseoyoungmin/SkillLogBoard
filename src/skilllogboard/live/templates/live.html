@@ -5,50 +5,173 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SkillLogBoard Live</title>
   <style>
-    body { margin: 0; font: 14px system-ui, sans-serif; background: #f6f7f9; color: #1f2933; }
-    header { padding: 14px 20px; background: #111827; color: white; display: flex; justify-content: space-between; }
-    main { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 50px); }
-    aside { background: #e9edf2; padding: 16px; border-right: 1px solid #d7dde5; }
-    section { padding: 16px; }
-    h1, h2 { margin: 0 0 12px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-    .panel { background: white; border: 1px solid #d8dee8; border-radius: 6px; padding: 12px; }
-    .muted { color: #667085; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; border-bottom: 1px solid #e5e7eb; padding: 6px; }
-    pre { overflow: auto; white-space: pre-wrap; max-height: 260px; }
+/* __SKILLLOGBOARD_UI_TOKENS__ */
   </style>
 </head>
 <body>
-  <header>
-    <strong>SkillLogBoard Live</strong>
-    <span id="status" class="muted">connecting</span>
-  </header>
-  <main>
-    <aside>
-      <h2>Overview</h2>
-      <div id="overview">Loading...</div>
-    </aside>
-    <section>
-      <div class="grid">
-        <div class="panel"><h2>Run Status</h2><div id="run-status"></div></div>
-        <div class="panel"><h2>Metric Curves</h2><div id="metrics"></div></div>
-        <div class="panel"><h2>Rule Audit</h2><div id="rules"></div></div>
-        <div class="panel"><h2>Artifact Feed</h2><div id="artifacts"></div></div>
-        <div class="panel"><h2>Event Timeline</h2><div id="events"></div></div>
-        <div class="panel"><h2>Log Tail</h2><pre id="logs"></pre></div>
-        <div class="panel"><h2>Project Runs</h2><div id="project-runs"></div></div>
-        <div class="panel"><h2>Resource Summary</h2><div id="monitoring"></div></div>
+  <div class="slb-app" data-skilllogboard-ui="v1.1">
+    <header class="slb-topbar">
+      <div class="slb-brand">
+        <div class="slb-mark" aria-hidden="true">S</div>
+        <div>
+          <div class="slb-title">SkillLogBoard Live</div>
+          <div class="slb-subtitle" id="run-path">Local evidence workspace</div>
+        </div>
       </div>
-    </section>
-  </main>
+      <div class="slb-status-strip" aria-label="Run status summary">
+        <span id="status-pill" class="status-pill" data-status="loading">loading</span>
+        <span id="mode-pill" class="status-pill">mode</span>
+        <span id="poll-pill" class="status-pill">poll 1s</span>
+      </div>
+    </header>
+
+    <div class="slb-shell">
+      <nav class="slb-rail" aria-label="Live Board tools">
+        <button class="rail-button" type="button" title="Metrics" aria-label="Open metric catalog" data-tab-button="metrics" aria-pressed="true">M</button>
+        <button class="rail-button" type="button" title="Context" aria-label="Open context tray" data-tab-button="context" aria-pressed="false">C</button>
+        <button class="rail-button" type="button" title="Artifacts" aria-label="Open artifacts browser" data-tab-button="artifacts" aria-pressed="false">A</button>
+        <button class="rail-button" type="button" title="Details" aria-label="Open run detail drawer" id="open-detail">D</button>
+        <button class="rail-button" type="button" title="Metric Lab" aria-label="Open full screen metric lab" id="open-lab">F</button>
+      </nav>
+
+      <main class="slb-main">
+        <section class="overview-band" aria-label="Overview">
+          <div class="stat"><div class="stat-label">Run</div><div class="stat-value" id="overview-run">Loading</div></div>
+          <div class="stat"><div class="stat-label">Primary metric</div><div class="stat-value" id="overview-metric">-</div></div>
+          <div class="stat"><div class="stat-label">Alerts</div><div class="stat-value" id="overview-alerts">0</div></div>
+          <div class="stat"><div class="stat-label">Resources</div><div class="stat-value" id="overview-resources">idle</div></div>
+        </section>
+
+        <section class="metric-workspace" aria-label="Metric Workspace">
+          <div class="workspace-head">
+            <div>
+              <h1 class="workspace-title">Metric Workspace</h1>
+              <div class="item-meta" id="workspace-caption">Select and pin metrics from the catalog.</div>
+            </div>
+            <div class="workspace-actions">
+              <button type="button" id="toggle-compare" aria-pressed="false">Compare</button>
+              <button type="button" id="pin-selected">Pin</button>
+              <button type="button" id="reset-preferences">Reset</button>
+            </div>
+          </div>
+          <div class="chart-stage">
+            <div id="loading-state" class="loading-state">Loading local run files...</div>
+            <div id="empty-state" class="empty-state hidden">No metric rows found yet.</div>
+            <div id="error-state" class="error-state hidden" role="alert"></div>
+            <svg id="metric-chart" class="chart-svg hidden" role="img" aria-label="Selected metric chart" viewBox="0 0 900 360" preserveAspectRatio="none"></svg>
+          </div>
+          <div class="workspace-controls" aria-label="Chart transform controls">
+            <div class="control-group">
+              <label for="metric-search">Search</label>
+              <input id="metric-search" class="metric-search" type="search" placeholder="metric name">
+            </div>
+            <div class="segmented" role="group" aria-label="Scale">
+              <button type="button" data-scale="linear" aria-pressed="true">Linear</button>
+              <button type="button" data-scale="log" aria-pressed="false">Log</button>
+            </div>
+            <div class="segmented" role="group" aria-label="Smoothing">
+              <button type="button" data-smoothing="0" aria-pressed="true">Raw</button>
+              <button type="button" data-smoothing="3" aria-pressed="false">Smooth</button>
+            </div>
+            <div class="segmented" role="group" aria-label="X-axis alignment">
+              <button type="button" data-align="step" aria-pressed="true">Step</button>
+              <button type="button" data-align="relative" aria-pressed="false">Relative</button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="side-panel" id="side-panel" aria-label="Detail panels">
+        <div class="panel-tabs" role="tablist" aria-label="Workspace panels">
+          <button type="button" role="tab" aria-selected="true" data-panel-tab="metrics">Metrics</button>
+          <button type="button" role="tab" aria-selected="false" data-panel-tab="context">Rule Audit</button>
+          <button type="button" role="tab" aria-selected="false" data-panel-tab="artifacts">Artifact Feed</button>
+        </div>
+        <div class="panel-body">
+          <div id="metrics-panel" class="metric-list" role="tabpanel"></div>
+          <div id="context-panel" class="context-list hidden" role="tabpanel"></div>
+          <div id="artifacts-panel" class="artifact-list hidden" role="tabpanel"></div>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="bottom-tray" aria-label="Bottom context tray">
+      <section class="tray-section">
+        <h2 class="tray-title">Event, Rule, And Resource Correlation</h2>
+        <div id="context-tray" class="context-list"></div>
+      </section>
+      <section class="tray-section">
+        <h2 class="tray-title">Log Tail</h2>
+        <pre id="logs" class="log-tail"></pre>
+      </section>
+    </footer>
+  </div>
+
+  <aside class="drawer" id="detail-drawer" aria-label="Run detail drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <strong>Run Detail</strong>
+      <button type="button" id="close-detail" aria-label="Close run detail drawer">Close</button>
+    </div>
+    <div class="drawer-body">
+      <div class="detail-grid" id="run-details"></div>
+      <h2 class="tray-title">Project Runs</h2>
+      <div id="project-runs" class="run-list"></div>
+      <h2 class="tray-title">Agent Workspace</h2>
+      <div id="agent-workspace" class="detail-block"></div>
+    </div>
+  </aside>
+
+  <aside class="metric-lab" id="metric-lab" aria-label="Full screen metric lab" aria-hidden="true">
+    <div class="drawer-head">
+      <strong>Full Screen Metric Lab</strong>
+      <button type="button" id="close-lab" aria-label="Close metric lab">Close</button>
+    </div>
+    <div class="drawer-body">
+      <svg id="metric-lab-chart" class="chart-svg full-chart" role="img" aria-label="Full screen metric chart" viewBox="0 0 1200 620" preserveAspectRatio="none"></svg>
+    </div>
+  </aside>
+
   <script>
+    const STORAGE_KEY = 'skilllogboard.live.ui.v1';
+    const appState = {
+      config: {},
+      latest: null,
+      selectedMetrics: [],
+      pinnedMetrics: [],
+      scale: 'linear',
+      smoothing: 0,
+      align: 'step',
+      compare: false,
+      activePanel: 'metrics'
+    };
     let refreshMs = 1000;
     let refreshTimer = null;
+
+    function loadPrefs() {
+      try {
+        const prefs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        Object.assign(appState, prefs);
+      } catch (err) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+    function savePrefs() {
+      const prefs = {
+        selectedMetrics: appState.selectedMetrics,
+        pinnedMetrics: appState.pinnedMetrics,
+        scale: appState.scale,
+        smoothing: appState.smoothing,
+        align: appState.align,
+        compare: appState.compare,
+        activePanel: appState.activePanel
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+    }
     async function loadConfig() {
       try {
         const res = await fetch('/api/config');
         const config = await res.json();
+        appState.config = config;
         const seconds = Number(config.poll_interval || 1);
         refreshMs = Math.max(250, seconds * 1000);
       } catch (err) {
@@ -56,32 +179,280 @@
       }
     }
     async function refresh() {
-      const res = await fetch('/api/state');
-      const state = await res.json();
-      document.getElementById('status').textContent = state.mode || 'unknown';
-      if (state.mode === 'project') renderProject(state); else renderRun(state);
+      try {
+        const res = await fetch('/api/state');
+        appState.latest = await res.json();
+        document.getElementById('error-state').classList.add('hidden');
+        render();
+      } catch (err) {
+        document.getElementById('loading-state').classList.add('hidden');
+        const error = document.getElementById('error-state');
+        error.textContent = 'Could not read local Live Board API: ' + err.message;
+        error.classList.remove('hidden');
+      }
+    }
+    function render() {
+      const state = appState.latest || {};
+      const isProject = state.mode === 'project';
+      const runName = isProject ? state.root_dir : (state.manifest?.run_name || state.run_dir || 'run');
+      const status = isProject ? 'project' : (state.status || 'unknown');
+      document.getElementById('loading-state').classList.add('hidden');
+      document.getElementById('status-pill').textContent = status;
+      document.getElementById('status-pill').dataset.status = status;
+      document.getElementById('mode-pill').textContent = state.mode || 'unknown';
+      document.getElementById('poll-pill').textContent = 'poll ' + (refreshMs / 1000) + 's';
+      document.getElementById('run-path').textContent = runName;
+      document.getElementById('overview-run').textContent = shortText(runName);
+      document.getElementById('overview-alerts').textContent = countAlerts(state);
+      document.getElementById('overview-resources').textContent = resourceSummary(state);
+      if (isProject) {
+        renderProject(state);
+      } else {
+        ensureMetricDefaults(state);
+        renderRun(state);
+      }
+      renderPanels(state);
+      setPressedStates();
+    }
+    function ensureMetricDefaults(state) {
+      const catalog = state.metric_catalog || [];
+      if (!appState.selectedMetrics.length && (state.selected_metrics || []).length) {
+        appState.selectedMetrics = state.selected_metrics.slice(0, 2);
+      }
+      if (!appState.selectedMetrics.length && catalog[0]) appState.selectedMetrics = [catalog[0].name];
+      if (!appState.pinnedMetrics.length && (state.pinned_metrics || []).length) {
+        appState.pinnedMetrics = state.pinned_metrics.slice(0, 4);
+      }
     }
     function renderRun(state) {
-      document.getElementById('overview').textContent = state.manifest?.run_name || state.run_dir;
-      document.getElementById('run-status').textContent = state.status;
-      document.getElementById('metrics').innerHTML = list(Object.entries(state.metrics || {}).map(([k,v]) => k + ': ' + v.value));
-      document.getElementById('rules').innerHTML = list((state.rules || []).map(r => (r.outcome || r.severity || 'rule') + ': ' + (r.rule_id || r.type || 'unknown')));
-      document.getElementById('artifacts').innerHTML = list((state.artifacts || []).map(a => a.name || a.path));
-      document.getElementById('events').innerHTML = list((state.events || []).map(e => (e.type || 'event') + ': ' + (e.key || e.value || '')));
-      document.getElementById('logs').textContent = (state.logs || []).join('\n');
-      document.getElementById('monitoring').innerHTML = list((state.monitoring || []).map(m => m.source + ': ' + JSON.stringify(m.metrics || {})));
+      const selected = appState.selectedMetrics[0];
+      const latest = state.metrics?.[selected]?.value;
+      document.getElementById('overview-metric').textContent = selected ? selected + ': ' + valueText(latest) : '-';
+      document.getElementById('workspace-caption').textContent = appState.selectedMetrics.join(', ') || 'No metric selected';
+      drawChart('metric-chart', state, appState.selectedMetrics);
+      drawChart('metric-lab-chart', state, appState.selectedMetrics);
+      renderContextTray(state);
+      renderRunDetails(state);
+      renderAgentWorkspace(state.agent_workspace || {});
     }
     function renderProject(state) {
-      document.getElementById('overview').textContent = 'Project: ' + state.root_dir;
-      document.getElementById('run-status').textContent = JSON.stringify(state.status_counts || {});
-      document.getElementById('project-runs').innerHTML = table(state.runs || []);
+      const best = (state.leaderboard || [])[0];
+      document.getElementById('overview-metric').textContent = best ? best.metric + ': ' + valueText(best.value) : '-';
+      document.getElementById('workspace-caption').textContent = 'Project overview and compare candidates';
+      drawProjectChart(state);
+      renderProjectRuns(state.runs || []);
+      renderContextTray(state);
+      renderRunDetails(state);
     }
-    function list(items) { return '<ul>' + items.slice(-20).map(x => '<li>' + escapeHtml(String(x || '')) + '</li>').join('') + '</ul>'; }
-    function table(rows) { return '<table><tr><th>Run</th><th>Status</th></tr>' + rows.map(r => '<tr><td>' + escapeHtml(r.run_id) + '</td><td>' + escapeHtml(r.status) + '</td></tr>').join('') + '</table>'; }
-    function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+    function drawChart(id, state, metricNames) {
+      const svg = document.getElementById(id);
+      const series = state.metric_series || [];
+      const names = metricNames.length ? metricNames : [];
+      const selectedRows = names.map(name => series.filter(row => row.name === name));
+      if (!selectedRows.some(rows => rows.length)) {
+        svg.classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('empty-state').classList.add('hidden');
+      svg.classList.remove('hidden');
+      const width = Number(svg.viewBox.baseVal.width || 900);
+      const height = Number(svg.viewBox.baseVal.height || 360);
+      const pad = 34;
+      const all = selectedRows.flat();
+      const xVals = all.map((row, index) => xValue(row, index, all[0]?.step || 0));
+      const yVals = all.map(row => yValue(row.value)).filter(value => Number.isFinite(value));
+      const xMin = Math.min(...xVals, 0);
+      const xMax = Math.max(...xVals, 1);
+      const yMin = Math.min(...yVals, 0);
+      const yMax = Math.max(...yVals, 1);
+      const grid = [0, 1, 2, 3, 4].map(i => {
+        const y = pad + ((height - pad * 2) / 4) * i;
+        return '<line class="chart-grid" x1="' + pad + '" y1="' + y + '" x2="' + (width - pad) + '" y2="' + y + '"></line>';
+      }).join('');
+      const lines = selectedRows.map((rows, idx) => {
+        const cooked = smoothRows(rows);
+        const points = cooked.map((row, index) => {
+          const x = scale(xValue(row, index, cooked[0]?.step || 0), xMin, xMax, pad, width - pad);
+          const y = scale(yValue(row.value), yMin, yMax, height - pad, pad);
+          return x + ',' + y;
+        }).join(' ');
+        return '<polyline class="chart-line ' + (idx ? 'secondary' : '') + '" points="' + points + '"></polyline>';
+      }).join('');
+      const markers = (state.context_markers || []).slice(-24).map((marker, index) => {
+        const x = pad + ((width - pad * 2) / Math.max(1, 24)) * index;
+        return '<circle class="chart-marker" cx="' + x + '" cy="' + (height - pad + 2) + '" r="4"><title>' + escapeHtml(marker.label || marker.type) + '</title></circle>';
+      }).join('');
+      svg.innerHTML = grid + lines + markers;
+    }
+    function drawProjectChart(state) {
+      const svg = document.getElementById('metric-chart');
+      svg.classList.remove('hidden');
+      document.getElementById('empty-state').classList.add('hidden');
+      const rows = state.leaderboard || [];
+      const width = 900;
+      const height = 360;
+      const max = Math.max(...rows.map(row => Number(row.value) || 0), 1);
+      const bars = rows.slice(0, 10).map((row, idx) => {
+        const h = ((Number(row.value) || 0) / max) * 250;
+        const x = 50 + idx * 80;
+        return '<rect x="' + x + '" y="' + (310 - h) + '" width="46" height="' + h + '" fill="#2dd4bf"><title>' + escapeHtml(row.run_id || '') + '</title></rect>';
+      }).join('');
+      svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+      svg.innerHTML = bars || '<text x="40" y="80" fill="#9db1c7">No project metrics yet</text>';
+      renderProjectRuns(state.runs || []);
+    }
+    function renderPanels(state) {
+      const catalog = filterCatalog(state.metric_catalog || []);
+      document.getElementById('metrics-panel').innerHTML = catalog.map(metric => (
+        '<button class="metric-item" type="button" data-metric="' + escapeAttr(metric.name) + '" aria-pressed="' + appState.selectedMetrics.includes(metric.name) + '">' +
+        '<strong>' + escapeHtml(metric.name) + '</strong><div class="item-meta">' +
+        escapeHtml(metric.group || 'metrics') + ' · latest ' + valueText(metric.latest) + ' · ' + metric.count + ' points</div></button>'
+      )).join('') || '<div class="empty-state">No metrics discovered.</div>';
+      document.querySelectorAll('[data-metric]').forEach(button => button.addEventListener('click', () => toggleMetric(button.dataset.metric)));
+      const markers = state.context_markers || state.alerts || [];
+      document.getElementById('context-panel').innerHTML = contextList(markers);
+      const artifacts = (state.artifacts || []).concat(state.report_artifacts || []);
+      document.getElementById('artifacts-panel').innerHTML = artifactList(artifacts);
+    }
+    function renderContextTray(state) {
+      const markers = state.context_markers || state.alerts || [];
+      document.getElementById('context-tray').innerHTML = contextList(markers.slice(-8));
+      document.getElementById('logs').textContent = (state.logs || []).slice(-80).join('\n');
+    }
+    function renderRunDetails(state) {
+      const details = [
+        ['Mode', state.mode],
+        ['Status', state.status || 'project'],
+        ['Run ID', state.manifest?.run_id || state.root_dir || '-'],
+        ['Main metric', state.manifest?.main_metric?.name || '-'],
+        ['Warnings', (state.warnings || []).length],
+        ['Pinned', appState.pinnedMetrics.join(', ') || '-']
+      ];
+      document.getElementById('run-details').innerHTML = details.map(([label, value]) => (
+        '<div class="detail-block"><div class="stat-label">' + escapeHtml(label) + '</div><div>' + escapeHtml(String(value || '-')) + '</div></div>'
+      )).join('');
+    }
+    function renderProjectRuns(runs) {
+      document.getElementById('project-runs').innerHTML = runs.map(run => (
+        '<button class="run-item" type="button"><strong>' + escapeHtml(run.run_id || run.run_name || 'run') +
+        '</strong><div class="item-meta">' + escapeHtml(run.status || 'unknown') + ' · ' + escapeHtml(run.project || '') + '</div></button>'
+      )).join('') || '<div class="empty-state">No project runs found.</div>';
+    }
+    function renderAgentWorkspace(agent) {
+      document.getElementById('agent-workspace').innerHTML =
+        '<div>Actions: ' + Number(agent.actions_count || 0) + '</div>' +
+        '<div>Handoff: ' + (agent.handoff ? 'available' : 'missing') + '</div>' +
+        '<div>Decisions: ' + (agent.decisions ? 'available' : 'missing') + '</div>';
+    }
+    function contextList(markers) {
+      return (markers || []).map(marker => (
+        '<div class="context-item"><strong>' + escapeHtml(marker.label || marker.type || String(marker)) +
+        '</strong><div class="item-meta">' + escapeHtml(marker.source || marker.severity || '') + '</div></div>'
+      )).join('') || '<div class="empty-state">No correlated context yet.</div>';
+    }
+    function artifactList(artifacts) {
+      return (artifacts || []).map(item => (
+        '<div class="artifact-item"><strong>' + escapeHtml(item.name || item.path || 'artifact') +
+        '</strong><div class="item-meta">' + escapeHtml(item.type || 'artifact') + ' · ' + escapeHtml(item.path || '') + '</div></div>'
+      )).join('') || '<div class="empty-state">No artifacts discovered.</div>';
+    }
+    function filterCatalog(catalog) {
+      const query = document.getElementById('metric-search').value.toLowerCase();
+      return catalog.filter(metric => !query || metric.name.toLowerCase().includes(query));
+    }
+    function toggleMetric(name) {
+      if (!name) return;
+      if (appState.selectedMetrics.includes(name)) {
+        appState.selectedMetrics = appState.selectedMetrics.filter(metric => metric !== name);
+      } else {
+        appState.selectedMetrics = appState.selectedMetrics.concat(name).slice(-4);
+      }
+      savePrefs();
+      render();
+    }
+    function setPanel(panel) {
+      appState.activePanel = panel;
+      document.querySelectorAll('[data-panel-tab]').forEach(button => {
+        button.setAttribute('aria-selected', String(button.dataset.panelTab === panel));
+      });
+      document.querySelectorAll('[data-tab-button]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.tabButton === panel));
+      });
+      ['metrics', 'context', 'artifacts'].forEach(name => {
+        document.getElementById(name + '-panel').classList.toggle('hidden', name !== panel);
+      });
+      document.getElementById('side-panel').classList.add('is-open');
+      savePrefs();
+    }
+    function setPressedStates() {
+      document.querySelectorAll('[data-scale]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.scale === appState.scale)));
+      document.querySelectorAll('[data-smoothing]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.smoothing) === Number(appState.smoothing))));
+      document.querySelectorAll('[data-align]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.align === appState.align)));
+      document.getElementById('toggle-compare').setAttribute('aria-pressed', String(appState.compare));
+    }
+    function smoothRows(rows) {
+      const windowSize = Number(appState.smoothing || 0);
+      if (!windowSize) return rows;
+      return rows.map((row, index) => {
+        const slice = rows.slice(Math.max(0, index - windowSize + 1), index + 1);
+        const values = slice.map(item => Number(item.value)).filter(Number.isFinite);
+        const value = values.reduce((sum, item) => sum + item, 0) / Math.max(1, values.length);
+        return {...row, value};
+      });
+    }
+    function xValue(row, index, firstStep) {
+      const step = Number(row.step ?? index);
+      return appState.align === 'relative' ? step - Number(firstStep || 0) : step;
+    }
+    function yValue(value) {
+      const numeric = Number(value);
+      if (appState.scale === 'log') return Math.log10(Math.max(numeric, 0.000001));
+      return numeric;
+    }
+    function scale(value, min, max, outMin, outMax) {
+      if (!Number.isFinite(value) || max === min) return (outMin + outMax) / 2;
+      return outMin + ((value - min) / (max - min)) * (outMax - outMin);
+    }
+    function countAlerts(state) {
+      const markers = state.context_markers || [];
+      return markers.filter(marker => ['warning', 'error', 'failed', 'fail'].includes(String(marker.severity).toLowerCase())).length + (state.warnings || []).length;
+    }
+    function resourceSummary(state) {
+      const latest = (state.monitoring || []).slice(-1)[0];
+      if (!latest) return 'idle';
+      if (latest.skipped) return 'skipped';
+      return latest.source || 'active';
+    }
+    function shortText(value) {
+      const text = String(value || '');
+      return text.length > 34 ? '...' + text.slice(-31) : text;
+    }
+    function valueText(value) {
+      return typeof value === 'number' ? Number(value).toPrecision(4) : String(value ?? '-');
+    }
+    function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+    function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
+
+    document.getElementById('metric-search').addEventListener('input', () => renderPanels(appState.latest || {}));
+    document.querySelectorAll('[data-panel-tab]').forEach(button => button.addEventListener('click', () => setPanel(button.dataset.panelTab)));
+    document.querySelectorAll('[data-tab-button]').forEach(button => button.addEventListener('click', () => setPanel(button.dataset.tabButton)));
+    document.querySelectorAll('[data-scale]').forEach(button => button.addEventListener('click', () => { appState.scale = button.dataset.scale; savePrefs(); render(); }));
+    document.querySelectorAll('[data-smoothing]').forEach(button => button.addEventListener('click', () => { appState.smoothing = Number(button.dataset.smoothing); savePrefs(); render(); }));
+    document.querySelectorAll('[data-align]').forEach(button => button.addEventListener('click', () => { appState.align = button.dataset.align; savePrefs(); render(); }));
+    document.getElementById('toggle-compare').addEventListener('click', () => { appState.compare = !appState.compare; savePrefs(); render(); });
+    document.getElementById('pin-selected').addEventListener('click', () => { appState.pinnedMetrics = Array.from(new Set(appState.pinnedMetrics.concat(appState.selectedMetrics))).slice(-6); savePrefs(); render(); });
+    document.getElementById('reset-preferences').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); appState.selectedMetrics = []; appState.pinnedMetrics = []; appState.scale = 'linear'; appState.smoothing = 0; appState.align = 'step'; appState.compare = false; render(); });
+    document.getElementById('open-detail').addEventListener('click', () => { document.getElementById('detail-drawer').classList.add('is-open'); document.getElementById('detail-drawer').setAttribute('aria-hidden', 'false'); });
+    document.getElementById('close-detail').addEventListener('click', () => { document.getElementById('detail-drawer').classList.remove('is-open'); document.getElementById('detail-drawer').setAttribute('aria-hidden', 'true'); });
+    document.getElementById('open-lab').addEventListener('click', () => { document.getElementById('metric-lab').classList.add('is-open'); document.getElementById('metric-lab').setAttribute('aria-hidden', 'false'); drawChart('metric-lab-chart', appState.latest || {}, appState.selectedMetrics); });
+    document.getElementById('close-lab').addEventListener('click', () => { document.getElementById('metric-lab').classList.remove('is-open'); document.getElementById('metric-lab').setAttribute('aria-hidden', 'true'); });
+
     async function startPolling() {
+      loadPrefs();
       await loadConfig();
       await refresh();
+      setPanel(appState.activePanel || 'metrics');
       refreshTimer = setInterval(refresh, refreshMs);
     }
     startPolling();

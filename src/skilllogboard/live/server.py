@@ -79,9 +79,12 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
 
 
 def load_live_template() -> str:
-    return resources.files("skilllogboard.live.templates").joinpath("live.html").read_text(
+    template_root = resources.files("skilllogboard.live.templates")
+    html = template_root.joinpath("live.html").read_text(
         encoding="utf-8"
     )
+    css = template_root.joinpath("ui_tokens.css").read_text(encoding="utf-8")
+    return html.replace("/* __SKILLLOGBOARD_UI_TOKENS__ */", css)
 
 
 def run_live_server(

@@ -90,6 +90,7 @@ def test_live_server_http_smoke_run_mode(tmp_path):
         _wait_for_server(server)
         health = _get_json(f"http://127.0.0.1:{port}/api/health")
         state = _get_json(f"http://127.0.0.1:{port}/api/state")
+        html = _get_text(f"http://127.0.0.1:{port}/")
     finally:
         server.should_exit = True
         thread.join(timeout=5)
@@ -98,6 +99,7 @@ def test_live_server_http_smoke_run_mode(tmp_path):
     assert health["poll_interval"] == 1.5
     assert state["mode"] == "run"
     assert state["status"] == "running"
+    assert 'data-skilllogboard-ui="v1.1"' in html
 
 
 def _free_port():
@@ -118,3 +120,9 @@ def _get_json(url):
     with urlopen(url, timeout=5) as response:
         assert response.status == 200
         return json.loads(response.read().decode("utf-8"))
+
+
+def _get_text(url):
+    with urlopen(url, timeout=5) as response:
+        assert response.status == 200
+        return response.read().decode("utf-8")
