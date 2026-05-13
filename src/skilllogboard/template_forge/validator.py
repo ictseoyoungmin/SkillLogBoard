@@ -5,9 +5,11 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+import ast
 import re
 
 from skilllogboard.template_forge.scaffold import planned_scaffold_paths
+from skilllogboard.skills.parser import SkillsParseError, parse_skills_text
 
 OUTCOME_PASSED = "passed"
 OUTCOME_WARNING = "warning"
@@ -130,6 +132,23 @@ def _plugin_descriptor_check(path: Path) -> TemplateValidationResult:
             "Plugin scaffold still contains TODO markers.",
             {"path": str(path)},
         )
+    parsed = _parse_plugin_literals(text)
+    missing_values = []
+    if not parsed.get("default_config"):
+        missing_values.append("default_config")
+    if not parsed.get("metric_names"):
+        missing_values.append("metric_names")
+    if not parsed.get("default_skills"):
+        missing_values.append("default_skills")
+    if missing_values:
+        return TemplateValidationResult(
+            "plugin",
+            "Plugin descriptor",
+            OUTCOME_ERROR,
+            "error",
+            "Plugin descriptor fields are present but empty or not statically readable.",
+            {"missing": missing_values},
+        )
     return TemplateValidationResult("plugin", "Plugin descriptor", OUTCOME_PASSED, "info", "Plugin descriptor found.")
 
 
@@ -137,9 +156,10 @@ def _skills_parse_check(path: Path) -> TemplateValidationResult:
     if not path.exists():
         return _skipped("skills", "Default skills", "Plugin file is missing.")
     text = path.read_text(encoding="utf-8")
-    if "DEFAULT_SKILLS" not in text:
-        return _skipped("skills", "Default skills", "No DEFAULT_SKILLS scaffold found.")
-    if "## RULE-" not in text:
+    default_skills = _parse_plugin_literals(text).get("default_skills")
+    if default_skills is None:
+        return _skipped("skills", "Default skills", "No statically readable DEFAULT_SKILLS found.")
+    if "## RULE-" not in default_skills:
         return TemplateValidationResult(
             "skills",
             "Default skills",
@@ -147,12 +167,32 @@ def _skills_parse_check(path: Path) -> TemplateValidationResult:
             "warning",
             "Default skills scaffold does not contain parseable rule blocks yet.",
         )
+    try:
+        rules = parse_skills_text(default_skills)
+    except SkillsParseError as exc:
+        return TemplateValidationResult(
+            "skills",
+            "Default skills",
+            OUTCOME_ERROR,
+            "error",
+            "Default skills could not be parsed.",
+            {"error": str(exc)},
+        )
+    if not rules:
+        return TemplateValidationResult(
+            "skills",
+            "Default skills",
+            OUTCOME_WARNING,
+            "warning",
+            "Default skills did not yield any rules.",
+        )
     return TemplateValidationResult(
         "skills",
         "Default skills",
         OUTCOME_PASSED,
         "info",
-        "Default skills scaffold contains rule blocks.",
+        "Default skills contain rule blocks.",
+        {"rules": [rule.rule_id for rule in rules]},
     )
 
 
@@ -208,6 +248,14 @@ def _status_check(path: Path) -> TemplateValidationResult:
         return _skipped("status", "Template status", "Plugin file is missing.")
     text = path.read_text(encoding="utf-8")
     if 'status="Implemented"' in text or 'status = "Implemented"' in text:
+        if "TODO" not in text:
+            return TemplateValidationResult(
+                "status",
+                "Template status",
+                OUTCOME_PASSED,
+                "info",
+                "Template is marked Implemented and contains no TODO markers.",
+            )
         return TemplateValidationResult(
             "status",
             "Template status",
@@ -237,3 +285,28 @@ def _core_dependencies_from_pyproject(text: str) -> list[str]:
 
 def _dependency_name(requirement: str) -> str:
     return re.split(r"[<>=!~;\[]", requirement.strip().lower(), maxsplit=1)[0]
+
+
+def _parse_plugin_literals(text: str) -> dict[str, Any]:
+    try:
+        tree = ast.parse(text)
+    except SyntaxError:
+        return {}
+    values: dict[str, Any] = {}
+    constants: dict[str, Any] = {}
+    for node in tree.body:
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    try:
+                        constants[target.id] = ast.literal_eval(node.value)
+                    except (ValueError, SyntaxError):
+                        continue
+    for key, constant_name in [
+        ("default_config", "DEFAULT_CONFIG"),
+        ("metric_names", "METRIC_NAMES"),
+        ("default_skills", "DEFAULT_SKILLS"),
+    ]:
+        if constant_name in constants:
+            values[key] = constants[constant_name]
+    return values

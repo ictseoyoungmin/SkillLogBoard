@@ -62,8 +62,12 @@ Existing files are skipped unless `--force` is passed.
 ## Validation
 
 `skilllog forge validate TEMPLATE_NAME` checks file presence, plugin descriptor shape, synthetic
-example markers, docs sections, default skills markers, template status, and core dependency policy.
-It returns non-zero on error-level validation failures and supports `--json`.
+example markers, docs sections, statically readable default skills, template status, and core
+dependency policy. It returns non-zero on error-level validation failures and supports `--json`.
 
 Draft scaffolds may produce warnings while TODO markers remain. A template should be marked
 Implemented only after TODOs are resolved, tests pass, docs are complete, and validation is clean.
+
+For filled templates, validation uses static checks for descriptor fields such as `DEFAULT_CONFIG`,
+`METRIC_NAMES`, and `DEFAULT_SKILLS`. It parses default skills, but it does not import template
+modules or execute example training code.

@@ -56,4 +56,7 @@
 | `skilllog forge scaffold` | Supported | Implemented plugin/example/test/docs scaffold generation | v0.9 |
 | `skilllog forge validate` | Supported | Implemented file, scaffold, docs, status, and core dependency checks | v0.9 |
 | Built-in LLM template generation | Not planned | Explicit non-goal; external agents may fill local scaffolds | v0.9 |
+| Cloud sync / multi-user auth | Out of scope | Not implemented | v1.0+ |
+| TensorBoard/W&B import | Out of scope | Not implemented as a built-in importer | v1.0+ |
+| Prometheus/Grafana integration | Out of scope | Not implemented | v1.0+ |
 | Local-first Live Board | Planned | Not implemented | v1.0 |

@@ -48,6 +48,60 @@ def test_validate_template_warns_for_draft_todos_but_no_file_errors(tmp_path):
     assert any(result.check_id == "dependencies" and result.outcome == "passed" for result in results)
 
 
+def test_validate_template_accepts_minimal_filled_plugin_static_descriptor(tmp_path):
+    scaffold_template_from_spec(_spec(), root_dir=tmp_path)
+    (tmp_path / "pyproject.toml").write_text(
+        '[project]\ndependencies = ["pyyaml>=6.0"]\n',
+        encoding="utf-8",
+    )
+    plugin = tmp_path / "src" / "skilllogboard" / "plugins" / "custom_task.py"
+    plugin.write_text(
+        '''"""Filled custom task template."""
+
+from __future__ import annotations
+
+from skilllogboard.plugins.base import SkillLogTemplate
+
+DEFAULT_CONFIG = {"template": "custom-task", "seed": 0}
+METRIC_NAMES = ("val/score",)
+DEFAULT_SKILLS = """# Custom Task Skills
+
+## RULE-CONFIG-CUSTOM-001
+- type: required_config
+- keys: [template, seed]
+- severity: warning
+- status: MVP
+
+## RULE-METRIC-CUSTOM-001
+- type: required_metric
+- keys: [val/score]
+- severity: warning
+- status: MVP
+"""
+
+
+def custom_task_template() -> SkillLogTemplate:
+    return SkillLogTemplate(
+        name="custom-task",
+        status="Implemented",
+        description="Filled custom task template.",
+        default_skills=DEFAULT_SKILLS,
+        default_config=dict(DEFAULT_CONFIG),
+        metric_names=METRIC_NAMES,
+        docs_notes=("Validated local template.",),
+    )
+''',
+        encoding="utf-8",
+    )
+
+    results = validate_template("custom-task", root_dir=tmp_path)
+
+    assert any(result.check_id == "plugin" and result.outcome == "passed" for result in results)
+    assert any(result.check_id == "skills" and result.outcome == "passed" for result in results)
+    assert any(result.check_id == "status" and result.outcome == "passed" for result in results)
+    assert not any(result.outcome == "error" for result in results)
+
+
 def test_core_dependency_policy_detects_heavy_core_dependency():
     result = check_core_dependency_policy(
         """

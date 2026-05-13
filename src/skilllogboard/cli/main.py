@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from argparse import ArgumentParser, REMAINDER
+from argparse import ArgumentParser, RawDescriptionHelpFormatter, REMAINDER
 from importlib import resources
 from pathlib import Path
 import json
@@ -467,7 +467,15 @@ def _cmd_agent_inspect(agent_args: list[str]) -> int:
 def cmd_forge(args) -> int:
     forge_args = list(args.forge_args)
     if not forge_args or forge_args[0] in {"-h", "--help"}:
-        print("Usage: skilllog forge init-brief|plan|scaffold|validate ...")
+        print(
+            "Usage: skilllog forge COMMAND [options]\n\n"
+            "Commands:\n"
+            "  init-brief   Write a ResearchBrief.md starter file.\n"
+            "  plan         Create a reviewable TemplateSpec.md from a brief.\n"
+            "  scaffold     Create plugin/example/test/docs scaffold files.\n"
+            "  validate     Validate scaffolded or filled template files.\n\n"
+            "Run `skilllog forge COMMAND --help` for command options."
+        )
         return 0 if forge_args else 2
     command = forge_args[0]
     rest = forge_args[1:]
@@ -484,9 +492,12 @@ def cmd_forge(args) -> int:
 
 
 def _cmd_forge_init_brief(forge_args: list[str]) -> int:
-    parser = ArgumentParser(prog="skilllog forge init-brief")
-    parser.add_argument("--output", default="ResearchBrief.md")
-    parser.add_argument("--force", action="store_true")
+    parser = ArgumentParser(
+        prog="skilllog forge init-brief",
+        description="Create a ResearchBrief.md starter file.",
+    )
+    parser.add_argument("--output", default="ResearchBrief.md", help="Output path.")
+    parser.add_argument("--force", action="store_true", help="Overwrite an existing output file.")
     parsed = parser.parse_args(forge_args)
 
     from skilllogboard.template_forge import load_research_brief_template
@@ -502,11 +513,14 @@ def _cmd_forge_init_brief(forge_args: list[str]) -> int:
 
 
 def _cmd_forge_plan(forge_args: list[str]) -> int:
-    parser = ArgumentParser(prog="skilllog forge plan")
-    parser.add_argument("--brief", default="ResearchBrief.md")
-    parser.add_argument("--name")
-    parser.add_argument("--output", default="TemplateSpec.md")
-    parser.add_argument("--force", action="store_true")
+    parser = ArgumentParser(
+        prog="skilllog forge plan",
+        description="Create a deterministic TemplateSpec.md draft from ResearchBrief.md.",
+    )
+    parser.add_argument("--brief", default="ResearchBrief.md", help="Input ResearchBrief.md path.")
+    parser.add_argument("--name", help="Template name override, for example custom-task.")
+    parser.add_argument("--output", default="TemplateSpec.md", help="Output TemplateSpec.md path.")
+    parser.add_argument("--force", action="store_true", help="Overwrite an existing output file.")
     parsed = parser.parse_args(forge_args)
 
     from skilllogboard.template_forge import (
@@ -522,8 +536,11 @@ def _cmd_forge_plan(forge_args: list[str]) -> int:
     try:
         brief = parse_research_brief(parsed.brief)
         spec = draft_template_spec_from_brief(brief, template_name=parsed.name)
+    except OSError as exc:
+        print(f"Could not read research brief {parsed.brief!r}: {exc.strerror}", file=sys.stderr)
+        return 1
     except ValueError as exc:
-        print(str(exc), file=sys.stderr)
+        print(f"Could not create template spec: {exc}", file=sys.stderr)
         return 1
     output.parent.mkdir(parents=True, exist_ok=True)
     text = render_template_spec(spec)
@@ -534,12 +551,15 @@ def _cmd_forge_plan(forge_args: list[str]) -> int:
 
 
 def _cmd_forge_scaffold(forge_args: list[str]) -> int:
-    parser = ArgumentParser(prog="skilllog forge scaffold")
-    parser.add_argument("--spec", default="TemplateSpec.md")
-    parser.add_argument("--brief")
-    parser.add_argument("--name")
-    parser.add_argument("--root-dir", default=".")
-    parser.add_argument("--force", action="store_true")
+    parser = ArgumentParser(
+        prog="skilllog forge scaffold",
+        description="Create plugin, example, test, docs, and .skilllog scaffold files.",
+    )
+    parser.add_argument("--spec", default="TemplateSpec.md", help="Input TemplateSpec.md path.")
+    parser.add_argument("--brief", help="Optional ResearchBrief.md path; creates a draft spec in memory.")
+    parser.add_argument("--name", help="Template name override.")
+    parser.add_argument("--root-dir", default=".", help="Project root where files will be created.")
+    parser.add_argument("--force", action="store_true", help="Overwrite existing scaffold files.")
     parsed = parser.parse_args(forge_args)
 
     from skilllogboard.template_forge import (
@@ -560,8 +580,12 @@ def _cmd_forge_scaffold(forge_args: list[str]) -> int:
             if parsed.name:
                 spec.template_name = parsed.name
         result = scaffold_template_from_spec(spec, root_dir=parsed.root_dir, force=parsed.force)
-    except (OSError, ValueError) as exc:
-        print(str(exc), file=sys.stderr)
+    except OSError as exc:
+        source = parsed.brief or parsed.spec
+        print(f"Could not read template input {source!r}: {exc.strerror}", file=sys.stderr)
+        return 1
+    except ValueError as exc:
+        print(f"Could not scaffold template: {exc}", file=sys.stderr)
         return 1
     print(f"Template scaffold: {result.template_name}")
     if result.created:
@@ -576,10 +600,13 @@ def _cmd_forge_scaffold(forge_args: list[str]) -> int:
 
 
 def _cmd_forge_validate(forge_args: list[str]) -> int:
-    parser = ArgumentParser(prog="skilllog forge validate")
-    parser.add_argument("template_name")
-    parser.add_argument("--root-dir", default=".")
-    parser.add_argument("--json", action="store_true")
+    parser = ArgumentParser(
+        prog="skilllog forge validate",
+        description="Validate scaffolded or filled template files without running example training.",
+    )
+    parser.add_argument("template_name", help="Template name, for example custom-task.")
+    parser.add_argument("--root-dir", default=".", help="Project root containing scaffold files.")
+    parser.add_argument("--json", action="store_true", help="Print machine-readable validation results.")
     parsed = parser.parse_args(forge_args)
 
     from skilllogboard.template_forge import validate_template
@@ -644,7 +671,19 @@ def build_parser() -> ArgumentParser:
         "forge",
         help="Create and validate custom template scaffolds",
         description="Create and validate custom template scaffolds.",
-        epilog="Commands: init-brief, plan, scaffold, validate",
+        formatter_class=RawDescriptionHelpFormatter,
+        epilog=(
+            "Commands:\n"
+            "  init-brief   Write a ResearchBrief.md starter file\n"
+            "  plan         Create a TemplateSpec.md draft from a brief\n"
+            "  scaffold     Create plugin/example/test/docs scaffold files\n"
+            "  validate     Validate scaffolded or filled template files\n\n"
+            "Examples:\n"
+            "  skilllog forge init-brief --output ResearchBrief.md\n"
+            "  skilllog forge plan --brief ResearchBrief.md --name custom-task\n"
+            "  skilllog forge scaffold --spec TemplateSpec.md --root-dir .\n"
+            "  skilllog forge validate custom-task --root-dir ."
+        ),
     )
     p_forge.add_argument("forge_args", nargs=REMAINDER)
     p_forge.set_defaults(func=cmd_forge)

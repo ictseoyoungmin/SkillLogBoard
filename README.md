@@ -19,8 +19,11 @@ and multi-run comparison reports:
   report tables, and optional figures
 - v0.8 agent research workflow files: `.skilllog/`, `agent/actions.jsonl`,
   `agent/handoff.md`, and local completion checks
+- v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
+  and template validation
 - CLI `init`, `inspect`, `report`, and `dashboard`
 - CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
+- CLI `forge init-brief`, `forge plan`, `forge scaffold`, and `forge validate`
 
 ## Install
 
@@ -42,6 +45,7 @@ skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/
 skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report
 skilllog report check runs/demo/report --required-table leaderboard
 skilllog agent init
+skilllog forge init-brief --output ResearchBrief.md
 ```
 
 ## Smoke Test
@@ -199,6 +203,8 @@ generation. It provides local files and validation gates that humans or external
 use. Handoff files list changed files only when they are logged as action evidence; SkillLogBoard
 does not infer a git diff automatically.
 
+Detailed workflow: [Agent Research Layer](docs/agent_research_layer.md).
+
 ## v0.9 Template Forge
 
 Create a local harness for a custom research template:
@@ -213,6 +219,8 @@ skilllog forge validate custom-task --root-dir .
 Template Forge creates plugin, example, test, docs, and `.skilllog/` scaffold files for an external
 agent or human to fill. SkillLogBoard does not call LLMs, does not contact cloud APIs, and does not
 generate final domain-specific research code automatically.
+
+Detailed workflow: [Template Forge](docs/template_forge.md).
 
 ## v0.5 Research Templates
 

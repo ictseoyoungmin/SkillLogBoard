@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from skilllogboard.cli.main import main
 
 
@@ -82,3 +84,25 @@ def test_cli_forge_validate_returns_nonzero_for_missing_files(tmp_path, capsys):
     assert result == 1
     data = json.loads(capsys.readouterr().out)
     assert any(item["outcome"] == "error" for item in data)
+
+
+def test_cli_forge_help_and_subcommand_help_are_readable(capsys):
+    top = main(["forge"])
+    top_out = capsys.readouterr().out
+
+    with pytest.raises(SystemExit) as exc:
+        main(["forge", "plan", "--help"])
+    plan_out = capsys.readouterr().out
+
+    assert top == 2
+    assert "init-brief" in top_out
+    assert exc.value.code == 0
+    assert "--brief" in plan_out
+    assert "TemplateSpec.md" in plan_out
+
+
+def test_cli_forge_plan_missing_brief_is_actionable(tmp_path, capsys):
+    result = main(["forge", "plan", "--brief", str(tmp_path / "missing.md")])
+
+    assert result == 1
+    assert "Could not read research brief" in capsys.readouterr().err

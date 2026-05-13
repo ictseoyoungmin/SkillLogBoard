@@ -8,6 +8,7 @@
 - Added `skilllog forge init-brief`, `plan`, `scaffold`, and `validate`.
 - Added validation checks for scaffold file presence, plugin descriptor shape, synthetic examples, docs, status, and core dependency policy.
 - Kept Template Forge additive with no heavy core dependencies and no automatic domain-code generation.
+- Cleanup: improved README discoverability, forge CLI help/error messages, docs/status wording, and filled-template static validator checks.
 
 ## 0.8.0-dev agent research layer candidate
 
