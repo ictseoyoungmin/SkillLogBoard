@@ -6,6 +6,13 @@ import yaml
 from skilllogboard.live.server import LiveServerOptions, create_live_app, load_live_template
 
 
+def _call_route(app, path):
+    for route in app.routes:
+        if getattr(route, "path", None) == path:
+            return route.endpoint()
+    raise AssertionError(f"route not found: {path}")
+
+
 def test_load_live_template_is_self_contained():
     html = load_live_template()
 
@@ -17,8 +24,6 @@ def test_load_live_template_is_self_contained():
 
 @pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
 def test_live_server_state_api_run_mode(tmp_path):
-    from fastapi.testclient import TestClient
-
     (tmp_path / "manifest.yaml").write_text(
         yaml.safe_dump({"run_id": "r1", "status": "running"}),
         encoding="utf-8",
@@ -28,18 +33,16 @@ def test_live_server_state_api_run_mode(tmp_path):
         encoding="utf-8",
     )
 
-    client = TestClient(create_live_app(tmp_path))
+    app = create_live_app(tmp_path)
 
-    assert client.get("/api/health").json()["mode"] == "run"
-    state = client.get("/api/state").json()
+    assert _call_route(app, "/api/health")["mode"] == "run"
+    state = _call_route(app, "/api/state")
     assert state["mode"] == "run"
     assert state["status"] == "running"
 
 
 @pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
 def test_live_server_state_api_project_mode(tmp_path):
-    from fastapi.testclient import TestClient
-
     run_dir = tmp_path / "run-a"
     run_dir.mkdir()
     (run_dir / "manifest.yaml").write_text(
@@ -47,8 +50,8 @@ def test_live_server_state_api_project_mode(tmp_path):
         encoding="utf-8",
     )
 
-    client = TestClient(create_live_app(tmp_path, LiveServerOptions(project=True)))
+    app = create_live_app(tmp_path, LiveServerOptions(project=True))
 
-    state = client.get("/api/state").json()
+    state = _call_route(app, "/api/state")
     assert state["mode"] == "project"
     assert state["runs"][0]["run_id"] == "run-a"
