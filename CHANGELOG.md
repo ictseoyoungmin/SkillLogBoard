@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.9.0-dev template forge candidate
+
+- Added Template Forge contracts for `ResearchBrief.md` and `TemplateSpec.md`.
+- Added package-accessible harness documents and scaffold templates for external coding agents.
+- Added deterministic brief-to-spec planning without LLM or cloud calls.
+- Added `skilllog forge init-brief`, `plan`, `scaffold`, and `validate`.
+- Added validation checks for scaffold file presence, plugin descriptor shape, synthetic examples, docs, status, and core dependency policy.
+- Kept Template Forge additive with no heavy core dependencies and no automatic domain-code generation.
+
 ## 0.8.0-dev agent research layer candidate
 
 - Added local-first agent action logs with `agent/actions.jsonl`.

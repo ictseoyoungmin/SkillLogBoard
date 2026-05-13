@@ -199,6 +199,21 @@ generation. It provides local files and validation gates that humans or external
 use. Handoff files list changed files only when they are logged as action evidence; SkillLogBoard
 does not infer a git diff automatically.
 
+## v0.9 Template Forge
+
+Create a local harness for a custom research template:
+
+```bash
+skilllog forge init-brief --output ResearchBrief.md
+skilllog forge plan --brief ResearchBrief.md --name custom-task --output TemplateSpec.md
+skilllog forge scaffold --spec TemplateSpec.md --root-dir .
+skilllog forge validate custom-task --root-dir .
+```
+
+Template Forge creates plugin, example, test, docs, and `.skilllog/` scaffold files for an external
+agent or human to fill. SkillLogBoard does not call LLMs, does not contact cloud APIs, and does not
+generate final domain-specific research code automatically.
+
 ## v0.5 Research Templates
 
 List lightweight research templates:

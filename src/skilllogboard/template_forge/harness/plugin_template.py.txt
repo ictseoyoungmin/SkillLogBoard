@@ -1,0 +1,44 @@
+"""Scaffolded SkillLogBoard template: {template_name}.
+
+TODO: external agent should replace placeholder metadata before registration.
+"""
+
+from __future__ import annotations
+
+from skilllogboard.plugins.base import SkillLogTemplate
+
+
+DEFAULT_CONFIG = {default_config_repr}
+
+METRIC_NAMES = ({metric_names_tuple})
+
+DEFAULT_SKILLS = """# {template_name} Experiment Skills
+
+## RULE-CONFIG-{module_name}-001
+- type: required_config
+- keys: [template, seed]
+- severity: warning
+- status: MVP
+- message: TODO: update required config keys for this template.
+
+## RULE-METRIC-{module_name}-001
+- type: required_metric
+- keys: [{first_metric}]
+- severity: warning
+- status: MVP
+- message: TODO: update required metrics for this template.
+"""
+
+
+def {module_name}_template() -> SkillLogTemplate:
+    return SkillLogTemplate(
+        name="{slug}",
+        status="Scaffolded",
+        description="{description}",
+        default_skills=DEFAULT_SKILLS,
+        default_config=dict(DEFAULT_CONFIG),
+        metric_names=METRIC_NAMES,
+        docs_notes=(
+            "TODO: fill docs notes after the synthetic example and validation pass.",
+        ),
+    )

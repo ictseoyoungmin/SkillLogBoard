@@ -1,0 +1,18 @@
+from pathlib import Path
+
+from skilllogboard.skills.parser import parse_skills_text
+from skilllogboard.plugins.{module_name} import {module_name}_template
+
+
+def test_{module_name}_template_descriptor_is_scaffolded():
+    template = {module_name}_template()
+
+    assert template.name == "{slug}"
+    assert template.status == "Scaffolded"
+    assert "{first_metric}" in template.metric_names
+    assert parse_skills_text(template.default_skills)
+
+
+def test_{module_name}_template_docs_and_example_exist():
+    assert Path("examples/{module_name}_example.py").exists()
+    assert Path("docs/templates/{module_name}.md").exists()

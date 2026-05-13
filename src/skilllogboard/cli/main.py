@@ -464,6 +464,140 @@ def _cmd_agent_inspect(agent_args: list[str]) -> int:
     return 0
 
 
+def cmd_forge(args) -> int:
+    forge_args = list(args.forge_args)
+    if not forge_args or forge_args[0] in {"-h", "--help"}:
+        print("Usage: skilllog forge init-brief|plan|scaffold|validate ...")
+        return 0 if forge_args else 2
+    command = forge_args[0]
+    rest = forge_args[1:]
+    if command == "init-brief":
+        return _cmd_forge_init_brief(rest)
+    if command == "plan":
+        return _cmd_forge_plan(rest)
+    if command == "scaffold":
+        return _cmd_forge_scaffold(rest)
+    if command == "validate":
+        return _cmd_forge_validate(rest)
+    print(f"Unknown forge command: {command}", file=sys.stderr)
+    return 2
+
+
+def _cmd_forge_init_brief(forge_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog forge init-brief")
+    parser.add_argument("--output", default="ResearchBrief.md")
+    parser.add_argument("--force", action="store_true")
+    parsed = parser.parse_args(forge_args)
+
+    from skilllogboard.template_forge import load_research_brief_template
+
+    output = Path(parsed.output)
+    if output.exists() and not parsed.force:
+        print(f"Skipped existing file: {output}")
+        return 0
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(load_research_brief_template(), encoding="utf-8")
+    print(f"Research brief written: {output}")
+    return 0
+
+
+def _cmd_forge_plan(forge_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog forge plan")
+    parser.add_argument("--brief", default="ResearchBrief.md")
+    parser.add_argument("--name")
+    parser.add_argument("--output", default="TemplateSpec.md")
+    parser.add_argument("--force", action="store_true")
+    parsed = parser.parse_args(forge_args)
+
+    from skilllogboard.template_forge import (
+        draft_template_spec_from_brief,
+        parse_research_brief,
+        render_template_spec,
+    )
+
+    output = Path(parsed.output)
+    if output.exists() and not parsed.force:
+        print(f"Skipped existing file: {output}")
+        return 0
+    try:
+        brief = parse_research_brief(parsed.brief)
+        spec = draft_template_spec_from_brief(brief, template_name=parsed.name)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    output.parent.mkdir(parents=True, exist_ok=True)
+    text = render_template_spec(spec)
+    output.write_text(text, encoding="utf-8")
+    print(f"Template spec written: {output}")
+    print(f"TODO count: {text.count('TODO')}")
+    return 0
+
+
+def _cmd_forge_scaffold(forge_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog forge scaffold")
+    parser.add_argument("--spec", default="TemplateSpec.md")
+    parser.add_argument("--brief")
+    parser.add_argument("--name")
+    parser.add_argument("--root-dir", default=".")
+    parser.add_argument("--force", action="store_true")
+    parsed = parser.parse_args(forge_args)
+
+    from skilllogboard.template_forge import (
+        draft_template_spec_from_brief,
+        parse_research_brief,
+        parse_template_spec,
+        scaffold_template_from_spec,
+    )
+
+    try:
+        if parsed.brief:
+            spec = draft_template_spec_from_brief(
+                parse_research_brief(parsed.brief),
+                template_name=parsed.name,
+            )
+        else:
+            spec = parse_template_spec(parsed.spec)
+            if parsed.name:
+                spec.template_name = parsed.name
+        result = scaffold_template_from_spec(spec, root_dir=parsed.root_dir, force=parsed.force)
+    except (OSError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"Template scaffold: {result.template_name}")
+    if result.created:
+        print("Created:")
+        for path in result.created:
+            print(f"  {path}")
+    if result.skipped:
+        print("Skipped existing:")
+        for path in result.skipped:
+            print(f"  {path}")
+    return 0
+
+
+def _cmd_forge_validate(forge_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog forge validate")
+    parser.add_argument("template_name")
+    parser.add_argument("--root-dir", default=".")
+    parser.add_argument("--json", action="store_true")
+    parsed = parser.parse_args(forge_args)
+
+    from skilllogboard.template_forge import validate_template
+
+    try:
+        results = validate_template(parsed.template_name, root_dir=parsed.root_dir)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    data = [result.to_dict() for result in results]
+    if parsed.json:
+        print(json.dumps(data, indent=2, sort_keys=True))
+    else:
+        for result in results:
+            print(f"{result.outcome}: {result.name}: {result.message}")
+    return 1 if any(result.outcome == "error" for result in results) else 0
+
+
 def cmd_templates(args) -> int:
     from skilllogboard.plugins.registry import list_templates
 
@@ -505,6 +639,15 @@ def build_parser() -> ArgumentParser:
     p_agent = sub.add_parser("agent", help="Manage local agent research workflow files")
     p_agent.add_argument("agent_args", nargs=REMAINDER)
     p_agent.set_defaults(func=cmd_agent)
+
+    p_forge = sub.add_parser(
+        "forge",
+        help="Create and validate custom template scaffolds",
+        description="Create and validate custom template scaffolds.",
+        epilog="Commands: init-brief, plan, scaffold, validate",
+    )
+    p_forge.add_argument("forge_args", nargs=REMAINDER)
+    p_forge.set_defaults(func=cmd_forge)
 
     p_inspect = sub.add_parser("inspect", help="Print manifest for a run directory")
     p_inspect.add_argument("run_dir")

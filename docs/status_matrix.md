@@ -47,5 +47,13 @@
 | `skilllog agent handoff` | Supported | Implemented | v0.8 |
 | `skilllog agent check` | Supported | Implemented readable, JSON, and `--strict` output policy | v0.8-cleanup |
 | `skilllog agent inspect` | Supported | Implemented compact inspection | v0.8 |
-| Template Forge | Planned | Not implemented | v0.9 |
+| Template Forge | Supported | Implemented local scaffold and validation layer | v0.9 |
+| `ResearchBrief.md` | Supported | Implemented contract, template, parser, and `forge init-brief` | v0.9 |
+| `TemplateSpec.md` | Supported | Implemented contract, parser, renderer, and deterministic draft generation | v0.9 |
+| Template Forge harness assets | Supported | Implemented package-accessible Markdown and scaffold templates | v0.9 |
+| `skilllog forge init-brief` | Supported | Implemented | v0.9 |
+| `skilllog forge plan` | Supported | Implemented deterministic brief-to-spec planning | v0.9 |
+| `skilllog forge scaffold` | Supported | Implemented plugin/example/test/docs scaffold generation | v0.9 |
+| `skilllog forge validate` | Supported | Implemented file, scaffold, docs, status, and core dependency checks | v0.9 |
+| Built-in LLM template generation | Not planned | Explicit non-goal; external agents may fill local scaffolds | v0.9 |
 | Local-first Live Board | Planned | Not implemented | v1.0 |
