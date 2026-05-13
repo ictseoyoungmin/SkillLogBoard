@@ -238,14 +238,18 @@ python examples/live_demo.py
 skilllog watch runs/live_demo/{run_id} --no-open
 ```
 
-The board serves `/`, `/api/state`, and `/api/health` from local files only. It can read
+The board serves `/`, `/api/state`, `/api/health`, and `/api/config` from local files only. It can read
 `manifest.yaml`, `metrics.csv`, `events.jsonl`, `skill_trace.jsonl`, `artifact_index.json`,
 `monitoring.jsonl`, and an optional log file:
 
 ```bash
-skilllog watch runs/demo/{run_id} --log-file train.log --monitor-system --monitor-gpu
+skilllog watch runs/demo/{run_id} --poll-interval 2 --log-file train.log --monitor-system --monitor-gpu
 skilllog watch runs/demo --project --latest --no-open
 ```
+
+`--poll-interval` controls both browser refresh timing and active monitor sampling, with a safe
+minimum interval. Project mode uses bounded manifest discovery and skips cache, virtualenv, report,
+artifact, and hidden directories.
 
 Live dependencies are optional. Core logging, static dashboards, reports, compare outputs, and
 Template Forge continue to work without FastAPI, uvicorn, psutil, or GPU tooling.

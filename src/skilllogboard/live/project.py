@@ -4,15 +4,53 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+import os
 
 from skilllogboard.live.state import build_live_run_state
 
+DEFAULT_MAX_DISCOVERY_DEPTH = 4
+DEFAULT_EXCLUDE_DIRS = {
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tox",
+    ".venv",
+    "__pycache__",
+    "_reports",
+    "artifacts",
+    "build",
+    "dist",
+    "htmlcov",
+    "node_modules",
+    "report",
+    "reports",
+}
 
-def find_run_dirs(root_dir: str | Path) -> list[Path]:
+
+def find_run_dirs(
+    root_dir: str | Path,
+    max_depth: int = DEFAULT_MAX_DISCOVERY_DEPTH,
+    exclude_dirs: set[str] | None = None,
+) -> list[Path]:
     root = Path(root_dir)
     if (root / "manifest.yaml").exists():
         return [root]
-    return sorted(path for path in root.rglob("manifest.yaml") if path.is_file())
+    excludes = DEFAULT_EXCLUDE_DIRS if exclude_dirs is None else exclude_dirs
+    manifests: list[Path] = []
+    for current_root, dirnames, filenames in os.walk(root):
+        current = Path(current_root)
+        rel = current.relative_to(root)
+        depth = 0 if rel == Path(".") else len(rel.parts)
+        dirnames[:] = [
+            name
+            for name in dirnames
+            if name not in excludes and not name.startswith(".") and depth < max_depth
+        ]
+        if "manifest.yaml" in filenames:
+            manifests.append(current / "manifest.yaml")
+    return sorted(manifests)
 
 
 def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict[str, Any]:

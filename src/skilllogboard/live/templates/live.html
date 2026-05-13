@@ -43,6 +43,18 @@
     </section>
   </main>
   <script>
+    let refreshMs = 1000;
+    let refreshTimer = null;
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const config = await res.json();
+        const seconds = Number(config.poll_interval || 1);
+        refreshMs = Math.max(250, seconds * 1000);
+      } catch (err) {
+        refreshMs = 1000;
+      }
+    }
     async function refresh() {
       const res = await fetch('/api/state');
       const state = await res.json();
@@ -67,8 +79,12 @@
     function list(items) { return '<ul>' + items.slice(-20).map(x => '<li>' + escapeHtml(String(x || '')) + '</li>').join('') + '</ul>'; }
     function table(rows) { return '<table><tr><th>Run</th><th>Status</th></tr>' + rows.map(r => '<tr><td>' + escapeHtml(r.run_id) + '</td><td>' + escapeHtml(r.status) + '</td></tr>').join('') + '</table>'; }
     function escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
-    refresh();
-    setInterval(refresh, 1000);
+    async function startPolling() {
+      await loadConfig();
+      await refresh();
+      refreshTimer = setInterval(refresh, refreshMs);
+    }
+    startPolling();
   </script>
 </body>
 </html>

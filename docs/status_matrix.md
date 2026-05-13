@@ -61,5 +61,8 @@
 | Prometheus/Grafana integration | Out of scope | Not implemented | v1.0+ |
 | Local-first Live Board | Supported | Implemented optional FastAPI/uvicorn extra over local run files | v1.0 |
 | `skilllog watch` | Supported | Implemented run/project modes with optional browser open | v1.0 |
-| `/api/state` / `/api/health` | Supported | Implemented for run and project Live Board state | v1.0 |
+| `/api/state` / `/api/health` / `/api/config` | Supported | Implemented for run and project Live Board state/config | v1.0-cleanup |
 | `monitoring.jsonl` | Supported | Implemented optional system/process/GPU sampling with skipped warnings | v1.0 |
+| Live Board bounded project discovery | Supported | Implemented depth-limited manifest walk with ignored cache/non-run folders | v1.0-cleanup |
+| Live Board HTTP smoke coverage | Supported | Implemented uvicorn/urllib smoke test when live dependencies are installed | v1.0-cleanup |
+| GPU empty parse warning | Supported | Implemented skipped warning for empty or malformed `nvidia-smi` output | v1.0-cleanup |

@@ -68,6 +68,8 @@ def sample_gpu_metrics() -> dict[str, Any]:
                 "temperature_c": _as_float(parts[4]),
             }
         )
+    if not gpus:
+        return _skipped("gpu", "nvidia-smi returned no parseable GPU rows.")
     return {"source": "gpu", "type": "gpu", "metrics": {"gpus": gpus}}
 
 

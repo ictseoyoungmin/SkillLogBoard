@@ -16,3 +16,11 @@ def test_live_ui_contains_required_sections():
         "Resource Summary",
     ]:
         assert label in html
+
+
+def test_live_ui_uses_server_poll_interval_config():
+    html = load_live_template()
+
+    assert "/api/config" in html
+    assert "refreshMs" in html
+    assert "Math.max(250" in html

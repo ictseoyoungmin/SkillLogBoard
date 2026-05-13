@@ -21,3 +21,37 @@ def test_gpu_monitor_parses_nvidia_smi_output(monkeypatch):
 
     assert result["metrics"]["gpus"][0]["index"] == 0
     assert result["metrics"]["gpus"][0]["utilization_percent"] == 55.0
+
+
+def test_gpu_monitor_reports_missing_nvidia_smi(monkeypatch):
+    def fake_run(*args, **kwargs):
+        raise FileNotFoundError("nvidia-smi")
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+
+    result = sample_gpu_metrics()
+
+    assert result["skipped"] is True
+    assert "nvidia-smi unavailable" in result["warning"]
+
+
+def test_gpu_monitor_warns_on_empty_output(monkeypatch):
+    monkeypatch.setattr(subprocess, "run", lambda *args, **kwargs: SimpleNamespace(stdout=""))
+
+    result = sample_gpu_metrics()
+
+    assert result["skipped"] is True
+    assert "no parseable GPU rows" in result["warning"]
+
+
+def test_gpu_monitor_warns_on_malformed_output(monkeypatch):
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *args, **kwargs: SimpleNamespace(stdout="this is not csv\n"),
+    )
+
+    result = sample_gpu_metrics()
+
+    assert result["skipped"] is True
+    assert "no parseable GPU rows" in result["warning"]

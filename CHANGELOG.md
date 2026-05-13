@@ -8,6 +8,7 @@
 - Added `monitoring.jsonl` helpers plus optional psutil and `nvidia-smi` monitor sampling.
 - Added `examples/live_demo.py`, Live Board docs, and live-extra CI coverage.
 - Kept static dashboards, reports, compare outputs, Template Forge, and core logging independent from live dependencies.
+- Cleanup: exposed `/api/config` and poll interval config to the UI, bounded project-mode discovery, restored HTTP smoke coverage without `httpx`, and made empty or malformed GPU monitor output visible as skipped warnings.
 
 ## 0.9.0-dev template forge candidate
 

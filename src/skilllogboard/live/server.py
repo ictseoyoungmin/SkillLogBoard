@@ -7,6 +7,8 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+MIN_POLL_INTERVAL_SECONDS = 0.25
+
 
 class LiveDependencyError(ImportError):
     """Raised when optional live server dependencies are unavailable."""
@@ -20,6 +22,10 @@ class LiveServerOptions:
     poll_interval: float = 1.0
     monitor_system: bool = False
     monitor_gpu: bool = False
+
+
+def normalized_poll_interval(value: float) -> float:
+    return max(MIN_POLL_INTERVAL_SECONDS, float(value))
 
 
 def require_live_dependencies():
@@ -42,10 +48,22 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
     opts = options or LiveServerOptions()
     target = Path(target_dir)
     app = FastAPI(title="SkillLogBoard Live Board")
+    config = {
+        "mode": "project" if opts.project else "run",
+        "target_dir": str(target),
+        "poll_interval": normalized_poll_interval(opts.poll_interval),
+        "latest": opts.latest,
+        "monitor_system": opts.monitor_system,
+        "monitor_gpu": opts.monitor_gpu,
+    }
 
     @app.get("/api/health")
     def health() -> dict[str, Any]:
-        return {"ok": True, "mode": "project" if opts.project else "run", "target_dir": str(target)}
+        return {"ok": True, **config}
+
+    @app.get("/api/config")
+    def config_endpoint() -> dict[str, Any]:
+        return dict(config)
 
     @app.get("/api/state")
     def state() -> dict[str, Any]:
@@ -86,7 +104,7 @@ def run_live_server(
 
         monitor_loop = MonitorLoop(
             target_dir,
-            interval=opts.poll_interval,
+            interval=normalized_poll_interval(opts.poll_interval),
             monitor_system=opts.monitor_system,
             monitor_process=opts.monitor_system,
             monitor_gpu=opts.monitor_gpu,
