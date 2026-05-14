@@ -631,6 +631,13 @@ def cmd_watch(args) -> int:
     if not target.exists():
         print(f"Watch target not found: {target}", file=sys.stderr)
         return 1
+    project_mode = args.project
+    if not project_mode and not (target / "manifest.yaml").exists():
+        from skilllogboard.live.project import find_run_dirs
+
+        if find_run_dirs(target):
+            project_mode = True
+            print("No manifest.yaml at target; detected run folders below it and enabled project mode.")
     from skilllogboard.live.server import (
         LiveDependencyError,
         LiveServerOptions,
@@ -639,7 +646,7 @@ def cmd_watch(args) -> int:
     )
 
     options = LiveServerOptions(
-        project=args.project,
+        project=project_mode,
         latest=args.latest,
         log_file=args.log_file,
         poll_interval=args.poll_interval,
@@ -649,6 +656,7 @@ def cmd_watch(args) -> int:
     url = f"http://{args.host}:{args.port}"
     print(f"SkillLogBoard Live Board: {url}")
     print(f"Watching: {target}")
+    print(f"Mode: {'project' if project_mode else 'run'}")
     try:
         require_live_dependencies()
         if not args.no_open:

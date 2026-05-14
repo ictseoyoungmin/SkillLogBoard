@@ -30,6 +30,10 @@ python examples/live_demo.py --multi-run
 skilllog watch runs/live_demo --project --latest --no-open
 ```
 
+If the target directory does not contain `manifest.yaml` but has run folders below it, `skilllog
+watch` auto-detects project mode. For example, `skilllog watch runs/ --no-open` is treated as a
+project board when `runs/` contains nested run directories.
+
 Useful options:
 
 ```bash
