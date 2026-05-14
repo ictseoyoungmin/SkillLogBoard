@@ -6,12 +6,13 @@ from pathlib import Path
 from typing import Any
 import os
 
-from skilllogboard.live.readers import read_metrics
-from skilllogboard.live.state import build_live_run_state
+from skilllogboard.live.readers import read_artifacts, read_manifest, read_metric_summary, read_metrics
+from skilllogboard.live.state import read_agent_workspace, read_report_artifacts
 
 DEFAULT_MAX_DISCOVERY_DEPTH = 4
 DEFAULT_COMPARE_MAX_RUNS = 6
 DEFAULT_COMPARE_MAX_POINTS = 240
+DEFAULT_PROJECT_RUN_LIMIT = 500
 DEFAULT_EXCLUDE_DIRS = {
     ".git",
     ".hg",
@@ -30,6 +31,10 @@ DEFAULT_EXCLUDE_DIRS = {
     "report",
     "reports",
 }
+
+SUMMARY_FIRST_VIEWS = {"overview", "runs", "artifacts", "reports", "agent", "settings"}
+SERIES_VIEWS = {"compare", "lab", "metric-lab"}
+_RUN_SUMMARY_CACHE: dict[str, tuple[tuple[float, ...], dict[str, Any]]] = {}
 
 
 def find_run_dirs(
@@ -56,7 +61,11 @@ def find_run_dirs(
     return sorted(manifests)
 
 
-def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict[str, Any]:
+def build_live_project_state(
+    root_dir: str | Path,
+    latest: bool = False,
+    view: str | None = None,
+) -> dict[str, Any]:
     root = Path(root_dir)
     manifests = find_run_dirs(root)
     run_dirs = [path.parent if path.name == "manifest.yaml" else path for path in manifests]
@@ -67,27 +76,19 @@ def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict
     counts: dict[str, int] = {}
     warnings: list[str] = []
     for run_dir in run_dirs:
-        state = build_live_run_state(run_dir)
-        status = state.status
+        state = _read_project_run_summary(run_dir)
+        status = state["status"]
         counts[status] = counts.get(status, 0) + 1
-        warnings.extend(f"{run_dir.name}: {warning}" for warning in state.warnings)
-        runs.append(
-            {
-                "run_dir": str(run_dir),
-                "run_id": state.manifest.get("run_id", run_dir.name),
-                "run_name": state.manifest.get("run_name", run_dir.name),
-                "project": state.manifest.get("project", ""),
-                "status": status,
-                "metrics": state.metrics,
-                "metric_catalog": state.metric_catalog,
-                "main_metric": state.manifest.get("main_metric"),
-                "best_metric": state.manifest.get("best_metric"),
-                "warnings": state.warnings,
-                "capabilities": state.capabilities,
-            }
-        )
+        warnings.extend(f"{run_dir.name}: {warning}" for warning in state["warnings"])
+        runs.append(state)
     metric_catalog = _project_metric_catalog(runs)
-    compare = build_compare_state(root, latest=latest)
+    selected_view = _normalized_view(view)
+    shared_metrics = _shared_summary_metric_names(runs)
+    compare = (
+        build_compare_state(root, latest=latest)
+        if selected_view in SERIES_VIEWS or selected_view == "state"
+        else _compare_summary(runs, shared_metrics)
+    )
     capabilities = _project_capabilities(
         runs=runs,
         metric_catalog=metric_catalog,
@@ -97,8 +98,10 @@ def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict
     )
     return {
         "mode": "project",
+        "current_view": "overview" if selected_view == "state" else selected_view,
+        "payload_scope": "series" if selected_view in SERIES_VIEWS or selected_view == "state" else "summary",
         "root_dir": str(root),
-        "runs": runs,
+        "runs": runs[:DEFAULT_PROJECT_RUN_LIMIT],
         "status_counts": counts,
         "alerts": warnings[-20:],
         "leaderboard": _leaderboard_lite(runs),
@@ -200,6 +203,181 @@ def _leaderboard_lite(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return rows
 
 
+def _read_project_run_summary(run_dir: Path) -> dict[str, Any]:
+    fingerprint = _run_summary_fingerprint(run_dir)
+    cache_key = str(run_dir.resolve())
+    cached = _RUN_SUMMARY_CACHE.get(cache_key)
+    if cached and cached[0] == fingerprint:
+        return dict(cached[1])
+
+    manifest, manifest_warnings = read_manifest(run_dir)
+    metric_catalog, latest_metrics, metric_warnings = read_metric_summary(run_dir)
+    main_metric = manifest.get("main_metric") if isinstance(manifest.get("main_metric"), dict) else {}
+    main_name = main_metric.get("name") if isinstance(main_metric, dict) else None
+    for metric in metric_catalog:
+        metric["pinned"] = metric.get("name") == main_name
+    artifacts, artifact_warnings = read_artifacts(run_dir, limit=1)
+    report_artifacts = read_report_artifacts(run_dir)
+    agent_workspace = read_agent_workspace(run_dir)
+    warnings = manifest_warnings + metric_warnings + artifact_warnings
+    status = str(manifest.get("status", "unknown"))
+    run_id = str(manifest.get("run_id") or run_dir.name)
+    caps = {
+        "mode": "run",
+        "run_count": 1,
+        "metric_count": len(metric_catalog),
+        "shared_metric_count": 0,
+        "event_count": 0,
+        "rule_count": 0,
+        "artifact_count": len(artifacts) + len(report_artifacts),
+        "report_artifact_count": len(report_artifacts),
+        "warning_count": len(warnings),
+        "agent_evidence": bool(
+            agent_workspace.get("actions_count")
+            or agent_workspace.get("handoff")
+            or agent_workspace.get("decisions")
+            or agent_workspace.get("files_changed")
+        ),
+        "compare_ready": False,
+    }
+    summary = {
+        "run_dir": str(run_dir),
+        "run_id": run_id,
+        "run_name": str(manifest.get("run_name") or run_id),
+        "project": str(manifest.get("project") or ""),
+        "status": status,
+        "metrics": latest_metrics,
+        "metric_catalog": metric_catalog,
+        "main_metric": main_metric,
+        "best_metric": manifest.get("best_metric"),
+        "tags": manifest.get("tags") or [],
+        "group": manifest.get("group") or "",
+        "baseline": manifest.get("baseline") or False,
+        "branch": (manifest.get("git") or {}).get("branch") if isinstance(manifest.get("git"), dict) else "",
+        "updated": int(run_dir.stat().st_mtime) if run_dir.exists() else 0,
+        "artifact_count": caps["artifact_count"],
+        "report_artifact_count": caps["report_artifact_count"],
+        "agent_evidence": caps["agent_evidence"],
+        "warnings": warnings,
+        "warning_count": len(warnings),
+        "capabilities": caps,
+    }
+    _RUN_SUMMARY_CACHE[cache_key] = (fingerprint, summary)
+    return dict(summary)
+
+
+def _run_summary_fingerprint(run_dir: Path) -> tuple[float, ...]:
+    paths = [
+        run_dir / "manifest.yaml",
+        run_dir / "metrics.csv",
+        run_dir / "artifact_index.json",
+        run_dir / "summary.md",
+        run_dir / "dashboard.html",
+        run_dir / "report_manifest.yaml",
+        run_dir / "report" / "report_manifest.yaml",
+        run_dir / "agent" / "actions.jsonl",
+        run_dir / "agent" / "handoff.md",
+        run_dir / "agent" / "decisions.md",
+    ]
+    return tuple(path.stat().st_mtime if path.exists() else 0.0 for path in paths)
+
+
+def _normalized_view(view: str | None) -> str:
+    if not view:
+        return "state"
+    value = str(view).strip().lower()
+    return value if value else "state"
+
+
+def _shared_summary_metric_names(runs: list[dict[str, Any]]) -> list[str]:
+    metric_sets = []
+    for run in runs:
+        names = {metric["name"] for metric in run.get("metric_catalog") or [] if metric.get("name")}
+        if names:
+            metric_sets.append(names)
+    if not metric_sets:
+        return []
+    shared = set.intersection(*metric_sets) if len(metric_sets) > 1 else set(metric_sets[0])
+    if not shared:
+        shared = set.union(*metric_sets)
+    return sorted(shared)
+
+
+def _compare_summary(runs: list[dict[str, Any]], shared_metrics: list[str]) -> dict[str, Any]:
+    metric = shared_metrics[0] if shared_metrics else None
+    candidates = _summary_compare_candidates(runs, metric)
+    selected = candidates[:DEFAULT_COMPARE_MAX_RUNS]
+    warnings = [] if metric else ["no shared numeric metrics found for compare"]
+    return {
+        "metric": metric,
+        "align": "step",
+        "normalize": False,
+        "bounds": {"max_runs": DEFAULT_COMPARE_MAX_RUNS, "max_points": DEFAULT_COMPARE_MAX_POINTS},
+        "runs": candidates,
+        "selected_run_ids": [run["run_id"] for run in selected],
+        "shared_metrics": shared_metrics,
+        "series": [],
+        "warnings": warnings,
+    }
+
+
+def _summary_compare_candidates(runs: list[dict[str, Any]], metric: str | None) -> list[dict[str, Any]]:
+    candidates = sorted(runs, key=lambda run: (-(run.get("updated") or 0), run.get("run_id") or ""))
+    if not candidates:
+        return []
+    latest = candidates[0]
+    baseline = _summary_baseline_run(candidates)
+    best = _summary_best_run(candidates, metric)
+    public = []
+    for run in candidates:
+        roles = []
+        if run is best:
+            roles.append("best")
+        if run is latest:
+            roles.append("latest")
+        if run is baseline:
+            roles.append("baseline")
+        role = roles[0] if roles else "candidate"
+        public.append(
+            {
+                "run_dir": run["run_dir"],
+                "run_id": run["run_id"],
+                "run_name": run["run_name"],
+                "status": run["status"],
+                "project": run["project"],
+                "role": role,
+                "roles": roles or ["candidate"],
+                "metrics": [item["name"] for item in run.get("metric_catalog") or []],
+                "mtime": run.get("updated") or 0,
+            }
+        )
+    return sorted(public, key=lambda run: (0 if run["role"] != "candidate" else 1, -run["mtime"], run["run_id"]))
+
+
+def _summary_best_run(runs: list[dict[str, Any]], metric: str | None) -> dict[str, Any] | None:
+    scored = []
+    for run in runs:
+        best_metric = run.get("best_metric") or {}
+        value = None
+        if isinstance(best_metric, dict) and best_metric.get("name") == metric:
+            value = best_metric.get("value", best_metric.get("best_value"))
+        if value is None:
+            latest = (run.get("metrics") or {}).get(metric or "", {})
+            if isinstance(latest, dict):
+                value = latest.get("value")
+        if isinstance(value, (int, float)):
+            scored.append((value, run.get("updated") or 0, run))
+    return max(scored, key=lambda item: (item[0], item[1]))[2] if scored else (runs[0] if runs else None)
+
+
+def _summary_baseline_run(runs: list[dict[str, Any]]) -> dict[str, Any] | None:
+    for run in runs:
+        text = f"{run.get('run_id', '')} {run.get('run_name', '')}".lower()
+        if run.get("baseline") or "baseline" in text:
+            return run
+    return sorted(runs, key=lambda run: (run.get("updated") or 0, run.get("run_id") or ""))[0] if runs else None
+
+
 def _project_metric_catalog(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     grouped: dict[str, dict[str, Any]] = {}
     for run in runs:
@@ -266,21 +444,22 @@ def _project_capabilities(
 
 
 def _read_compare_run(run_dir: Path) -> dict[str, Any]:
-    state = build_live_run_state(run_dir)
+    manifest, manifest_warnings = read_manifest(run_dir)
     rows, latest_metrics, warnings = read_metrics(run_dir)
+    warnings = manifest_warnings + warnings
     grouped: dict[str, list[dict[str, Any]]] = {}
     for row in rows:
         if isinstance(row.get("value"), (int, float)) and row.get("name"):
             grouped.setdefault(str(row["name"]), []).append(row)
-    run_id = str(state.manifest.get("run_id") or run_dir.name)
-    best_metric = state.manifest.get("best_metric")
+    run_id = str(manifest.get("run_id") or run_dir.name)
+    best_metric = manifest.get("best_metric")
     mtime = run_dir.stat().st_mtime if run_dir.exists() else 0
     return {
         "run_dir": str(run_dir),
         "run_id": run_id,
-        "run_name": str(state.manifest.get("run_name") or run_id),
-        "status": str(state.manifest.get("status") or "unknown"),
-        "project": str(state.manifest.get("project") or ""),
+        "run_name": str(manifest.get("run_name") or run_id),
+        "status": str(manifest.get("status") or "unknown"),
+        "project": str(manifest.get("project") or ""),
         "metric_rows": grouped,
         "metric_names": set(grouped),
         "latest_metrics": latest_metrics,

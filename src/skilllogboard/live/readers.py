@@ -48,6 +48,65 @@ def read_metrics(run_dir: str | Path) -> tuple[list[dict[str, Any]], dict[str, A
     return rows, latest, []
 
 
+def read_metric_summary(run_dir: str | Path) -> tuple[list[dict[str, Any]], dict[str, Any], list[str]]:
+    """Read metric aggregates without retaining per-step series rows."""
+
+    path = Path(run_dir) / "metrics.csv"
+    if not path.exists():
+        return [], {}, [f"missing {path.name}"]
+    grouped: dict[str, dict[str, Any]] = {}
+    latest: dict[str, Any] = {}
+    try:
+        with path.open(newline="", encoding="utf-8") as f:
+            for row in csv.DictReader(f):
+                name = row.get("name", "")
+                if not name:
+                    continue
+                step = _as_int(row.get("step"))
+                value = _as_float(row.get("value"))
+                group = row.get("group", "")
+                item = {
+                    "timestamp": row.get("timestamp", ""),
+                    "step": step,
+                    "name": name,
+                    "value": value,
+                    "group": group,
+                    "metadata": _json_value(row.get("metadata_json", "{}")),
+                }
+                latest[str(name)] = item
+                summary = grouped.setdefault(
+                    str(name),
+                    {
+                        "name": str(name),
+                        "group": str(group or ("metrics")),
+                        "count": 0,
+                        "latest": None,
+                        "min": None,
+                        "max": None,
+                        "first_step": None,
+                        "last_step": None,
+                        "pinned": False,
+                    },
+                )
+                if group and summary.get("group") == "metrics":
+                    summary["group"] = str(group)
+                summary["count"] = int(summary["count"]) + 1
+                summary["latest"] = value
+                if isinstance(value, (int, float)):
+                    summary["min"] = value if summary["min"] is None else min(summary["min"], value)
+                    summary["max"] = value if summary["max"] is None else max(summary["max"], value)
+                if isinstance(step, int):
+                    summary["first_step"] = (
+                        step if summary["first_step"] is None else min(summary["first_step"], step)
+                    )
+                    summary["last_step"] = (
+                        step if summary["last_step"] is None else max(summary["last_step"], step)
+                    )
+    except Exception as exc:
+        return list(grouped.values()), latest, [f"could not read {path.name}: {exc}"]
+    return sorted(grouped.values(), key=lambda item: (item["group"], item["name"])), latest, []
+
+
 def read_jsonl(path: str | Path, limit: int | None = None) -> tuple[list[dict[str, Any]], list[str]]:
     path = Path(path)
     if not path.exists():

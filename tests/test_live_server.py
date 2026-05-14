@@ -42,11 +42,15 @@ def test_live_server_state_api_run_mode(tmp_path):
 
     health = _call_route(app, "/api/health")
     assert health["mode"] == "run"
+    assert health["default_view"] == "lab"
     assert health["poll_interval"] == 2.5
-    assert _call_route(app, "/api/config")["poll_interval"] == 2.5
+    config = _call_route(app, "/api/config")
+    assert config["poll_interval"] == 2.5
+    assert config["default_view"] == "lab"
     state = _call_route(app, "/api/state")
     assert state["mode"] == "run"
     assert state["status"] == "running"
+    assert state["current_view"] == "lab"
 
 
 @pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
@@ -60,11 +64,38 @@ def test_live_server_state_api_project_mode(tmp_path):
 
     app = create_live_app(tmp_path, LiveServerOptions(project=True))
 
+    assert _call_route(app, "/api/config")["default_view"] == "overview"
     state = _call_route(app, "/api/state")
     assert state["mode"] == "project"
+    assert state["current_view"] == "overview"
     assert state["runs"][0]["run_id"] == "run-a"
     compare = _call_route(app, "/api/compare")
     assert compare["runs"][0]["run_id"] == "run-a"
+
+
+@pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
+def test_live_server_view_scoped_project_state(tmp_path):
+    for run_id, value in [("run-a", 0.8), ("run-b", 0.9)]:
+        run_dir = tmp_path / run_id
+        run_dir.mkdir()
+        (run_dir / "manifest.yaml").write_text(
+            yaml.safe_dump({"run_id": run_id, "status": "completed"}),
+            encoding="utf-8",
+        )
+        (run_dir / "metrics.csv").write_text(
+            "timestamp,step,name,value,group,metadata_json\n"
+            f"t,1,val/acc,{value},val,{{}}\n",
+            encoding="utf-8",
+        )
+    app = create_live_app(tmp_path, LiveServerOptions(project=True))
+
+    overview = _call_route(app, "/api/state", view="overview")
+    compare = _call_route(app, "/api/state", view="compare")
+
+    assert overview["payload_scope"] == "summary"
+    assert overview["compare"]["series"] == []
+    assert compare["payload_scope"] == "series"
+    assert compare["compare"]["series"]
 
 
 @pytest.mark.skipif(

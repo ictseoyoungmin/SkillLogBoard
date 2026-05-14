@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Any
 
 MIN_POLL_INTERVAL_SECONDS = 0.25
+PROJECT_DEFAULT_VIEW = "overview"
+RUN_DEFAULT_VIEW = "lab"
 
 
 class LiveDependencyError(ImportError):
@@ -50,6 +52,8 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
     app = FastAPI(title="SkillLogBoard Live Board")
     config = {
         "mode": "project" if opts.project else "run",
+        "default_view": PROJECT_DEFAULT_VIEW if opts.project else RUN_DEFAULT_VIEW,
+        "views": ["overview", "runs", "compare", "lab", "artifacts", "reports", "agent", "settings"],
         "target_dir": str(target),
         "poll_interval": normalized_poll_interval(opts.poll_interval),
         "latest": opts.latest,
@@ -66,10 +70,14 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
         return dict(config)
 
     @app.get("/api/state")
-    def state() -> dict[str, Any]:
+    def state(view: str | None = None) -> dict[str, Any]:
+        selected_view = view or config["default_view"]
         if opts.project:
-            return build_live_project_state(target, latest=opts.latest)
-        return build_live_run_state(target, log_file=opts.log_file).to_dict()
+            return build_live_project_state(target, latest=opts.latest, view=selected_view)
+        payload = build_live_run_state(target, log_file=opts.log_file).to_dict()
+        payload["current_view"] = selected_view
+        payload["payload_scope"] = "series" if selected_view in {"lab", "compare"} else "summary"
+        return payload
 
     @app.get("/api/compare")
     def compare(

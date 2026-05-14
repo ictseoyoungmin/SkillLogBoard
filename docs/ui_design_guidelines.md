@@ -5,15 +5,21 @@ and explicit about local evidence.
 
 ## Live Board Principles
 
-- Keep the first screen minimal: status, primary metric, alerts, resources, and one dominant
-  Metric Workspace.
-- Put advanced evidence in interactions: side panels, bottom trays, drawers, and full-screen lab.
+- Use the v1.2 app shell as the durable information architecture: Project contains Overview,
+  Runs, and Compare; Analysis contains Metric Lab, Artifacts, and Reports; Evidence contains Agent
+  and Local Settings.
+- Keep project mode summary-first: Overview should show run count, health, shared metrics,
+  evidence, and warnings without pulling full metric series.
+- Keep single-run mode run-oriented: Metric Lab is the default landing view.
+- Put advanced evidence in interactions and scoped views: side panels, bottom trays, drawers,
+  full-screen lab, and metadata-first artifact/report views.
 - Keep the bottom tray collapsed by default and make the side panel compactable for dense compare
   sessions.
 - Keep local files visible and inspectable; do not imply cloud sync, auth, or hosted observability.
 - Use deep navy surfaces, restrained cyan/blue accents, crisp system typography, and 8px-or-less
   radii.
 - Avoid external fonts, CDNs, React/Vue/Svelte build tooling, or heavy frontend dependencies.
+- Avoid account, team, invite, organization, avatar, cloud project, and remote sync metaphors.
 
 ## Metric Workspace
 
@@ -45,7 +51,7 @@ and explicit about local evidence.
 - Empty states: no-metric, no-compare, no-artifact, no-agent, and no-log states point to local
   commands or local files without implying cloud import, auth, or hosted observability.
 - Performance: project discovery, compare points, and rendered panel rows stay bounded so repeated
-  polling feels responsive.
+  polling feels responsive. Inactive heavy views should not refresh full series eagerly.
 
 ## Screenshot Guidance
 

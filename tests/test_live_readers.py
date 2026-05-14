@@ -4,6 +4,7 @@ from skilllogboard.live.readers import (
     read_artifacts,
     read_events,
     read_manifest,
+    read_metric_summary,
     read_metrics,
     read_rule_trace,
     tail_log_file,
@@ -50,6 +51,27 @@ def test_live_readers_parse_run_files(tmp_path):
     assert events[0]["type"] == "note"
     assert rules[0]["rule_id"] == "RULE-1"
     assert artifacts[0]["name"] == "model"
+
+
+def test_read_metric_summary_aggregates_without_series_payload(tmp_path):
+    (tmp_path / "metrics.csv").write_text(
+        "timestamp,step,name,value,group,metadata_json\n"
+        "t0,0,loss,3.0,train,{}\n"
+        "t1,1,loss,2.0,train,{}\n"
+        "t1,1,acc,0.7,val,{}\n",
+        encoding="utf-8",
+    )
+
+    catalog, latest, warnings = read_metric_summary(tmp_path)
+
+    assert warnings == []
+    loss = next(item for item in catalog if item["name"] == "loss")
+    assert loss["count"] == 2
+    assert loss["min"] == 2.0
+    assert loss["max"] == 3.0
+    assert loss["latest"] == 2.0
+    assert latest["acc"]["value"] == 0.7
+    assert "metadata" not in loss
 
 
 def test_tail_log_file_is_limited(tmp_path):

@@ -52,6 +52,36 @@ def test_build_live_project_state_counts_and_leaderboard(tmp_path):
     assert state["capabilities"]["running_count"] == 1
 
 
+def test_project_overview_state_is_summary_first(tmp_path):
+    _write_run(tmp_path / "run-a", "run-a", "completed", 0.9, 1, points=40)
+    _write_run(tmp_path / "run-b", "run-b", "running", 0.7, 2, points=40)
+
+    state = build_live_project_state(tmp_path, view="overview")
+
+    assert state["current_view"] == "overview"
+    assert state["payload_scope"] == "summary"
+    assert state["compare"]["series"] == []
+    assert "metric_series" not in state["runs"][0]
+    assert state["runs"][0]["metric_catalog"][0]["count"] == 40
+
+
+def test_project_summary_cache_invalidates_on_metric_mtime(tmp_path):
+    run_dir = tmp_path / "run-a"
+    _write_run(run_dir, "run-a", "completed", 0.5, 1, points=1)
+
+    first = build_live_project_state(tmp_path, view="overview")
+    (run_dir / "metrics.csv").write_text(
+        "timestamp,step,name,value,group,metadata_json\n"
+        "t,1,val/acc,0.95,val,{}\n",
+        encoding="utf-8",
+    )
+    os.utime(run_dir / "metrics.csv", (10, 10))
+    second = build_live_project_state(tmp_path, view="overview")
+
+    assert first["runs"][0]["metrics"]["val/acc"]["value"] != second["runs"][0]["metrics"]["val/acc"]["value"]
+    assert second["runs"][0]["metrics"]["val/acc"]["value"] == 0.95
+
+
 def test_find_run_dirs_skips_irrelevant_and_deep_folders(tmp_path):
     _write_run(tmp_path / "project" / "run-a", "run-a", "completed", 0.9, 1)
     _write_run(tmp_path / ".venv" / "fake-run", "fake", "failed", 0.1, 1)

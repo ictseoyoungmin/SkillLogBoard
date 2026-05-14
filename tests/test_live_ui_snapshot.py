@@ -97,6 +97,43 @@ def test_live_ui_contains_v112_showcase_contracts():
         assert snippet in html
 
 
+def test_live_ui_contains_v12_app_shell_contracts():
+    html = load_live_template()
+
+    for snippet in [
+        'data-app-shell-version="v1.2"',
+        'data-current-view="loading"',
+        'data-view-button="overview"',
+        'data-view-button="runs"',
+        'data-view-button="compare"',
+        'data-view-button="lab"',
+        'data-view-button="artifacts"',
+        'data-view-button="reports"',
+        'data-view-button="agent"',
+        'data-view-button="settings"',
+        'data-view-panel="overview"',
+        'data-view-panel="runs"',
+        'data-view-panel="compare"',
+        'data-view-panel="lab"',
+        'data-view-panel="artifacts"',
+        'data-view-panel="reports"',
+        'data-view-panel="agent"',
+        'data-view-panel="settings"',
+        "Local Settings",
+        "Local files only",
+        "series loads only for this view",
+        "view=", 
+    ]:
+        assert snippet in html
+
+
+def test_live_ui_avoids_cloud_account_language():
+    html = load_live_template().lower()
+
+    for forbidden in ["avatar", "team", "invite", "organization", "cloud project"]:
+        assert forbidden not in html
+
+
 def test_live_ui_guided_empty_states_are_actionable():
     html = load_live_template()
 

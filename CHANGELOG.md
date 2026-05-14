@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0-dev app shell refactor candidate
+
+- Added a Live Board app shell with Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Local Settings views.
+- Added project/run default view policy: project mode opens Overview and single-run mode opens Metric Lab.
+- Added `/api/state?view=...` for view-scoped state loading, with summary-first Overview/Runs payloads and bounded series payloads for Compare/Metric Lab.
+- Reworked project state to use lightweight metric summaries and an mtime-invalidated in-memory cache instead of loading full metric series for every project view.
+- Updated Live Board docs, status matrix, and UI guidance for local-first app-shell language and performance boundaries.
+
 ## 1.1.2-dev showcase visual parity candidate
 
 - Added `python examples/live_demo.py --multi-run --runs 5 --rich` for deterministic baseline, best, overfit, failed, and current local demo runs.

@@ -657,6 +657,7 @@ def cmd_watch(args) -> int:
     print(f"SkillLogBoard Live Board: {url}")
     print(f"Watching: {target}")
     print(f"Mode: {'project' if project_mode else 'run'}")
+    print(f"Default view: {'Overview' if project_mode else 'Metric Lab'}")
     try:
         require_live_dependencies()
         if not args.no_open:
@@ -710,7 +711,14 @@ def build_parser() -> ArgumentParser:
     p_agent.add_argument("agent_args", nargs=REMAINDER)
     p_agent.set_defaults(func=cmd_agent)
 
-    p_watch = sub.add_parser("watch", help="Start local-first Live Board for a run or project")
+    p_watch = sub.add_parser(
+        "watch",
+        help="Start local-first Live Board for a run or project",
+        description=(
+            "Start the local-first Live Board. Project mode opens Overview by default; "
+            "single-run mode opens Metric Lab by default."
+        ),
+    )
     p_watch.add_argument("target_dir")
     p_watch.add_argument("--host", default="127.0.0.1")
     p_watch.add_argument("--port", type=int, default=8765)

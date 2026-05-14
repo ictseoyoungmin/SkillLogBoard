@@ -9,7 +9,7 @@
   </style>
 </head>
 <body>
-  <div class="slb-app tray-collapsed" data-skilllogboard-ui="v1.1.1">
+  <div class="slb-app tray-collapsed" data-skilllogboard-ui="v1.1.1" data-app-shell-version="v1.2" data-current-view="loading">
     <header class="slb-topbar">
       <div class="slb-brand">
         <div class="slb-mark" aria-hidden="true">S</div>
@@ -26,23 +26,79 @@
     </header>
 
     <div class="slb-shell">
-      <nav class="slb-rail" aria-label="Live Board tools">
-        <button class="rail-button" type="button" title="Metrics" aria-label="Open metric catalog" data-tab-button="metrics" aria-pressed="true">M</button>
-        <button class="rail-button" type="button" title="Context" aria-label="Open context tray" data-tab-button="context" aria-pressed="false">C</button>
-        <button class="rail-button" type="button" title="Artifacts" aria-label="Open artifacts browser" data-tab-button="artifacts" aria-pressed="false">A</button>
-        <button class="rail-button" type="button" title="Details" aria-label="Open run detail drawer" id="open-detail">D</button>
-        <button class="rail-button" type="button" title="Metric Lab" aria-label="Open full screen metric lab" id="open-lab" data-live-action="open-metric-lab">F</button>
-        <button class="rail-button" type="button" title="Panel" aria-label="Toggle compact side panel" id="toggle-side-panel" data-live-action="toggle-side-panel">P</button>
+      <nav class="slb-rail app-sidebar" aria-label="Live Board tools" data-live-region="app-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Project</div>
+          <button class="nav-item" type="button" data-view-button="overview" aria-pressed="false">Overview</button>
+          <button class="nav-item" type="button" data-view-button="runs" aria-pressed="false">Runs</button>
+          <button class="nav-item" type="button" data-view-button="compare" aria-pressed="false">Compare</button>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Analysis</div>
+          <button class="nav-item" type="button" data-view-button="lab" aria-pressed="false">Metric Lab</button>
+          <button class="nav-item" type="button" data-view-button="artifacts" aria-pressed="false">Artifacts</button>
+          <button class="nav-item" type="button" data-view-button="reports" aria-pressed="false">Reports</button>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Evidence</div>
+          <button class="nav-item" type="button" data-view-button="agent" aria-pressed="false">Agent</button>
+          <button class="nav-item" type="button" data-view-button="settings" aria-pressed="false">Local Settings</button>
+        </div>
+        <div class="sidebar-card">
+          <strong>Local files only</strong>
+          <span>No account or remote sync required.</span>
+        </div>
       </nav>
 
       <main class="slb-main">
-        <section class="overview-band" aria-label="Overview">
-          <div class="stat"><div class="stat-label">Run</div><div class="stat-value" id="overview-run">Loading</div></div>
-          <div class="stat"><div class="stat-label">Primary metric</div><div class="stat-value" id="overview-metric">-</div></div>
-          <div class="stat"><div class="stat-label">Alerts</div><div class="stat-value" id="overview-alerts">0</div></div>
-          <div class="stat"><div class="stat-label">Resources</div><div class="stat-value" id="overview-resources">idle</div></div>
+        <section class="view is-active" data-view-panel="overview" aria-label="Project Overview">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Project</p>
+              <h1 class="workspace-title">Overview</h1>
+            </div>
+            <button type="button" id="manual-refresh" data-live-action="refresh-current-view">Refresh</button>
+          </div>
+          <section class="overview-band" aria-label="Overview">
+            <div class="stat"><div class="stat-label">Run scope</div><div class="stat-value" id="overview-run">Loading</div></div>
+            <div class="stat"><div class="stat-label">Primary metric</div><div class="stat-value" id="overview-metric">-</div></div>
+            <div class="stat"><div class="stat-label">Alerts</div><div class="stat-value" id="overview-alerts">0</div></div>
+            <div class="stat"><div class="stat-label">Resources</div><div class="stat-value" id="overview-resources">idle</div></div>
+          </section>
+          <div id="overview-cards" class="view-grid" data-live-region="overview-cards"></div>
+          <div id="overview-empty" class="empty-state hidden">No project runs found. Watch a directory that contains run folders, or run python examples/live_demo.py --multi-run --runs 5 --rich.</div>
         </section>
 
+        <section class="view" data-view-panel="runs" aria-label="Runs">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Project</p>
+              <h1 class="workspace-title">Runs</h1>
+            </div>
+            <button type="button" id="open-detail" data-live-action="open-run-detail">Details</button>
+          </div>
+          <div id="runs-table-view" class="run-table" data-live-region="runs-table"></div>
+          <div id="runs-empty" class="empty-state hidden">No runs are indexed yet. Use skilllog watch PROJECT_DIR --project after creating local run folders.</div>
+        </section>
+
+        <section class="view" data-view-panel="compare" aria-label="Compare">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Analysis</p>
+              <h1 class="workspace-title">Compare</h1>
+            </div>
+            <div class="workspace-actions">
+              <button type="button" id="open-run-picker-lab" data-live-action="open-run-picker">Runs</button>
+            </div>
+          </div>
+          <div id="compare-view-summary" class="compare-banner" data-live-region="compare-view-summary"></div>
+          <div class="chart-stage">
+            <div id="compare-view-empty" class="empty-state hidden">Compare needs at least two local runs sharing a numeric metric.</div>
+            <svg id="compare-view-chart" class="chart-svg" role="img" aria-label="Compare chart" viewBox="0 0 900 360" preserveAspectRatio="none"></svg>
+          </div>
+        </section>
+
+        <section class="view" data-view-panel="lab" aria-label="Metric Lab">
         <section class="metric-workspace" aria-label="Metric Workspace">
           <div class="workspace-head">
             <div>
@@ -90,6 +146,47 @@
               <button type="button" data-normalize="true" aria-pressed="false">Normalized</button>
             </div>
           </div>
+        </section>
+        </section>
+
+        <section class="view" data-view-panel="artifacts" aria-label="Artifacts">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Analysis</p>
+              <h1 class="workspace-title">Artifacts</h1>
+            </div>
+          </div>
+          <div id="artifacts-view-list" class="artifact-list" data-live-region="artifacts-view"></div>
+        </section>
+
+        <section class="view" data-view-panel="reports" aria-label="Reports">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Analysis</p>
+              <h1 class="workspace-title">Reports</h1>
+            </div>
+          </div>
+          <div id="reports-view-list" class="artifact-list" data-live-region="reports-view"></div>
+        </section>
+
+        <section class="view" data-view-panel="agent" aria-label="Agent">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Evidence</p>
+              <h1 class="workspace-title">Agent</h1>
+            </div>
+          </div>
+          <div id="agent-view-summary" class="detail-block" data-live-region="agent-view">Agent evidence is read from local actions.jsonl, decisions.md, handoff.md, and safety gate files. SkillLogBoard records evidence; it does not run agents.</div>
+        </section>
+
+        <section class="view" data-view-panel="settings" aria-label="Local Settings">
+          <div class="view-head">
+            <div>
+              <p class="view-eyebrow">Evidence</p>
+              <h1 class="workspace-title">Local Settings</h1>
+            </div>
+          </div>
+          <div id="settings-summary" class="view-grid" data-live-region="settings-view"></div>
         </section>
       </main>
 
@@ -182,8 +279,10 @@
       compare: false,
       trayCollapsed: true,
       compactSidePanel: false,
-      activePanel: 'metrics'
+      activePanel: 'metrics',
+      currentView: 'overview'
     };
+    const viewCache = {};
     let refreshMs = 1000;
     let refreshTimer = null;
     const MAX_PANEL_ITEMS = 80;
@@ -209,7 +308,8 @@
         compare: appState.compare,
         trayCollapsed: appState.trayCollapsed,
         compactSidePanel: appState.compactSidePanel,
-        activePanel: appState.activePanel
+        activePanel: appState.activePanel,
+        currentView: appState.currentView
       };
       localStorage.setItem(storageKey, JSON.stringify(prefs));
     }
@@ -220,6 +320,7 @@
         appState.config = config;
         storageKey = STORAGE_PREFIX + ':' + (config.mode || 'run') + ':' + (config.target_dir || 'unknown');
         loadPrefs();
+        appState.currentView = initialView(config);
         const seconds = Number(config.poll_interval || 1);
         refreshMs = Math.max(250, seconds * 1000);
       } catch (err) {
@@ -228,9 +329,12 @@
     }
     async function refresh() {
       try {
-        const res = await fetch('/api/state');
+        const params = new URLSearchParams();
+        params.set('view', appState.currentView || appState.config.default_view || 'overview');
+        const res = await fetch('/api/state?' + params.toString());
         appState.latest = await res.json();
-        if (appState.latest.mode === 'project' && appState.compare) {
+        viewCache[appState.currentView] = appState.latest;
+        if (appState.latest.mode === 'project' && (appState.compare || appState.currentView === 'compare')) {
           await fetchCompare();
         }
         document.getElementById('error-state').classList.add('hidden');
@@ -257,9 +361,36 @@
         appState.selectedRuns = appState.compareData.selected_run_ids.slice(0, 6);
       }
     }
+    function initialView(config) {
+      const allowed = config.views || ['overview', 'runs', 'compare', 'lab', 'artifacts', 'reports', 'agent', 'settings'];
+      const hash = window.location.hash.replace('#', '').trim();
+      const query = new URLSearchParams(window.location.search).get('view');
+      const candidate = query || hash || config.default_view || (config.mode === 'project' ? 'overview' : 'lab');
+      return allowed.includes(candidate) ? candidate : (config.default_view || 'overview');
+    }
+    function showView(view) {
+      const selected = view || 'overview';
+      appState.currentView = selected;
+      document.querySelector('.slb-app').dataset.currentView = selected;
+      document.querySelectorAll('[data-view-panel]').forEach(panel => {
+        panel.classList.toggle('is-active', panel.dataset.viewPanel === selected);
+      });
+      document.querySelectorAll('[data-view-button]').forEach(button => {
+        button.setAttribute('aria-pressed', String(button.dataset.viewButton === selected));
+      });
+    }
+    function setView(view) {
+      if (!view || appState.currentView === view) return;
+      appState.currentView = view;
+      if (view === 'compare') appState.compare = true;
+      window.history.replaceState(null, '', '#' + view);
+      savePrefs();
+      refresh();
+    }
     function render() {
       const state = appState.latest || {};
       const isProject = state.mode === 'project';
+      showView(appState.currentView || state.current_view || 'overview');
       const runName = isProject ? state.root_dir : (state.manifest?.run_name || state.run_dir || 'run');
       const status = isProject ? 'project' : (state.status || 'unknown');
       document.getElementById('loading-state').classList.add('hidden');
@@ -279,6 +410,12 @@
         ensureMetricDefaults(state);
         renderRun(state);
       }
+      renderOverviewCards(state);
+      renderRunsView(state);
+      renderArtifactsView(state);
+      renderReportsView(state);
+      renderAgentView(state);
+      renderSettingsView(state);
       renderPanels(state);
       document.querySelector('.slb-app').classList.toggle('tray-collapsed', appState.trayCollapsed);
       document.getElementById('side-panel').classList.toggle('compact', appState.compactSidePanel);
@@ -323,12 +460,97 @@
       } else {
         drawProjectChart(state);
       }
+      drawCompareChart('compare-view-chart', compare);
+      renderCompareViewSummary(compare, state);
       renderCompareLegend(compare);
       renderChartAffordance(state, compare);
       renderRunPicker(compare.runs || state.compare_candidates || []);
       renderProjectRuns(state.runs || []);
       renderContextTray(state);
       renderRunDetails(state);
+    }
+    function renderCompareViewSummary(compare, state) {
+      const box = document.getElementById('compare-view-summary');
+      const selectedCount = (compare?.selected_run_ids || []).length;
+      const sharedCount = (compare?.shared_metrics || state.shared_metrics || []).length;
+      box.innerHTML =
+        '<span class="mode-chip">Compare</span>' +
+        '<strong>' + escapeHtml(compare?.metric || appState.selectedMetrics[0] || '-') + '</strong>' +
+        '<span>' + selectedCount + ' selected runs</span>' +
+        '<span>' + sharedCount + ' shared metrics</span>' +
+        '<span>series loads only for this view</span>';
+    }
+    function renderOverviewCards(state) {
+      const caps = state.capabilities || {};
+      const runs = state.runs || [];
+      const cards = [
+        ['Runs', caps.run_count || runs.length || 0],
+        ['Completed', caps.completed_count || 0],
+        ['Shared metrics', caps.shared_metric_count || (state.shared_metrics || []).length || 0],
+        ['Evidence artifacts', caps.artifact_count || 0],
+        ['Agent evidence', caps.agent_evidence ? (caps.agent_run_count || 'yes') : 'none'],
+        ['Payload', state.payload_scope || 'summary'],
+      ];
+      document.getElementById('overview-cards').innerHTML = cards.map(([label, value]) => (
+        '<div class="detail-block"><div class="stat-label">' + escapeHtml(label) + '</div><strong>' + escapeHtml(value) + '</strong></div>'
+      )).join('');
+      document.getElementById('overview-empty').classList.toggle('hidden', runs.length > 0 || state.mode !== 'project');
+    }
+    function renderRunsView(state) {
+      const runs = state.runs || [];
+      document.getElementById('runs-empty').classList.toggle('hidden', runs.length > 0 || state.mode !== 'project');
+      document.getElementById('runs-table-view').innerHTML = runs.slice(0, MAX_PANEL_ITEMS).map(run => {
+        const metric = run.best_metric?.name || run.main_metric?.name || Object.keys(run.metrics || {})[0] || '-';
+        const value = run.best_metric?.value ?? run.best_metric?.best_value ?? run.metrics?.[metric]?.value;
+        return '<button class="run-row" type="button"><strong>' + escapeHtml(run.run_id || run.run_name || 'run') +
+          '</strong><span>' + escapeHtml(run.status || 'unknown') + '</span><span>' + escapeHtml(metric) + ': ' + valueText(value) +
+          '</span><span>' + (run.artifact_count || run.capabilities?.artifact_count || 0) + ' artifacts</span><span>' +
+          (run.warning_count || 0) + ' warnings</span></button>';
+      }).join('');
+    }
+    function renderArtifactsView(state) {
+      const artifacts = (state.artifacts || []).concat(state.report_artifacts || []);
+      const projectArtifacts = (state.runs || []).filter(run => (run.artifact_count || run.report_artifact_count));
+      const html = artifacts.length ? artifactList(artifacts) : projectArtifacts.slice(0, MAX_PANEL_ITEMS).map(run => (
+        '<div class="artifact-item"><strong>' + escapeHtml(run.run_id || run.run_name) +
+        '</strong><div class="item-meta">' + (run.artifact_count || 0) + ' local artifacts · ' +
+        (run.report_artifact_count || 0) + ' report artifacts</div></div>'
+      )).join('');
+      document.getElementById('artifacts-view-list').innerHTML = html || '<div class="empty-state">No artifacts discovered. Build a report or run python examples/live_demo.py --rich to create local report, table, and figure artifacts.</div>';
+    }
+    function renderReportsView(state) {
+      const reports = (state.report_artifacts || []).filter(item => ['summary', 'dashboard', 'report', 'report-html', 'report-manifest'].includes(item.type));
+      const projectReports = (state.runs || []).filter(run => run.report_artifact_count);
+      const html = reports.length ? artifactList(reports) : projectReports.slice(0, MAX_PANEL_ITEMS).map(run => (
+        '<div class="artifact-item"><strong>' + escapeHtml(run.run_id || run.run_name) +
+        '</strong><div class="item-meta">' + (run.report_artifact_count || 0) + ' portable report files</div></div>'
+      )).join('');
+      document.getElementById('reports-view-list').innerHTML = html || '<div class="empty-state">No report package found. Use skilllog report build ROOT_OR_RUN_DIR --metric METRIC to create portable evidence outputs.</div>';
+    }
+    function renderAgentView(state) {
+      const runs = state.runs || [];
+      const agentRuns = runs.filter(run => run.agent_evidence || run.capabilities?.agent_evidence);
+      if (state.agent_workspace) {
+        renderAgentWorkspace(state.agent_workspace || {});
+        document.getElementById('agent-view-summary').innerHTML = document.getElementById('agent-workspace').innerHTML;
+        return;
+      }
+      document.getElementById('agent-view-summary').innerHTML = agentRuns.slice(0, MAX_PANEL_ITEMS).map(run => (
+        '<div class="evidence-card"><div class="stat-label">' + escapeHtml(run.run_id || run.run_name) +
+        '</div><strong>local agent evidence</strong></div>'
+      )).join('') || '<div class="empty-state" data-live-region="agent-empty">No agent evidence yet. Add local agent/actions.jsonl, handoff.md, or decisions.md when an agent workflow reviews the run.</div>';
+    }
+    function renderSettingsView(state) {
+      const settings = [
+        ['Mode', state.mode || appState.config.mode || '-'],
+        ['Default view', appState.config.default_view || '-'],
+        ['Current view', appState.currentView || '-'],
+        ['Refresh interval', (refreshMs / 1000) + 's'],
+        ['Target', appState.config.target_dir || '-'],
+      ];
+      document.getElementById('settings-summary').innerHTML = settings.map(([label, value]) => (
+        '<div class="detail-block"><div class="stat-label">' + escapeHtml(label) + '</div><strong>' + escapeHtml(value) + '</strong></div>'
+      )).join('');
     }
     function renderCapabilityHints(state) {
       const caps = state.capabilities || {};
@@ -448,7 +670,7 @@
     function drawCompareChart(id, compare) {
       const svg = document.getElementById(id);
       const series = (compare?.series || []).filter(item => !appState.hiddenRuns.includes(item.run_id) && item.points?.length);
-      const empty = document.getElementById('compare-empty-state');
+      const empty = document.getElementById(id === 'compare-view-chart' ? 'compare-view-empty' : 'compare-empty-state');
       if (!series.length) {
         svg.classList.add('hidden');
         if (empty) empty.classList.remove('hidden');
@@ -729,6 +951,7 @@
     function escapeAttr(s) { return escapeHtml(s).replace(/"/g, '&quot;'); }
 
     document.getElementById('metric-search').addEventListener('input', () => renderPanels(appState.latest || {}));
+    document.querySelectorAll('[data-view-button]').forEach(button => button.addEventListener('click', () => setView(button.dataset.viewButton)));
     document.querySelectorAll('[data-panel-tab]').forEach(button => button.addEventListener('click', () => setPanel(button.dataset.panelTab)));
     document.querySelectorAll('[data-tab-button]').forEach(button => button.addEventListener('click', () => setPanel(button.dataset.tabButton)));
     document.querySelectorAll('[data-scale]').forEach(button => button.addEventListener('click', () => { appState.scale = button.dataset.scale; savePrefs(); render(); }));
@@ -760,6 +983,8 @@
     });
     document.getElementById('close-lab').addEventListener('click', () => { document.getElementById('metric-lab').classList.remove('is-open'); document.getElementById('metric-lab').setAttribute('aria-hidden', 'true'); });
     document.getElementById('open-run-picker').addEventListener('click', () => { document.getElementById('run-picker-drawer').classList.add('is-open'); document.getElementById('run-picker-drawer').setAttribute('aria-hidden', 'false'); });
+    document.getElementById('open-run-picker-lab').addEventListener('click', () => { document.getElementById('run-picker-drawer').classList.add('is-open'); document.getElementById('run-picker-drawer').setAttribute('aria-hidden', 'false'); });
+    document.getElementById('manual-refresh').addEventListener('click', () => refresh());
     document.getElementById('close-run-picker').addEventListener('click', () => { document.getElementById('run-picker-drawer').classList.remove('is-open'); document.getElementById('run-picker-drawer').setAttribute('aria-hidden', 'true'); });
     document.getElementById('close-artifact-preview').addEventListener('click', () => { document.getElementById('artifact-preview-drawer').classList.remove('is-open'); document.getElementById('artifact-preview-drawer').setAttribute('aria-hidden', 'true'); });
     document.getElementById('toggle-side-panel').addEventListener('click', () => { appState.compactSidePanel = !appState.compactSidePanel; savePrefs(); render(); });

@@ -8,6 +8,17 @@ def test_watch_is_registered_command():
     assert "watch" in help_text
 
 
+def test_watch_help_mentions_default_views(capsys):
+    try:
+        build_parser().parse_args(["watch", "--help"])
+    except SystemExit:
+        pass
+
+    output = capsys.readouterr().out
+    assert "Project mode opens Overview by default" in output
+    assert "single-run mode opens Metric Lab by default" in output
+
+
 def test_watch_no_open_does_not_open_browser(tmp_path, monkeypatch, capsys):
     calls = []
 
@@ -22,6 +33,7 @@ def test_watch_no_open_does_not_open_browser(tmp_path, monkeypatch, capsys):
 
     output = capsys.readouterr().out
     assert "http://127.0.0.1:9876" in output
+    assert "Default view: Metric Lab" in output
     assert all(call[0] != "open" for call in calls)
     assert calls[0][0][0] == tmp_path
 
@@ -44,6 +56,7 @@ def test_watch_auto_detects_project_root(tmp_path, monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "enabled project mode" in output
     assert "Mode: project" in output
+    assert "Default view: Overview" in output
     assert calls[0][1]["options"].project is True
 
 

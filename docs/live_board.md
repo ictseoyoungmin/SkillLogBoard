@@ -5,12 +5,19 @@ being written. It reads the same local artifacts used by the static dashboard an
 `manifest.yaml`, `metrics.csv`, `events.jsonl`, `skill_trace.jsonl`, `artifact_index.json`,
 `monitoring.jsonl`, and an optional log file.
 
-The v1.1.2 interface is intentionally quiet on first load. It shows a compact overview, then makes
-the Metric Workspace the primary surface. Deeper evidence stays available through a compactable
-side panel, collapsed bottom context tray, run detail drawer, artifact/report preview drawer,
-agent workspace summary, run picker, compare legend, and full-screen Metric Lab. Compact capability
-hints are derived from local state only: run counts, metric counts, shared metrics, artifacts,
-warnings, compare readiness, and agent evidence.
+The v1.2 interface is a local app shell with view-level navigation:
+
+- Project: Overview, Runs, Compare
+- Analysis: Metric Lab, Artifacts, Reports
+- Evidence: Agent, Local Settings
+
+Project mode opens Overview by default. Single-run mode opens Metric Lab by default, because a
+single run should land on run-oriented metric exploration rather than a project summary. Deeper
+evidence stays available through the app shell plus the compactable side panel, collapsed bottom
+context tray, run detail drawer, artifact/report preview drawer, agent workspace summary, run
+picker, compare legend, and full-screen Metric Lab. Compact capability hints are derived from local
+state only: run counts, metric counts, shared metrics, artifacts, warnings, compare readiness, and
+agent evidence.
 
 Install the optional extra when you want the server:
 
@@ -62,14 +69,21 @@ skilllog watch RUN_DIR --log-file train.log
 ```
 
 The server exposes `/api/health`, `/api/config`, `/api/state`, and `/api/compare`. `/api/config` includes the
-effective `poll_interval`, mode, target directory, and monitor flags. `--poll-interval` controls
-both browser refresh timing and active monitor sampling. The browser clamps the value to a safe
-minimum so accidental very small intervals do not create excessive polling.
+effective `poll_interval`, mode, target directory, default view, available views, and monitor
+flags. `--poll-interval` controls both browser refresh timing and active monitor sampling. The
+browser clamps the value to a safe minimum so accidental very small intervals do not create
+excessive polling.
 
 `/api/state` includes additive UI fields for the Metric Workspace: `metric_catalog`,
 `selected_metrics`, `pinned_metrics`, `context_markers`, `report_artifacts`, and
 `agent_workspace`. v1.1.2 also includes `capabilities`, a compact summary derived from the same
 local files. These fields do not require server-side user sessions.
+
+In v1.2, `/api/state` also accepts a `view` query parameter. Overview, Runs, Artifacts, Reports,
+Agent, and Local Settings use summary-first payloads. Project Overview and Runs do not include full
+per-step metric series. Compare and Metric Lab request series only for the selected metric and
+selected runs, with existing `max_runs` and `max_points` bounds. This keeps large local projects
+usable without adding a database or background service.
 
 Project mode discovers `manifest.yaml` files with a bounded directory walk. It skips hidden/cache
 folders and common non-run folders such as `.git`, `.venv`, `__pycache__`, `node_modules`,
@@ -83,8 +97,10 @@ compare chart. Supported query parameters are `metric`, comma-separated `runs`, 
 directly and deliberately avoids pandas, databases, background indexes, TensorBoard, W&B,
 Prometheus, cloud sync, and authentication.
 
-The browser keeps refresh work bounded for perceived speed: compare requests cap selected runs and
-points, project discovery is depth-limited, and long panel lists are clipped before rendering.
+The browser keeps refresh work bounded for perceived speed: it asks for state scoped to the active
+view, compare requests cap selected runs and points, project discovery is depth-limited, repeated
+metric summaries use an mtime-based in-memory cache, and long panel lists are clipped before
+rendering.
 
 Report package discovery now includes common static artifacts plus metadata-only entries under
 `report/`, `reports/`, `tables/`, and `figures/`. The Live Board preview drawer shows file type,

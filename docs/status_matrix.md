@@ -74,3 +74,7 @@
 | Live Board rich showcase demo | Supported | Implemented deterministic `--rich` multi-run fixture with shared metrics, statuses, events, rules, artifacts, and agent evidence | v1.1.2 |
 | Live Board capability hints | Supported | Implemented local-state-derived run, metric, shared metric, artifact, warning, compare, and agent evidence summaries | v1.1.2 |
 | Live Board visual parity polish | Supported | Implemented compact hint rows, metric chips, compare banner, chart affordance legend, guided empty states, grouped artifacts, and agent evidence cards | v1.1.2 |
+| Live Board app shell views | Supported | Implemented Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Local Settings navigation | v1.2 |
+| Live Board default view policy | Supported | Implemented project-mode Overview default and single-run Metric Lab default | v1.2 |
+| Live Board view-scoped state | Supported | Implemented `/api/state?view=...` with summary-first Overview/Runs and bounded Compare/Metric Lab series | v1.2 |
+| Live Board project summary cache | Supported | Implemented mtime-invalidated metric summary cache for local project payloads | v1.2 |
