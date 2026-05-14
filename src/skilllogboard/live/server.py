@@ -42,7 +42,7 @@ def require_live_dependencies():
 
 def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = None):
     FastAPI, HTMLResponse = require_live_dependencies()
-    from skilllogboard.live.project import build_live_project_state
+    from skilllogboard.live.project import build_compare_state, build_live_project_state
     from skilllogboard.live.state import build_live_run_state
 
     opts = options or LiveServerOptions()
@@ -70,6 +70,39 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
         if opts.project:
             return build_live_project_state(target, latest=opts.latest)
         return build_live_run_state(target, log_file=opts.log_file).to_dict()
+
+    @app.get("/api/compare")
+    def compare(
+        metric: str | None = None,
+        runs: str | None = None,
+        max_runs: int = 6,
+        max_points: int = 240,
+        normalize: bool = False,
+        align: str = "step",
+    ) -> dict[str, Any]:
+        if not opts.project:
+            return {
+                "metric": metric,
+                "align": align,
+                "normalize": normalize,
+                "bounds": {"max_runs": max_runs, "max_points": max_points},
+                "runs": [],
+                "selected_run_ids": [],
+                "shared_metrics": [],
+                "series": [],
+                "warnings": ["compare mode is available in project mode"],
+            }
+        selected = [item.strip() for item in (runs or "").split(",") if item.strip()]
+        return build_compare_state(
+            target,
+            metric=metric,
+            selected_run_ids=selected,
+            max_runs=max_runs,
+            max_points=max_points,
+            normalize=normalize,
+            align=align,
+            latest=opts.latest,
+        )
 
     @app.get("/", response_class=HTMLResponse)
     def index():

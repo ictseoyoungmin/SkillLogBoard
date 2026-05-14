@@ -9,7 +9,7 @@
   </style>
 </head>
 <body>
-  <div class="slb-app" data-skilllogboard-ui="v1.1">
+  <div class="slb-app tray-collapsed" data-skilllogboard-ui="v1.1.1">
     <header class="slb-topbar">
       <div class="slb-brand">
         <div class="slb-mark" aria-hidden="true">S</div>
@@ -31,7 +31,8 @@
         <button class="rail-button" type="button" title="Context" aria-label="Open context tray" data-tab-button="context" aria-pressed="false">C</button>
         <button class="rail-button" type="button" title="Artifacts" aria-label="Open artifacts browser" data-tab-button="artifacts" aria-pressed="false">A</button>
         <button class="rail-button" type="button" title="Details" aria-label="Open run detail drawer" id="open-detail">D</button>
-        <button class="rail-button" type="button" title="Metric Lab" aria-label="Open full screen metric lab" id="open-lab">F</button>
+        <button class="rail-button" type="button" title="Metric Lab" aria-label="Open full screen metric lab" id="open-lab" data-live-action="open-metric-lab">F</button>
+        <button class="rail-button" type="button" title="Panel" aria-label="Toggle compact side panel" id="toggle-side-panel" data-live-action="toggle-side-panel">P</button>
       </nav>
 
       <main class="slb-main">
@@ -49,16 +50,19 @@
               <div class="item-meta" id="workspace-caption">Select and pin metrics from the catalog.</div>
             </div>
             <div class="workspace-actions">
-              <button type="button" id="toggle-compare" aria-pressed="false">Compare</button>
-              <button type="button" id="pin-selected">Pin</button>
-              <button type="button" id="reset-preferences">Reset</button>
+              <button type="button" id="toggle-compare" aria-pressed="false" data-live-action="toggle-compare">Compare</button>
+              <button type="button" id="open-run-picker" data-live-action="open-run-picker">Runs</button>
+              <button type="button" id="pin-selected" data-live-action="pin-selected">Pin</button>
+              <button type="button" id="reset-preferences" data-live-action="reset-preferences">Reset</button>
             </div>
           </div>
           <div class="chart-stage">
             <div id="loading-state" class="loading-state">Loading local run files...</div>
             <div id="empty-state" class="empty-state hidden">No metric rows found yet.</div>
             <div id="error-state" class="error-state hidden" role="alert"></div>
+            <div id="compare-empty-state" class="empty-state hidden" data-live-region="compare-empty">No comparable runs selected.</div>
             <svg id="metric-chart" class="chart-svg hidden" role="img" aria-label="Selected metric chart" viewBox="0 0 900 360" preserveAspectRatio="none"></svg>
+            <div id="compare-legend" class="compare-legend" aria-label="Compare legend" data-live-region="compare-legend"></div>
           </div>
           <div class="workspace-controls" aria-label="Chart transform controls">
             <div class="control-group">
@@ -76,6 +80,10 @@
             <div class="segmented" role="group" aria-label="X-axis alignment">
               <button type="button" data-align="step" aria-pressed="true">Step</button>
               <button type="button" data-align="relative" aria-pressed="false">Relative</button>
+            </div>
+            <div class="segmented" role="group" aria-label="Compare value mode">
+              <button type="button" data-normalize="false" aria-pressed="true">Raw</button>
+              <button type="button" data-normalize="true" aria-pressed="false">Normalized</button>
             </div>
           </div>
         </section>
@@ -95,9 +103,9 @@
       </aside>
     </div>
 
-    <footer class="bottom-tray" aria-label="Bottom context tray">
+    <footer class="bottom-tray" aria-label="Bottom context tray" data-live-region="bottom-tray">
       <section class="tray-section">
-        <h2 class="tray-title">Event, Rule, And Resource Correlation</h2>
+        <div class="tray-head"><h2 class="tray-title">Event, Rule, And Resource Correlation</h2><button type="button" id="toggle-tray" data-live-action="toggle-tray">Expand</button></div>
         <div id="context-tray" class="context-list"></div>
       </section>
       <section class="tray-section">
@@ -121,6 +129,27 @@
     </div>
   </aside>
 
+  <aside class="drawer" id="run-picker-drawer" aria-label="Run picker drawer" aria-hidden="true" data-live-region="run-picker">
+    <div class="drawer-head">
+      <strong>Run Picker</strong>
+      <button type="button" id="close-run-picker" aria-label="Close run picker drawer">Close</button>
+    </div>
+    <div class="drawer-body">
+      <div class="item-meta">Compare mode selects up to six local runs.</div>
+      <div id="run-picker-list" class="run-list" data-compare-run-picker></div>
+    </div>
+  </aside>
+
+  <aside class="drawer" id="artifact-preview-drawer" aria-label="Artifact preview drawer" aria-hidden="true" data-live-region="artifact-preview">
+    <div class="drawer-head">
+      <strong>Artifact Preview</strong>
+      <button type="button" id="close-artifact-preview" aria-label="Close artifact preview drawer">Close</button>
+    </div>
+    <div class="drawer-body">
+      <div class="detail-grid" id="artifact-preview"></div>
+    </div>
+  </aside>
+
   <aside class="metric-lab" id="metric-lab" aria-label="Full screen metric lab" aria-hidden="true">
     <div class="drawer-head">
       <strong>Full Screen Metric Lab</strong>
@@ -132,16 +161,23 @@
   </aside>
 
   <script>
-    const STORAGE_KEY = 'skilllogboard.live.ui.v1';
+    const STORAGE_PREFIX = 'skilllogboard.live.ui.v1.1.1';
+    let storageKey = STORAGE_PREFIX + ':pending';
     const appState = {
       config: {},
       latest: null,
+      compareData: null,
       selectedMetrics: [],
       pinnedMetrics: [],
+      selectedRuns: [],
+      hiddenRuns: [],
       scale: 'linear',
       smoothing: 0,
       align: 'step',
+      normalize: false,
       compare: false,
+      trayCollapsed: true,
+      compactSidePanel: false,
       activePanel: 'metrics'
     };
     let refreshMs = 1000;
@@ -149,29 +185,36 @@
 
     function loadPrefs() {
       try {
-        const prefs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const prefs = JSON.parse(localStorage.getItem(storageKey) || '{}');
         Object.assign(appState, prefs);
       } catch (err) {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(storageKey);
       }
     }
     function savePrefs() {
       const prefs = {
         selectedMetrics: appState.selectedMetrics,
         pinnedMetrics: appState.pinnedMetrics,
+        selectedRuns: appState.selectedRuns,
+        hiddenRuns: appState.hiddenRuns,
         scale: appState.scale,
         smoothing: appState.smoothing,
         align: appState.align,
+        normalize: appState.normalize,
         compare: appState.compare,
+        trayCollapsed: appState.trayCollapsed,
+        compactSidePanel: appState.compactSidePanel,
         activePanel: appState.activePanel
       };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+      localStorage.setItem(storageKey, JSON.stringify(prefs));
     }
     async function loadConfig() {
       try {
         const res = await fetch('/api/config');
         const config = await res.json();
         appState.config = config;
+        storageKey = STORAGE_PREFIX + ':' + (config.mode || 'run') + ':' + (config.target_dir || 'unknown');
+        loadPrefs();
         const seconds = Number(config.poll_interval || 1);
         refreshMs = Math.max(250, seconds * 1000);
       } catch (err) {
@@ -182,6 +225,9 @@
       try {
         const res = await fetch('/api/state');
         appState.latest = await res.json();
+        if (appState.latest.mode === 'project' && appState.compare) {
+          await fetchCompare();
+        }
         document.getElementById('error-state').classList.add('hidden');
         render();
       } catch (err) {
@@ -189,6 +235,21 @@
         const error = document.getElementById('error-state');
         error.textContent = 'Could not read local Live Board API: ' + err.message;
         error.classList.remove('hidden');
+      }
+    }
+    async function fetchCompare() {
+      const metric = appState.selectedMetrics[0] || appState.latest?.compare?.metric || '';
+      const params = new URLSearchParams();
+      if (metric) params.set('metric', metric);
+      if (appState.selectedRuns.length) params.set('runs', appState.selectedRuns.join(','));
+      params.set('align', appState.align);
+      params.set('normalize', String(appState.normalize));
+      params.set('max_runs', '6');
+      params.set('max_points', '240');
+      const res = await fetch('/api/compare?' + params.toString());
+      appState.compareData = await res.json();
+      if (!appState.selectedRuns.length && appState.compareData.selected_run_ids) {
+        appState.selectedRuns = appState.compareData.selected_run_ids.slice(0, 6);
       }
     }
     function render() {
@@ -206,12 +267,15 @@
       document.getElementById('overview-alerts').textContent = countAlerts(state);
       document.getElementById('overview-resources').textContent = resourceSummary(state);
       if (isProject) {
+        ensureMetricDefaults(state);
         renderProject(state);
       } else {
         ensureMetricDefaults(state);
         renderRun(state);
       }
       renderPanels(state);
+      document.querySelector('.slb-app').classList.toggle('tray-collapsed', appState.trayCollapsed);
+      document.getElementById('side-panel').classList.toggle('compact', appState.compactSidePanel);
       setPressedStates();
     }
     function ensureMetricDefaults(state) {
@@ -231,15 +295,25 @@
       document.getElementById('workspace-caption').textContent = appState.selectedMetrics.join(', ') || 'No metric selected';
       drawChart('metric-chart', state, appState.selectedMetrics);
       drawChart('metric-lab-chart', state, appState.selectedMetrics);
+      renderCompareLegend(null);
       renderContextTray(state);
       renderRunDetails(state);
       renderAgentWorkspace(state.agent_workspace || {});
     }
     function renderProject(state) {
       const best = (state.leaderboard || [])[0];
-      document.getElementById('overview-metric').textContent = best ? best.metric + ': ' + valueText(best.value) : '-';
-      document.getElementById('workspace-caption').textContent = 'Project overview and compare candidates';
-      drawProjectChart(state);
+      const compare = appState.compareData || state.compare || {};
+      const metric = appState.selectedMetrics[0] || compare.metric || best?.metric;
+      document.getElementById('overview-metric').textContent = metric ? metric + ': ' + valueText(best?.value) : '-';
+      document.getElementById('workspace-caption').textContent = appState.compare ? 'Compare overlay: ' + (metric || '-') : 'Project overview and compare candidates';
+      if (appState.compare) {
+        drawCompareChart('metric-chart', compare);
+        drawCompareChart('metric-lab-chart', compare);
+      } else {
+        drawProjectChart(state);
+      }
+      renderCompareLegend(compare);
+      renderRunPicker(compare.runs || state.compare_candidates || []);
       renderProjectRuns(state.runs || []);
       renderContextTray(state);
       renderRunDetails(state);
@@ -302,18 +376,55 @@
       svg.innerHTML = bars || '<text x="40" y="80" fill="#9db1c7">No project metrics yet</text>';
       renderProjectRuns(state.runs || []);
     }
+    function drawCompareChart(id, compare) {
+      const svg = document.getElementById(id);
+      const series = (compare?.series || []).filter(item => !appState.hiddenRuns.includes(item.run_id) && item.points?.length);
+      const empty = document.getElementById('compare-empty-state');
+      if (!series.length) {
+        svg.classList.add('hidden');
+        if (empty) empty.classList.remove('hidden');
+        return;
+      }
+      if (empty) empty.classList.add('hidden');
+      document.getElementById('empty-state').classList.add('hidden');
+      svg.classList.remove('hidden');
+      const width = Number(svg.viewBox.baseVal.width || 900);
+      const height = Number(svg.viewBox.baseVal.height || 360);
+      const pad = 34;
+      const allPoints = series.flatMap(item => item.points || []);
+      const xVals = allPoints.map(point => Number(point.x)).filter(Number.isFinite);
+      const yVals = allPoints.map(point => yValue(point.value)).filter(Number.isFinite);
+      const xMin = Math.min(...xVals, 0);
+      const xMax = Math.max(...xVals, 1);
+      const yMin = Math.min(...yVals, 0);
+      const yMax = Math.max(...yVals, 1);
+      const grid = [0, 1, 2, 3, 4].map(i => {
+        const y = pad + ((height - pad * 2) / 4) * i;
+        return '<line class="chart-grid" x1="' + pad + '" y1="' + y + '" x2="' + (width - pad) + '" y2="' + y + '"></line>';
+      }).join('');
+      const lines = series.map((item, idx) => {
+        const points = (item.points || []).map(point => {
+          const x = scale(Number(point.x), xMin, xMax, pad, width - pad);
+          const y = scale(yValue(point.value), yMin, yMax, height - pad, pad);
+          return x + ',' + y;
+        }).join(' ');
+        return '<polyline class="chart-line compare-line line-' + (idx % 6) + '" points="' + points + '"><title>' + escapeHtml(item.run_id) + '</title></polyline>';
+      }).join('');
+      svg.innerHTML = grid + lines;
+    }
     function renderPanels(state) {
       const catalog = filterCatalog(state.metric_catalog || []);
       document.getElementById('metrics-panel').innerHTML = catalog.map(metric => (
         '<button class="metric-item" type="button" data-metric="' + escapeAttr(metric.name) + '" aria-pressed="' + appState.selectedMetrics.includes(metric.name) + '">' +
         '<strong>' + escapeHtml(metric.name) + '</strong><div class="item-meta">' +
-        escapeHtml(metric.group || 'metrics') + ' · latest ' + valueText(metric.latest) + ' · ' + metric.count + ' points</div></button>'
+        escapeHtml(metric.group || 'metrics') + ' · latest ' + valueText(metric.latest) + ' · ' + metric.count + ' points' + (metric.run_count ? ' · ' + metric.run_count + ' runs' : '') + '</div></button>'
       )).join('') || '<div class="empty-state">No metrics discovered.</div>';
       document.querySelectorAll('[data-metric]').forEach(button => button.addEventListener('click', () => toggleMetric(button.dataset.metric)));
       const markers = state.context_markers || state.alerts || [];
       document.getElementById('context-panel').innerHTML = contextList(markers);
       const artifacts = (state.artifacts || []).concat(state.report_artifacts || []);
       document.getElementById('artifacts-panel').innerHTML = artifactList(artifacts);
+      document.querySelectorAll('[data-artifact-preview]').forEach(button => button.addEventListener('click', () => openArtifactPreview(button.dataset.artifactPreview)));
     }
     function renderContextTray(state) {
       const markers = state.context_markers || state.alerts || [];
@@ -339,9 +450,60 @@
         '</strong><div class="item-meta">' + escapeHtml(run.status || 'unknown') + ' · ' + escapeHtml(run.project || '') + '</div></button>'
       )).join('') || '<div class="empty-state">No project runs found.</div>';
     }
+    function renderRunPicker(runs) {
+      const selected = new Set(appState.selectedRuns);
+      document.getElementById('run-picker-list').innerHTML = (runs || []).map(run => {
+        const checked = selected.has(run.run_id);
+        const roles = (run.roles || [run.role || 'candidate']).join(', ');
+        return '<button class="run-item" type="button" data-compare-run="' + escapeAttr(run.run_id) + '" aria-pressed="' + checked + '">' +
+          '<strong>' + escapeHtml(run.run_name || run.run_id) + '</strong><div class="item-meta">' +
+          '<span class="role-badge">' + escapeHtml(roles) + '</span> ' + escapeHtml(run.status || 'unknown') +
+          ' · ' + (run.metrics?.length || 0) + ' metrics</div></button>';
+      }).join('') || '<div class="empty-state">No compare candidates found.</div>';
+      document.querySelectorAll('[data-compare-run]').forEach(button => button.addEventListener('click', () => toggleRun(button.dataset.compareRun)));
+    }
+    function renderCompareLegend(compare) {
+      const box = document.getElementById('compare-legend');
+      const series = compare?.series || [];
+      if (!appState.compare || !series.length) {
+        box.innerHTML = '';
+        box.classList.add('hidden');
+        return;
+      }
+      box.classList.remove('hidden');
+      box.innerHTML = series.map((item, idx) => {
+        const hidden = appState.hiddenRuns.includes(item.run_id);
+        return '<button type="button" class="legend-item line-' + (idx % 6) + '" data-compare-visibility="' + escapeAttr(item.run_id) + '" aria-pressed="' + (!hidden) + '">' +
+          '<span class="legend-swatch"></span><strong>' + escapeHtml(item.run_name || item.run_id) + '</strong>' +
+          '<span class="role-badge">' + escapeHtml((item.roles || [item.role]).join(', ')) + '</span></button>';
+      }).join('');
+      document.querySelectorAll('[data-compare-visibility]').forEach(button => button.addEventListener('click', () => toggleRunVisibility(button.dataset.compareVisibility)));
+    }
+    function toggleRun(runId) {
+      if (!runId) return;
+      if (appState.selectedRuns.includes(runId)) {
+        appState.selectedRuns = appState.selectedRuns.filter(item => item !== runId);
+      } else if (appState.selectedRuns.length < 6) {
+        appState.selectedRuns = appState.selectedRuns.concat(runId);
+      }
+      savePrefs();
+      fetchCompare().then(render);
+    }
+    function toggleRunVisibility(runId) {
+      if (!runId) return;
+      if (appState.hiddenRuns.includes(runId)) {
+        appState.hiddenRuns = appState.hiddenRuns.filter(item => item !== runId);
+      } else {
+        appState.hiddenRuns = appState.hiddenRuns.concat(runId);
+      }
+      savePrefs();
+      render();
+    }
     function renderAgentWorkspace(agent) {
       document.getElementById('agent-workspace').innerHTML =
         '<div>Actions: ' + Number(agent.actions_count || 0) + '</div>' +
+        '<div>Latest: ' + escapeHtml(agent.latest_status || '-') + ' ' + escapeHtml(agent.latest_target || '') + '</div>' +
+        '<div>Files: ' + escapeHtml((agent.files_changed || []).join(', ') || '-') + '</div>' +
         '<div>Handoff: ' + (agent.handoff ? 'available' : 'missing') + '</div>' +
         '<div>Decisions: ' + (agent.decisions ? 'available' : 'missing') + '</div>';
     }
@@ -353,9 +515,31 @@
     }
     function artifactList(artifacts) {
       return (artifacts || []).map(item => (
-        '<div class="artifact-item"><strong>' + escapeHtml(item.name || item.path || 'artifact') +
-        '</strong><div class="item-meta">' + escapeHtml(item.type || 'artifact') + ' · ' + escapeHtml(item.path || '') + '</div></div>'
+        '<button class="artifact-item" type="button" data-artifact-preview="' + escapeAttr(encodeURIComponent(JSON.stringify(item))) + '">' +
+        '<strong>' + escapeHtml(item.name || item.path || 'artifact') +
+        '</strong><div class="item-meta">' + escapeHtml(item.type || 'artifact') + ' · ' + escapeHtml(item.path || '') +
+        (item.size ? ' · ' + item.size + ' bytes' : '') + '</div></button>'
       )).join('') || '<div class="empty-state">No artifacts discovered.</div>';
+    }
+    function openArtifactPreview(payload) {
+      let item = {};
+      try {
+        item = JSON.parse(decodeURIComponent(payload || '%7B%7D'));
+      } catch (err) {
+        item = {name: 'artifact', path: 'unreadable metadata'};
+      }
+      const rows = [
+        ['Name', item.name || '-'],
+        ['Type', item.type || 'artifact'],
+        ['Path', item.path || '-'],
+        ['Size', item.size ? item.size + ' bytes' : '-'],
+        ['Preview', item.preview || 'metadata']
+      ];
+      document.getElementById('artifact-preview').innerHTML = rows.map(([label, value]) => (
+        '<div class="detail-block"><div class="stat-label">' + escapeHtml(label) + '</div><div>' + escapeHtml(String(value || '-')) + '</div></div>'
+      )).join('');
+      document.getElementById('artifact-preview-drawer').classList.add('is-open');
+      document.getElementById('artifact-preview-drawer').setAttribute('aria-hidden', 'false');
     }
     function filterCatalog(catalog) {
       const query = document.getElementById('metric-search').value.toLowerCase();
@@ -369,7 +553,11 @@
         appState.selectedMetrics = appState.selectedMetrics.concat(name).slice(-4);
       }
       savePrefs();
-      render();
+      if (appState.latest?.mode === 'project' && appState.compare) {
+        fetchCompare().then(render);
+      } else {
+        render();
+      }
     }
     function setPanel(panel) {
       appState.activePanel = panel;
@@ -389,7 +577,10 @@
       document.querySelectorAll('[data-scale]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.scale === appState.scale)));
       document.querySelectorAll('[data-smoothing]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.smoothing) === Number(appState.smoothing))));
       document.querySelectorAll('[data-align]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.align === appState.align)));
+      document.querySelectorAll('[data-normalize]').forEach(button => button.setAttribute('aria-pressed', String((button.dataset.normalize === 'true') === Boolean(appState.normalize))));
       document.getElementById('toggle-compare').setAttribute('aria-pressed', String(appState.compare));
+      document.getElementById('toggle-side-panel').setAttribute('aria-pressed', String(appState.compactSidePanel));
+      document.getElementById('toggle-tray').textContent = appState.trayCollapsed ? 'Expand' : 'Collapse';
     }
     function smoothRows(rows) {
       const windowSize = Number(appState.smoothing || 0);
@@ -439,17 +630,39 @@
     document.querySelectorAll('[data-tab-button]').forEach(button => button.addEventListener('click', () => setPanel(button.dataset.tabButton)));
     document.querySelectorAll('[data-scale]').forEach(button => button.addEventListener('click', () => { appState.scale = button.dataset.scale; savePrefs(); render(); }));
     document.querySelectorAll('[data-smoothing]').forEach(button => button.addEventListener('click', () => { appState.smoothing = Number(button.dataset.smoothing); savePrefs(); render(); }));
-    document.querySelectorAll('[data-align]').forEach(button => button.addEventListener('click', () => { appState.align = button.dataset.align; savePrefs(); render(); }));
-    document.getElementById('toggle-compare').addEventListener('click', () => { appState.compare = !appState.compare; savePrefs(); render(); });
+    document.querySelectorAll('[data-align]').forEach(button => button.addEventListener('click', () => { appState.align = button.dataset.align; savePrefs(); appState.latest?.mode === 'project' && appState.compare ? fetchCompare().then(render) : render(); }));
+    document.querySelectorAll('[data-normalize]').forEach(button => button.addEventListener('click', () => { appState.normalize = button.dataset.normalize === 'true'; savePrefs(); appState.latest?.mode === 'project' && appState.compare ? fetchCompare().then(render) : render(); }));
+    document.getElementById('toggle-compare').addEventListener('click', () => {
+      appState.compare = !appState.compare;
+      if (appState.latest?.mode !== 'project' && appState.compare) {
+        const error = document.getElementById('error-state');
+        error.textContent = 'Compare overlay is available in project mode.';
+        error.classList.remove('hidden');
+      }
+      savePrefs();
+      appState.latest?.mode === 'project' && appState.compare ? fetchCompare().then(render) : render();
+    });
     document.getElementById('pin-selected').addEventListener('click', () => { appState.pinnedMetrics = Array.from(new Set(appState.pinnedMetrics.concat(appState.selectedMetrics))).slice(-6); savePrefs(); render(); });
-    document.getElementById('reset-preferences').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); appState.selectedMetrics = []; appState.pinnedMetrics = []; appState.scale = 'linear'; appState.smoothing = 0; appState.align = 'step'; appState.compare = false; render(); });
+    document.getElementById('reset-preferences').addEventListener('click', () => { localStorage.removeItem(storageKey); appState.selectedMetrics = []; appState.pinnedMetrics = []; appState.selectedRuns = []; appState.hiddenRuns = []; appState.scale = 'linear'; appState.smoothing = 0; appState.align = 'step'; appState.normalize = false; appState.compare = false; render(); });
     document.getElementById('open-detail').addEventListener('click', () => { document.getElementById('detail-drawer').classList.add('is-open'); document.getElementById('detail-drawer').setAttribute('aria-hidden', 'false'); });
     document.getElementById('close-detail').addEventListener('click', () => { document.getElementById('detail-drawer').classList.remove('is-open'); document.getElementById('detail-drawer').setAttribute('aria-hidden', 'true'); });
-    document.getElementById('open-lab').addEventListener('click', () => { document.getElementById('metric-lab').classList.add('is-open'); document.getElementById('metric-lab').setAttribute('aria-hidden', 'false'); drawChart('metric-lab-chart', appState.latest || {}, appState.selectedMetrics); });
+    document.getElementById('open-lab').addEventListener('click', () => {
+      document.getElementById('metric-lab').classList.add('is-open');
+      document.getElementById('metric-lab').setAttribute('aria-hidden', 'false');
+      if (appState.latest?.mode === 'project' && appState.compare) {
+        drawCompareChart('metric-lab-chart', appState.compareData || appState.latest.compare || {});
+      } else {
+        drawChart('metric-lab-chart', appState.latest || {}, appState.selectedMetrics);
+      }
+    });
     document.getElementById('close-lab').addEventListener('click', () => { document.getElementById('metric-lab').classList.remove('is-open'); document.getElementById('metric-lab').setAttribute('aria-hidden', 'true'); });
+    document.getElementById('open-run-picker').addEventListener('click', () => { document.getElementById('run-picker-drawer').classList.add('is-open'); document.getElementById('run-picker-drawer').setAttribute('aria-hidden', 'false'); });
+    document.getElementById('close-run-picker').addEventListener('click', () => { document.getElementById('run-picker-drawer').classList.remove('is-open'); document.getElementById('run-picker-drawer').setAttribute('aria-hidden', 'true'); });
+    document.getElementById('close-artifact-preview').addEventListener('click', () => { document.getElementById('artifact-preview-drawer').classList.remove('is-open'); document.getElementById('artifact-preview-drawer').setAttribute('aria-hidden', 'true'); });
+    document.getElementById('toggle-side-panel').addEventListener('click', () => { appState.compactSidePanel = !appState.compactSidePanel; savePrefs(); render(); });
+    document.getElementById('toggle-tray').addEventListener('click', () => { appState.trayCollapsed = !appState.trayCollapsed; savePrefs(); render(); });
 
     async function startPolling() {
-      loadPrefs();
       await loadConfig();
       await refresh();
       setPanel(appState.activePanel || 'metrics');

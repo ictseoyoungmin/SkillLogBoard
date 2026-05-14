@@ -21,7 +21,8 @@ and multi-run comparison reports:
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
   and template validation
-- v1.1 optional local-first Live Board with chart-first Metric Workspace and project overview
+- v1.1.1 optional local-first Live Board with chart-first Metric Workspace, project overview,
+  and bounded cross-run compare overlay
 - CLI `init`, `inspect`, `report`, and `dashboard`
 - CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
 - CLI `forge init-brief`, `forge plan`, `forge scaffold`, and `forge validate`
@@ -228,7 +229,7 @@ generate final domain-specific research code automatically.
 
 Detailed workflow: [Template Forge](docs/template_forge.md).
 
-## v1.1 Live Board
+## v1.1.1 Live Board
 
 Watch a local run folder with the optional Live Board server:
 
@@ -238,11 +239,13 @@ python examples/live_demo.py
 skilllog watch runs/live_demo/{run_id} --no-open
 ```
 
-The board serves `/`, `/api/state`, `/api/health`, and `/api/config` from local files only. It can read
-`manifest.yaml`, `metrics.csv`, `events.jsonl`, `skill_trace.jsonl`, `artifact_index.json`,
-`monitoring.jsonl`, and an optional log file:
+The board serves `/`, `/api/state`, `/api/health`, `/api/config`, and project-mode `/api/compare`
+from local files only. It can read `manifest.yaml`, `metrics.csv`, `events.jsonl`,
+`skill_trace.jsonl`, `artifact_index.json`, `monitoring.jsonl`, report package metadata, and an
+optional log file:
 
 ```bash
+python examples/live_demo.py --multi-run
 skilllog watch runs/demo/{run_id} --poll-interval 2 --log-file train.log --monitor-system --monitor-gpu
 skilllog watch runs/demo --project --latest --no-open
 ```
@@ -251,10 +254,12 @@ skilllog watch runs/demo --project --latest --no-open
 minimum interval. Project mode uses bounded manifest discovery and skips cache, virtualenv, report,
 artifact, and hidden directories.
 
-The v1.1 UI is a quiet command center by default: a compact overview, a dominant Metric Workspace,
-metric catalog search/pinning, smoothing/scale/alignment controls, compare mode, bottom context
-tray, run detail drawer, artifact/report browser, agent workspace summary, and full-screen Metric
-Lab. Preferences are stored only in browser `localStorage`.
+The v1.1.1 UI is a quiet command center by default: a compact overview, a dominant Metric
+Workspace, metric catalog search/pinning, smoothing/scale/alignment/raw-normalized controls,
+project compare mode with a run picker and overlay legend, collapsed bottom context tray, compact
+side panel, run detail drawer, artifact/report preview drawer, agent workspace summary, and
+full-screen Metric Lab. Preferences are stored only in browser `localStorage` with keys scoped by
+mode and target directory.
 
 Live dependencies are optional. Core logging, static dashboards, reports, compare outputs, and
 Template Forge continue to work without FastAPI, uvicorn, psutil, or GPU tooling.

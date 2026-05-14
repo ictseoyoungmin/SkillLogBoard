@@ -36,6 +36,7 @@ class LiveRunState:
     pinned_metrics: list[str] = field(default_factory=list)
     context_markers: list[dict[str, Any]] = field(default_factory=list)
     report_artifacts: list[dict[str, Any]] = field(default_factory=list)
+    artifact_groups: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     agent_workspace: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -79,6 +80,7 @@ def build_live_run_state(
         pinned_metrics = selected_metrics[:1]
     context_markers = build_context_markers(events, rules, artifacts)
 
+    report_artifacts = read_report_artifacts(run)
     return LiveRunState(
         mode="run",
         run_dir=str(run),
@@ -96,7 +98,8 @@ def build_live_run_state(
         selected_metrics=selected_metrics,
         pinned_metrics=pinned_metrics,
         context_markers=context_markers,
-        report_artifacts=read_report_artifacts(run),
+        report_artifacts=report_artifacts,
+        artifact_groups=group_report_artifacts(report_artifacts),
         agent_workspace=read_agent_workspace(run),
     )
 
@@ -181,22 +184,69 @@ def read_report_artifacts(run_dir: Path) -> list[dict[str, Any]]:
         ("report-html", run_dir / "report.html"),
         ("report-manifest", run_dir / "report_manifest.yaml"),
     ]
-    return [
-        {"type": kind, "name": path.name, "path": path.relative_to(run_dir).as_posix()}
+    artifacts = [
+        _report_artifact_record(kind, path, run_dir)
         for kind, path in candidates
-        if path.exists()
+        if path.exists() and path.is_file()
     ]
+    for folder in ["report", "reports", "tables", "figures"]:
+        root = run_dir / folder
+        if root.exists() and root.is_dir():
+            for path in sorted(root.rglob("*")):
+                if path.is_file():
+                    artifacts.append(
+                        _report_artifact_record(_infer_report_artifact_type(path), path, run_dir)
+                    )
+    deduped: dict[str, dict[str, Any]] = {}
+    for item in artifacts:
+        deduped[item["path"]] = item
+    return sorted(deduped.values(), key=lambda item: (item["type"], item["path"]))[:200]
+
+
+def group_report_artifacts(artifacts: list[dict[str, Any]]) -> dict[str, list[dict[str, Any]]]:
+    groups: dict[str, list[dict[str, Any]]] = {}
+    for artifact in artifacts:
+        groups.setdefault(str(artifact.get("type") or "artifact"), []).append(artifact)
+    return groups
 
 
 def read_agent_workspace(run_dir: Path) -> dict[str, Any]:
     agent_dir = run_dir / "agent"
     actions, _ = read_jsonl_if_exists(agent_dir / "actions.jsonl")
+    latest = actions[-1] if actions else {}
     return {
         "actions_count": len(actions),
-        "latest_action": actions[-1] if actions else {},
+        "latest_action": latest,
+        "latest_status": latest.get("status") or latest.get("outcome") or "",
+        "latest_target": latest.get("target") or latest.get("task") or "",
+        "files_changed": latest.get("files_changed") or latest.get("files") or [],
         "handoff": (agent_dir / "handoff.md").exists(),
         "decisions": (agent_dir / "decisions.md").exists(),
     }
+
+
+def _report_artifact_record(kind: str, path: Path, run_dir: Path) -> dict[str, Any]:
+    stat = path.stat()
+    return {
+        "type": kind,
+        "name": path.name,
+        "path": path.relative_to(run_dir).as_posix(),
+        "size": stat.st_size,
+        "modified": int(stat.st_mtime),
+        "preview": "metadata",
+    }
+
+
+def _infer_report_artifact_type(path: Path) -> str:
+    parent_names = {part.lower() for part in path.parts}
+    suffix = path.suffix.lower()
+    if "tables" in parent_names or suffix in {".csv", ".tsv"}:
+        return "table"
+    if "figures" in parent_names or suffix in {".png", ".jpg", ".jpeg", ".svg", ".webp"}:
+        return "figure"
+    if suffix in {".html", ".md", ".yaml", ".yml", ".json"}:
+        return "report"
+    return "artifact"
 
 
 def read_jsonl_if_exists(path: Path) -> tuple[list[dict[str, Any]], list[str]]:

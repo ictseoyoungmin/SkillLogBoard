@@ -28,14 +28,14 @@ def test_live_ui_contains_v11_workspace_regions_and_controls():
     html = load_live_template()
 
     for snippet in [
-        'data-skilllogboard-ui="v1.1"',
+        'data-skilllogboard-ui="v1.1.1"',
         "Metric Workspace",
         "Chart transform controls",
         "Bottom context tray",
         "Run detail drawer",
         "Full screen metric lab",
         "localStorage",
-        "skilllogboard.live.ui.v1",
+        "skilllogboard.live.ui.v1.1.1",
         "Compare",
         "Pin",
         "Reset",
@@ -56,3 +56,23 @@ def test_live_ui_has_accessible_names_and_no_external_assets():
         assert snippet in html
     assert "https://" not in html
     assert "http://" not in html
+
+
+def test_live_ui_contains_v111_compare_and_polish_contracts():
+    html = load_live_template()
+
+    for snippet in [
+        'data-live-action="toggle-compare"',
+        'data-live-action="open-run-picker"',
+        'data-live-action="toggle-tray"',
+        'data-live-region="compare-legend"',
+        'data-live-region="artifact-preview"',
+        'data-compare-run-picker',
+        "Run Picker",
+        "Artifact Preview",
+        "Normalized",
+        "tray-collapsed",
+        "toggle-side-panel",
+        "/api/compare",
+    ]:
+        assert snippet in html

@@ -11,10 +11,10 @@ import yaml
 from skilllogboard.live.server import LiveServerOptions, create_live_app, load_live_template
 
 
-def _call_route(app, path):
+def _call_route(app, path, **kwargs):
     for route in app.routes:
         if getattr(route, "path", None) == path:
-            return route.endpoint()
+            return route.endpoint(**kwargs)
     raise AssertionError(f"route not found: {path}")
 
 
@@ -63,6 +63,8 @@ def test_live_server_state_api_project_mode(tmp_path):
     state = _call_route(app, "/api/state")
     assert state["mode"] == "project"
     assert state["runs"][0]["run_id"] == "run-a"
+    compare = _call_route(app, "/api/compare")
+    assert compare["runs"][0]["run_id"] == "run-a"
 
 
 @pytest.mark.skipif(
@@ -99,7 +101,45 @@ def test_live_server_http_smoke_run_mode(tmp_path):
     assert health["poll_interval"] == 1.5
     assert state["mode"] == "run"
     assert state["status"] == "running"
-    assert 'data-skilllogboard-ui="v1.1"' in html
+    assert 'data-skilllogboard-ui="v1.1.1"' in html
+
+
+@pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
+def test_live_server_compare_api_project_mode(tmp_path):
+    for run_id, value in [("baseline", 0.7), ("candidate", 0.8)]:
+        run_dir = tmp_path / run_id
+        run_dir.mkdir()
+        (run_dir / "manifest.yaml").write_text(
+            yaml.safe_dump(
+                {
+                    "run_id": run_id,
+                    "status": "completed",
+                    "best_metric": {"name": "val/acc", "value": value},
+                }
+            ),
+            encoding="utf-8",
+        )
+        (run_dir / "metrics.csv").write_text(
+            "timestamp,step,name,value,group,metadata_json\n"
+            f"t,1,val/acc,{value},val,{{}}\n"
+            f"t,2,val/acc,{value + 0.01},val,{{}}\n",
+            encoding="utf-8",
+        )
+
+    app = create_live_app(tmp_path, LiveServerOptions(project=True))
+
+    compare = _call_route(
+        app,
+        "/api/compare",
+        metric="val/acc",
+        runs="candidate",
+        normalize=True,
+        align="relative",
+    )
+
+    assert compare["selected_run_ids"] == ["candidate"]
+    assert compare["normalize"] is True
+    assert compare["series"][0]["points"][0]["x"] == 0
 
 
 def _free_port():

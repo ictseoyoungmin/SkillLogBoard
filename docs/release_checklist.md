@@ -2,6 +2,27 @@
 
 SkillLogBoard v0.6 release hardening focuses on verification, packaging, and documentation.
 
+## v1.1.1 Live Board Candidate Notes
+
+- [ ] Confirm the candidate version is `1.1.1.dev0`.
+- [ ] Run focused Live Board checks:
+
+```bash
+python -m pytest tests/test_live_project.py tests/test_live_server.py tests/test_live_ui_snapshot.py
+```
+
+- [ ] Run the multi-run compare fixture:
+
+```bash
+python examples/live_demo.py --multi-run
+skilllog watch runs/live_demo --project --no-open
+```
+
+- [ ] Confirm `/api/compare` stays local-first and bounded: no TensorBoard/W&B import,
+  Prometheus/Grafana integration, cloud sync, auth, database, or frontend build system.
+- [ ] Confirm manual visual QA covers desktop/mobile project compare, run picker, overlay legend,
+  raw/normalized mode, collapsed tray, compact panel, and artifact preview drawer.
+
 ## Environment
 
 - [ ] Confirm the release candidate version:

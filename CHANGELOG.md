@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1-dev UI polish compare candidate
+
+- Added project-mode `/api/compare` with bounded local metric series, selected runs, raw/normalized values, and step/relative alignment.
+- Added compare candidates with best/latest/baseline roles, run picker drawer, overlay legend visibility toggles, and scoped browser preferences.
+- Polished the Live Board layout with a collapsed bottom tray, compact side panel toggle, loading/empty compare states, and interaction data attributes.
+- Expanded report package discovery for `report/`, `reports/`, `tables/`, and `figures/` metadata plus a metadata-only artifact preview drawer.
+- Added a multi-run Live Board demo fixture and v1.1.1 contract tests for project compare state, server API, and UI snippets.
+
 ## 1.1.0-dev UI/UX redesign candidate
 
 - Redesigned the optional Live Board into a minimal command center with a chart-first Metric Workspace.

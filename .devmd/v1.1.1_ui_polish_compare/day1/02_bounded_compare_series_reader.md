@@ -1,0 +1,93 @@
+---
+milestone: "v1.1.1"
+phase: "UI Polish, True Compare, and Interaction Hardening"
+day: "day1"
+slice: "02_bounded_compare_series_reader"
+title: "bounded compare metric series reader"
+priority: "P0"
+status: "completed"
+target_version: "v1.1.1-ui-polish-compare"
+---
+
+# 02_bounded_compare_series_reader — bounded compare metric series reader
+
+## Objective
+
+Implement bounded multi-run metric series extraction for selected compare metrics.
+
+## Context
+
+v1.1 changed the Live Board into a chart-first local research workspace. v1.1.1 turns that redesign into release-candidate quality by making compare/overlay real, refining visual layout and interactions, fixing artifact discovery, and hardening tests.
+
+## Dependencies
+
+- v1.1 UI/UX Redesign completed.
+- v1.0 Live Board behavior remains compatible.
+- Existing static dashboard/report/compare/agent/template-forge behavior remains green.
+
+## Target Files
+
+- src/skilllogboard/live/project.py
+- src/skilllogboard/live/readers.py
+- tests/test_live_project.py
+- tests/test_live_readers.py
+
+## Implementation Steps
+
+1. Add helper such as `read_compare_metric_series(run_dirs, metric_name, max_runs, max_points)`.
+2. Reuse existing CSV metric reader and avoid pandas.
+3. Downsample or tail-limit points when a series exceeds max_points.
+4. Return run metadata and series together.
+5. Return warnings for missing metric or unreadable metrics.csv.
+6. Add tests for max_runs, max_points, missing metric, and mixed statuses.
+
+## Acceptance Criteria
+
+- Compare series extraction is bounded.
+- No pandas dependency is introduced.
+- Missing metric is handled gracefully.
+- Tests cover downsample/tail behavior.
+
+## Verification Commands
+
+```bash
+pytest -q tests/test_live_project.py tests/test_live_readers.py
+```
+
+## Non-goals
+
+- Do not implement TensorBoard/W&B import.
+- Do not implement Prometheus/Grafana integration.
+- Do not implement cloud sync.
+- Do not implement multi-user auth.
+- Do not add a database backend.
+- Do not add React/Vue/Svelte build tooling unless separately approved.
+- Do not add heavy dependencies to core.
+- Do not perform TestPyPI/PyPI release work in this slice.
+
+## Handoff Notes
+
+- Keep this slice focused, but do not under-implement interaction details.
+- Preserve local-first, file-based, inspectable behavior.
+- Prefer additive API fields over breaking existing fields.
+- Default UI should remain minimal; advanced detail belongs in drawer, tray, modal, or compare mode.
+- If an item is deferred, update docs/status and record the reason in the Agent Completion Block.
+
+---
+
+## Agent Completion Block
+
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
+
+**Status:** COMPLETED  
+**Completed at:** 2026-05-14  
+**Completed by:** Codex  
+**Verification command(s):** `.venv/bin/python -m ruff check .`; `.venv/bin/python -m pytest`; `.venv/bin/python -m build --no-isolation`; `.venv/bin/python examples/live_demo.py --multi-run --runs 2`; `.venv/bin/python -c "import skilllogboard; print(skilllogboard.__version__)"`; `.venv/bin/skilllog --version`  
+**Notes:** Completed locally. No deferred implementation items. Publishing and external CI execution were not performed.  
+
+<!-- AGENT_STATUS: COMPLETED -->
+

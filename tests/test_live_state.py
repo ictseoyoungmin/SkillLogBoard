@@ -66,16 +66,33 @@ def test_live_run_state_reads_report_and_agent_workspace(tmp_path):
         encoding="utf-8",
     )
     (tmp_path / "summary.md").write_text("# Summary\n", encoding="utf-8")
+    (tmp_path / "report" / "tables").mkdir(parents=True)
+    (tmp_path / "report" / "figures").mkdir()
+    (tmp_path / "report" / "tables" / "leaderboard.csv").write_text("run,score\nr1,3\n", encoding="utf-8")
+    (tmp_path / "report" / "figures" / "metric.svg").write_text("<svg></svg>\n", encoding="utf-8")
     agent_dir = tmp_path / "agent"
     agent_dir.mkdir()
     (agent_dir / "actions.jsonl").write_text(
-        json.dumps({"action": "verify", "status": "completed"}) + "\n",
+        json.dumps(
+            {
+                "action": "verify",
+                "status": "completed",
+                "target": "live-board",
+                "files_changed": ["docs/live_board.md"],
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
     (agent_dir / "handoff.md").write_text("# Handoff\n", encoding="utf-8")
 
     state = build_live_run_state(tmp_path).to_dict()
 
-    assert state["report_artifacts"][0]["name"] == "summary.md"
+    assert any(item["name"] == "summary.md" for item in state["report_artifacts"])
+    assert "table" in state["artifact_groups"]
+    assert "figure" in state["artifact_groups"]
     assert state["agent_workspace"]["actions_count"] == 1
+    assert state["agent_workspace"]["latest_status"] == "completed"
+    assert state["agent_workspace"]["latest_target"] == "live-board"
+    assert state["agent_workspace"]["files_changed"] == ["docs/live_board.md"]
     assert state["agent_workspace"]["handoff"] is True
