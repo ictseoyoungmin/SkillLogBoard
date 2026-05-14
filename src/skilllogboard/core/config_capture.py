@@ -15,6 +15,8 @@ import subprocess
 
 import yaml
 
+GIT_CAPTURE_TIMEOUT_SECONDS = 0.5
+
 
 def save_config(config: dict[str, Any], path: str | Path) -> None:
     path = Path(path)
@@ -37,18 +39,35 @@ def capture_git(repo_dir: str | Path = ".") -> dict[str, Any]:
     result: dict[str, Any] = {"available": False}
     try:
         commit = subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=repo_dir, stderr=subprocess.DEVNULL, text=True
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo_dir,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=GIT_CAPTURE_TIMEOUT_SECONDS,
         ).strip()
         branch = subprocess.check_output(
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             cwd=repo_dir,
             stderr=subprocess.DEVNULL,
             text=True,
+            timeout=GIT_CAPTURE_TIMEOUT_SECONDS,
         ).strip()
-        dirty = subprocess.call(
-            ["git", "diff", "--quiet"], cwd=repo_dir, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        ) != 0
-        result.update({"available": True, "commit": commit, "branch": branch, "dirty": dirty})
+        result.update({"available": True, "commit": commit, "branch": branch})
+        try:
+            dirty_result = subprocess.run(
+                ["git", "diff", "--quiet"],
+                cwd=repo_dir,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+                timeout=GIT_CAPTURE_TIMEOUT_SECONDS,
+            )
+            result["dirty"] = dirty_result.returncode != 0
+        except subprocess.TimeoutExpired:
+            result["dirty"] = None
+            result["warning"] = "git dirty check timed out"
+    except subprocess.TimeoutExpired:
+        result.update({"error": "git capture timed out"})
     except Exception as exc:
         result.update({"error": str(exc)})
     return result

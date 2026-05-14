@@ -25,6 +25,50 @@ and explicit about local evidence.
 - Keep preferences in browser `localStorage` scoped by mode and target directory; never add
   server-side user/session storage.
 
+## Visual Parity Checklist
+
+- Minimal overview: status, mode, poll interval, primary metric, alert count, and resource state
+  are visible without crowding the chart.
+- Capability hints: run, metric, shared metric, compare, artifact, warning, and agent evidence
+  hints appear only when backed by local state.
+- Metric Workspace: selected metric chips, group counts, latest values, ranges, and marker
+  affordances remain readable with rich demo data and with sparse data.
+- Compare overlay: compare mode has a visible mode chip, selected metric, selected run count,
+  shared metric count, bounds, readable legend swatches, and warnings when the payload reports
+  compare limitations.
+- Drawers and trays: run picker, detail drawer, context tray, artifact preview, and Metric Lab are
+  reachable but secondary to the primary chart.
+- Artifact browser: report, table, figure, checkpoint, and other artifacts are grouped with compact
+  metadata and do not inline unsafe or large file content.
+- Agent workspace: action count, latest status, changed files, handoff, and decisions are shown as
+  local evidence cards; missing evidence uses an actionable empty state.
+- Empty states: no-metric, no-compare, no-artifact, no-agent, and no-log states point to local
+  commands or local files without implying cloud import, auth, or hosted observability.
+- Performance: project discovery, compare points, and rendered panel rows stay bounded so repeated
+  polling feels responsive.
+
+## Screenshot Guidance
+
+Generate synthetic local evidence first:
+
+```bash
+python examples/live_demo.py --multi-run --runs 5 --rich
+skilllog watch runs/live_demo --project --no-open
+```
+
+Recommended viewport sizes are 1440x960 for the primary desktop capture, 1280x800 for a compact
+laptop pass, and 390x844 for a narrow mobile pass. The rich demo is deterministic synthetic local
+evidence; it is meant to show supported Live Board states without external imports or services.
+
+Capture these states for visual QA:
+
+- Project overview with capability hints, metric chips, and a populated leaderboard chart.
+- Compare mode with the compare banner, selected run count, shared metric count, and legend swatches.
+- Metric Lab opened from the same selected metric.
+- Artifact preview drawer opened from a report, table, or figure artifact card.
+- Agent Workspace showing action count, latest action, changed files, handoff, and decisions.
+- Empty-state pass on a sparse or new run folder to confirm guidance remains concise.
+
 ## Accessibility
 
 - Interactive controls need accessible names.

@@ -71,3 +71,6 @@
 | Live Board project compare overlay | Supported | Implemented `/api/compare`, bounded metric series, run picker, overlay legend, and best/latest/baseline roles | v1.1.1 |
 | Live Board report artifact preview | Supported | Implemented metadata discovery for report/table/figure artifacts and metadata-only preview drawer | v1.1.1 |
 | Live Board compact polish | Supported | Implemented collapsed bottom tray, compact side panel toggle, scoped localStorage key, and interaction data attributes | v1.1.1 |
+| Live Board rich showcase demo | Supported | Implemented deterministic `--rich` multi-run fixture with shared metrics, statuses, events, rules, artifacts, and agent evidence | v1.1.2 |
+| Live Board capability hints | Supported | Implemented local-state-derived run, metric, shared metric, artifact, warning, compare, and agent evidence summaries | v1.1.2 |
+| Live Board visual parity polish | Supported | Implemented compact hint rows, metric chips, compare banner, chart affordance legend, guided empty states, grouped artifacts, and agent evidence cards | v1.1.2 |

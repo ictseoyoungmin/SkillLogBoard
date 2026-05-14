@@ -213,7 +213,7 @@ input, select {
   background: #0a1524;
   box-shadow: var(--slb-shadow);
   display: grid;
-  grid-template-rows: auto minmax(280px, 1fr) auto;
+  grid-template-rows: auto auto auto auto minmax(280px, 1fr) auto;
   overflow: hidden;
 }
 
@@ -235,6 +235,81 @@ input, select {
 .workspace-title {
   margin: 0;
   font-size: 22px;
+}
+
+.capability-hints,
+.metric-summary,
+.compare-banner,
+.chart-affordance,
+.artifact-group-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.capability-hints,
+.metric-summary,
+.compare-banner {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--slb-line-soft);
+}
+
+.hint-chip,
+.metric-chip,
+.mode-chip,
+.warning-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  border: 1px solid rgba(157, 177, 199, 0.22);
+  border-radius: 999px;
+  padding: 0 9px;
+  color: var(--slb-muted);
+  background: rgba(16, 29, 47, 0.58);
+  white-space: nowrap;
+}
+
+.hint-chip strong,
+.metric-chip strong {
+  color: var(--slb-text);
+}
+
+.hint-chip.muted {
+  opacity: 0.7;
+}
+
+.metric-chip.selected {
+  border-color: rgba(45, 212, 191, 0.36);
+  color: var(--slb-text);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.metric-chip small {
+  color: var(--slb-faint);
+}
+
+.group-chip {
+  color: var(--slb-faint);
+}
+
+.compare-banner {
+  color: var(--slb-muted);
+  background: rgba(96, 165, 250, 0.08);
+}
+
+.mode-chip {
+  color: #06111f;
+  border-color: var(--slb-cyan);
+  background: var(--slb-cyan);
+  font-weight: 750;
+}
+
+.warning-chip {
+  border-color: rgba(251, 191, 36, 0.36);
+  color: var(--slb-warning);
+  background: rgba(251, 191, 36, 0.08);
 }
 
 .workspace-actions, .control-group {
@@ -266,6 +341,23 @@ input, select {
   position: relative;
   min-height: 340px;
   padding: 18px;
+}
+
+.chart-affordance {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 14px;
+  color: var(--slb-muted);
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.chart-affordance span {
+  border: 1px solid rgba(157, 177, 199, 0.16);
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: rgba(7, 17, 31, 0.68);
 }
 
 .chart-svg {
@@ -482,6 +574,30 @@ input, select {
   background: rgba(16, 29, 47, 0.7);
 }
 
+.agent-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.evidence-card {
+  min-width: 0;
+  border: 1px solid var(--slb-line-soft);
+  border-radius: var(--slb-radius);
+  padding: 11px;
+  background: rgba(16, 29, 47, 0.7);
+}
+
+.evidence-card strong {
+  display: block;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+
+.artifact-group-row {
+  padding-bottom: 4px;
+}
+
 .role-badge {
   display: inline-flex;
   align-items: center;
@@ -517,6 +633,10 @@ input, select {
     position: static;
     max-width: none;
     justify-content: flex-start;
+    margin-top: 10px;
+  }
+  .chart-affordance {
+    position: static;
     margin-top: 10px;
   }
 }

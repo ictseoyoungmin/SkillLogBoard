@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.2-dev showcase visual parity candidate
+
+- Added `python examples/live_demo.py --multi-run --runs 5 --rich` for deterministic baseline, best, overfit, failed, and current local demo runs.
+- Expanded rich demo metrics, events, rule traces, report/table/figure artifacts, and agent evidence so project compare and drawers look populated with real local files.
+- Added Live Board capability summaries derived from run/project state for run counts, metric counts, shared metrics, artifacts, warnings, and agent evidence.
+- Added compact capability hints, selected metric chips, compare-mode banner, chart affordance text, guided empty states, artifact grouping, and agent evidence cards.
+- Kept the Live Board dependency-light and bounded by capping compare points and panel rendering work for better perceived refresh speed.
+
 ## 1.1.1-dev UI polish compare candidate
 
 - Added project-mode `/api/compare` with bounded local metric series, selected runs, raw/normalized values, and step/relative alignment.

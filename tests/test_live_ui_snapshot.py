@@ -76,3 +76,35 @@ def test_live_ui_contains_v111_compare_and_polish_contracts():
         "/api/compare",
     ]:
         assert snippet in html
+
+
+def test_live_ui_contains_v112_showcase_contracts():
+    html = load_live_template()
+
+    for snippet in [
+        'data-live-region="capability-hints"',
+        'data-live-region="metric-summary"',
+        'data-live-region="compare-banner"',
+        'data-live-region="chart-affordance"',
+        'data-live-region="artifact-groups"',
+        'data-live-region="agent-showcase"',
+        'data-live-region="agent-empty"',
+        "Compare mode",
+        "Shared",
+        "Log scale clamps non-positive values",
+        "python examples/live_demo.py --multi-run --runs 5 --rich",
+    ]:
+        assert snippet in html
+
+
+def test_live_ui_guided_empty_states_are_actionable():
+    html = load_live_template()
+
+    for snippet in [
+        "Start a local run or create a rich demo",
+        "Watch a project folder",
+        "Build a report",
+        "Add local agent/actions.jsonl",
+        "--log-file train.log",
+    ]:
+        assert snippet in html

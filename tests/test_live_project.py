@@ -2,6 +2,7 @@ import os
 
 import yaml
 
+from examples.live_demo import _write_demo_run
 from skilllogboard.live.project import build_compare_state, build_live_project_state, find_run_dirs
 
 
@@ -45,6 +46,10 @@ def test_build_live_project_state_counts_and_leaderboard(tmp_path):
     assert state["leaderboard"][0]["metric"] == "val/acc"
     assert state["metric_catalog"][0]["name"] == "val/acc"
     assert state["compare"]["metric"] == "val/acc"
+    assert state["capabilities"]["run_count"] == 2
+    assert state["capabilities"]["shared_metric_count"] == 1
+    assert state["capabilities"]["compare_ready"] is True
+    assert state["capabilities"]["running_count"] == 1
 
 
 def test_find_run_dirs_skips_irrelevant_and_deep_folders(tmp_path):
@@ -100,3 +105,45 @@ def test_build_compare_state_supports_selection_and_normalized_relative_points(t
     points = compare["series"][0]["points"]
     assert points[0]["x"] == 0
     assert all(0 <= point["value"] <= 1 for point in points)
+
+
+def test_project_leaderboard_accepts_logger_best_metric_shape(tmp_path):
+    run_dir = tmp_path / "run-a"
+    run_dir.mkdir()
+    (run_dir / "manifest.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "run_id": "run-a",
+                "run_name": "run-a",
+                "status": "completed",
+                "best_metric": {"name": "val/acc", "best_value": 0.88, "best_step": 3},
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run_dir / "metrics.csv").write_text(
+        "timestamp,step,name,value,group,metadata_json\n"
+        "t,3,val/acc,0.88,val,{}\n",
+        encoding="utf-8",
+    )
+
+    state = build_live_project_state(tmp_path)
+
+    assert state["leaderboard"][0]["value"] == 0.88
+    assert state["leaderboard"][0]["step"] == 3
+
+
+def test_rich_live_demo_run_has_shared_showcase_metrics(tmp_path):
+    run_dirs = [_write_demo_run(index, root_dir=tmp_path / "live_demo", rich=True) for index in range(5)]
+
+    state = build_live_project_state(tmp_path / "live_demo")
+
+    assert len(run_dirs) == 5
+    assert {"baseline", "best", "overfit", "failed", "current"}.issubset(
+        {run["run_name"] for run in state["runs"]}
+    )
+    assert {"completed", "failed", "running"}.issubset(set(state["status_counts"]))
+    for metric in ["train/loss", "val/loss", "val/acc", "val/f1", "lr", "grad_norm"]:
+        assert metric in state["shared_metrics"]
+    assert state["capabilities"]["artifact_count"] >= 5
+    assert state["capabilities"]["agent_evidence"] is True

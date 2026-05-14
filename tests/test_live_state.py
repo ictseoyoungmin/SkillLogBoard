@@ -46,6 +46,10 @@ def test_build_live_run_state_aggregates_local_files(tmp_path):
     assert state["pinned_metrics"] == ["val/acc"]
     assert state["context_markers"][0]["source"] == "event"
     assert state["agent_workspace"]["actions_count"] == 0
+    assert state["capabilities"]["metric_count"] == 1
+    assert state["capabilities"]["event_count"] == 1
+    assert state["capabilities"]["rule_count"] == 1
+    assert state["capabilities"]["compare_ready"] is False
 
 
 def test_build_live_run_state_warns_for_missing_files(tmp_path):
@@ -96,3 +100,6 @@ def test_live_run_state_reads_report_and_agent_workspace(tmp_path):
     assert state["agent_workspace"]["latest_target"] == "live-board"
     assert state["agent_workspace"]["files_changed"] == ["docs/live_board.md"]
     assert state["agent_workspace"]["handoff"] is True
+    assert state["capabilities"]["artifact_count"] >= 3
+    assert state["capabilities"]["report_artifact_count"] >= 3
+    assert state["capabilities"]["agent_evidence"] is True

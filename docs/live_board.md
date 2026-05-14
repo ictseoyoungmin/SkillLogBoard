@@ -5,10 +5,12 @@ being written. It reads the same local artifacts used by the static dashboard an
 `manifest.yaml`, `metrics.csv`, `events.jsonl`, `skill_trace.jsonl`, `artifact_index.json`,
 `monitoring.jsonl`, and an optional log file.
 
-The v1.1.1 interface is intentionally quiet on first load. It shows a compact overview, then makes
+The v1.1.2 interface is intentionally quiet on first load. It shows a compact overview, then makes
 the Metric Workspace the primary surface. Deeper evidence stays available through a compactable
 side panel, collapsed bottom context tray, run detail drawer, artifact/report preview drawer,
-agent workspace summary, run picker, compare legend, and full-screen Metric Lab.
+agent workspace summary, run picker, compare legend, and full-screen Metric Lab. Compact capability
+hints are derived from local state only: run counts, metric counts, shared metrics, artifacts,
+warnings, compare readiness, and agent evidence.
 
 Install the optional extra when you want the server:
 
@@ -30,6 +32,23 @@ python examples/live_demo.py --multi-run
 skilllog watch runs/live_demo --project --latest --no-open
 ```
 
+Create a richer local showcase for screenshots and visual QA:
+
+```bash
+python examples/live_demo.py --multi-run --runs 5 --rich
+skilllog watch runs/live_demo --project --no-open
+```
+
+The rich fixture creates baseline, best, overfit, failed, and current runs with shared metrics such
+as `train/loss`, `val/loss`, `val/acc`, `val/f1`, `lr`, `grad_norm`, `throughput`, `step_time`, and
+`gpu/memory`. It also writes local events, rule traces, report/table/figure artifacts, and agent
+workspace evidence so drawers and compare mode can be reviewed without external services.
+
+For screenshots, use 1440x960 as the primary desktop viewport, 1280x800 for a compact laptop pass,
+and 390x844 for a narrow viewport pass. Capture project overview, compare mode, Metric Lab, artifact
+preview, Agent Workspace, and at least one sparse-run empty state. The rich demo is synthetic local
+evidence and should not be presented as imported production telemetry.
+
 If the target directory does not contain `manifest.yaml` but has run folders below it, `skilllog
 watch` auto-detects project mode. For example, `skilllog watch runs/ --no-open` is treated as a
 project board when `runs/` contains nested run directories.
@@ -49,8 +68,8 @@ minimum so accidental very small intervals do not create excessive polling.
 
 `/api/state` includes additive UI fields for the Metric Workspace: `metric_catalog`,
 `selected_metrics`, `pinned_metrics`, `context_markers`, `report_artifacts`, and
-`agent_workspace`. These fields are derived from local files and do not require server-side user
-sessions.
+`agent_workspace`. v1.1.2 also includes `capabilities`, a compact summary derived from the same
+local files. These fields do not require server-side user sessions.
 
 Project mode discovers `manifest.yaml` files with a bounded directory walk. It skips hidden/cache
 folders and common non-run folders such as `.git`, `.venv`, `__pycache__`, `node_modules`,
@@ -63,6 +82,9 @@ compare chart. Supported query parameters are `metric`, comma-separated `runs`, 
 `max_points`, `normalize`, and `align=step|relative`. The implementation reads local CSV files
 directly and deliberately avoids pandas, databases, background indexes, TensorBoard, W&B,
 Prometheus, cloud sync, and authentication.
+
+The browser keeps refresh work bounded for perceived speed: compare requests cap selected runs and
+points, project discovery is depth-limited, and long panel lists are clipped before rendering.
 
 Report package discovery now includes common static artifacts plus metadata-only entries under
 `report/`, `reports/`, `tables/`, and `figures/`. The Live Board preview drawer shows file type,

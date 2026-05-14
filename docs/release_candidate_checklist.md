@@ -1,5 +1,26 @@
 # Release Candidate Checklist
 
+## v1.1.2 Live Board Showcase Candidate
+
+- [ ] Confirm README, Live Board docs, changelog, status matrix, and UI guidelines mention v1.1.2 showcase polish.
+- [ ] Run lint and focused Live Board tests:
+
+```bash
+python -m ruff check .
+python -m pytest tests/test_live_project.py tests/test_live_readers.py tests/test_live_state.py tests/test_live_ui_snapshot.py
+```
+
+- [ ] Smoke the rich showcase demo:
+
+```bash
+python examples/live_demo.py --multi-run --runs 5 --rich
+skilllog watch runs/live_demo --project --no-open
+```
+
+- [ ] Manual visual parity pass: compact overview, capability hints, Metric Workspace chips,
+  compare banner, chart affordances, grouped artifacts, agent evidence cards, guided empty states,
+  and narrow viewport text fit.
+
 ## v1.1.1 Live Board Compare Candidate
 
 - [ ] Confirm package version is `1.1.1.dev0`.

@@ -83,10 +83,18 @@ def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict
                 "main_metric": state.manifest.get("main_metric"),
                 "best_metric": state.manifest.get("best_metric"),
                 "warnings": state.warnings,
+                "capabilities": state.capabilities,
             }
         )
     metric_catalog = _project_metric_catalog(runs)
     compare = build_compare_state(root, latest=latest)
+    capabilities = _project_capabilities(
+        runs=runs,
+        metric_catalog=metric_catalog,
+        compare=compare,
+        warnings=warnings,
+        status_counts=counts,
+    )
     return {
         "mode": "project",
         "root_dir": str(root),
@@ -100,6 +108,7 @@ def build_live_project_state(root_dir: str | Path, latest: bool = False) -> dict
         "compare_candidates": compare["runs"],
         "shared_metrics": compare["shared_metrics"],
         "warnings": warnings,
+        "capabilities": capabilities,
     }
 
 
@@ -176,12 +185,14 @@ def _leaderboard_lite(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for run in runs:
         best = run.get("best_metric") or {}
         if isinstance(best, dict) and best.get("name"):
+            value = best.get("value", best.get("best_value"))
+            step = best.get("step", best.get("best_step"))
             rows.append(
                 {
                     "run_id": run.get("run_id"),
                     "metric": best.get("name"),
-                    "value": best.get("value"),
-                    "step": best.get("step"),
+                    "value": value,
+                    "step": step,
                     "status": run.get("status"),
                 }
             )
@@ -219,6 +230,39 @@ def _project_metric_catalog(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 item["min"] = min(numeric) if item["min"] is None else min(item["min"], *numeric)
                 item["max"] = max(numeric) if item["max"] is None else max(item["max"], *numeric)
     return sorted(grouped.values(), key=lambda item: (not item["pinned"], item["group"], item["name"]))
+
+
+def _project_capabilities(
+    runs: list[dict[str, Any]],
+    metric_catalog: list[dict[str, Any]],
+    compare: dict[str, Any],
+    warnings: list[str],
+    status_counts: dict[str, int],
+) -> dict[str, Any]:
+    run_caps = [run.get("capabilities") or {} for run in runs]
+    artifact_count = sum(int(cap.get("artifact_count") or 0) for cap in run_caps)
+    report_artifact_count = sum(int(cap.get("report_artifact_count") or 0) for cap in run_caps)
+    rule_count = sum(int(cap.get("rule_count") or 0) for cap in run_caps)
+    event_count = sum(int(cap.get("event_count") or 0) for cap in run_caps)
+    agent_count = sum(1 for cap in run_caps if cap.get("agent_evidence"))
+    shared_metric_count = len(compare.get("shared_metrics") or [])
+    return {
+        "mode": "project",
+        "run_count": len(runs),
+        "metric_count": len(metric_catalog),
+        "shared_metric_count": shared_metric_count,
+        "event_count": event_count,
+        "rule_count": rule_count,
+        "artifact_count": artifact_count,
+        "report_artifact_count": report_artifact_count,
+        "warning_count": len(warnings),
+        "agent_evidence": agent_count > 0,
+        "agent_run_count": agent_count,
+        "compare_ready": len(runs) >= 2 and shared_metric_count > 0,
+        "completed_count": int(status_counts.get("completed") or 0),
+        "running_count": int(status_counts.get("running") or 0),
+        "failed_count": int(status_counts.get("failed") or 0),
+    }
 
 
 def _read_compare_run(run_dir: Path) -> dict[str, Any]:

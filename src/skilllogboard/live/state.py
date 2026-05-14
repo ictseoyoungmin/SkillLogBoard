@@ -38,6 +38,7 @@ class LiveRunState:
     report_artifacts: list[dict[str, Any]] = field(default_factory=list)
     artifact_groups: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     agent_workspace: dict[str, Any] = field(default_factory=dict)
+    capabilities: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -81,6 +82,8 @@ def build_live_run_state(
     context_markers = build_context_markers(events, rules, artifacts)
 
     report_artifacts = read_report_artifacts(run)
+    artifact_groups = group_report_artifacts(report_artifacts)
+    agent_workspace = read_agent_workspace(run)
     return LiveRunState(
         mode="run",
         run_dir=str(run),
@@ -99,8 +102,17 @@ def build_live_run_state(
         pinned_metrics=pinned_metrics,
         context_markers=context_markers,
         report_artifacts=report_artifacts,
-        artifact_groups=group_report_artifacts(report_artifacts),
-        agent_workspace=read_agent_workspace(run),
+        artifact_groups=artifact_groups,
+        agent_workspace=agent_workspace,
+        capabilities=build_run_capabilities(
+            metric_catalog=metric_catalog,
+            events=events,
+            rules=rules,
+            artifacts=artifacts,
+            report_artifacts=report_artifacts,
+            warnings=warnings,
+            agent_workspace=agent_workspace,
+        ),
     )
 
 
@@ -174,6 +186,38 @@ def build_context_markers(
             }
         )
     return markers[-200:]
+
+
+def build_run_capabilities(
+    metric_catalog: list[dict[str, Any]],
+    events: list[dict[str, Any]],
+    rules: list[dict[str, Any]],
+    artifacts: list[dict[str, Any]],
+    report_artifacts: list[dict[str, Any]],
+    warnings: list[str],
+    agent_workspace: dict[str, Any],
+) -> dict[str, Any]:
+    artifact_count = len(artifacts) + len(report_artifacts)
+    agent_files = agent_workspace.get("files_changed") or []
+    agent_evidence = bool(
+        agent_workspace.get("actions_count")
+        or agent_workspace.get("handoff")
+        or agent_workspace.get("decisions")
+        or agent_files
+    )
+    return {
+        "mode": "run",
+        "run_count": 1,
+        "metric_count": len(metric_catalog),
+        "shared_metric_count": 0,
+        "event_count": len(events),
+        "rule_count": len(rules),
+        "artifact_count": artifact_count,
+        "report_artifact_count": len(report_artifacts),
+        "warning_count": len(warnings),
+        "agent_evidence": agent_evidence,
+        "compare_ready": False,
+    }
 
 
 def read_report_artifacts(run_dir: Path) -> list[dict[str, Any]]:

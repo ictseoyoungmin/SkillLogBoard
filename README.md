@@ -229,7 +229,7 @@ generate final domain-specific research code automatically.
 
 Detailed workflow: [Template Forge](docs/template_forge.md).
 
-## v1.1.1 Live Board
+## v1.1.2 Live Board
 
 Watch a local run folder with the optional Live Board server:
 
@@ -246,20 +246,23 @@ optional log file:
 
 ```bash
 python examples/live_demo.py --multi-run
-skilllog watch runs/demo/{run_id} --poll-interval 2 --log-file train.log --monitor-system --monitor-gpu
-skilllog watch runs/demo --project --latest --no-open
+python examples/live_demo.py --multi-run --runs 5 --rich
+skilllog watch runs/live_demo/{run_id} --poll-interval 2 --log-file train.log --monitor-system --monitor-gpu
+skilllog watch runs/live_demo --project --latest --no-open
 ```
 
 `--poll-interval` controls both browser refresh timing and active monitor sampling, with a safe
 minimum interval. Project mode uses bounded manifest discovery and skips cache, virtualenv, report,
 artifact, and hidden directories.
 
-The v1.1.1 UI is a quiet command center by default: a compact overview, a dominant Metric
+The v1.1.2 UI is a quiet command center by default: a compact overview, a dominant Metric
 Workspace, metric catalog search/pinning, smoothing/scale/alignment/raw-normalized controls,
 project compare mode with a run picker and overlay legend, collapsed bottom context tray, compact
 side panel, run detail drawer, artifact/report preview drawer, agent workspace summary, and
-full-screen Metric Lab. Preferences are stored only in browser `localStorage` with keys scoped by
-mode and target directory.
+full-screen Metric Lab. v1.1.2 adds a richer local demo fixture plus state-backed capability hints,
+selected metric chips, compare banner, guided empty states, grouped artifact cards, and agent
+evidence cards. Preferences are stored only in browser `localStorage` with keys scoped by mode and
+target directory.
 
 Live dependencies are optional. Core logging, static dashboards, reports, compare outputs, and
 Template Forge continue to work without FastAPI, uvicorn, psutil, or GPU tooling.

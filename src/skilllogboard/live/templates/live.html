@@ -56,13 +56,17 @@
               <button type="button" id="reset-preferences" data-live-action="reset-preferences">Reset</button>
             </div>
           </div>
+          <div id="capability-hints" class="capability-hints" data-live-region="capability-hints" aria-label="Capability hints"></div>
+          <div id="metric-summary" class="metric-summary" data-live-region="metric-summary" aria-label="Selected metric summary"></div>
+          <div id="compare-banner" class="compare-banner hidden" data-live-region="compare-banner" aria-live="polite"></div>
           <div class="chart-stage">
             <div id="loading-state" class="loading-state">Loading local run files...</div>
-            <div id="empty-state" class="empty-state hidden">No metric rows found yet.</div>
+            <div id="empty-state" class="empty-state hidden">No metric rows found yet. Start a local run or create a rich demo with python examples/live_demo.py --rich.</div>
             <div id="error-state" class="error-state hidden" role="alert"></div>
-            <div id="compare-empty-state" class="empty-state hidden" data-live-region="compare-empty">No comparable runs selected.</div>
+            <div id="compare-empty-state" class="empty-state hidden" data-live-region="compare-empty">No comparable runs selected. Watch a project folder, then open Runs and select local runs that share a numeric metric.</div>
             <svg id="metric-chart" class="chart-svg hidden" role="img" aria-label="Selected metric chart" viewBox="0 0 900 360" preserveAspectRatio="none"></svg>
             <div id="compare-legend" class="compare-legend" aria-label="Compare legend" data-live-region="compare-legend"></div>
+            <div id="chart-affordance" class="chart-affordance" data-live-region="chart-affordance"></div>
           </div>
           <div class="workspace-controls" aria-label="Chart transform controls">
             <div class="control-group">
@@ -182,6 +186,7 @@
     };
     let refreshMs = 1000;
     let refreshTimer = null;
+    const MAX_PANEL_ITEMS = 80;
 
     function loadPrefs() {
       try {
@@ -266,6 +271,7 @@
       document.getElementById('overview-run').textContent = shortText(runName);
       document.getElementById('overview-alerts').textContent = countAlerts(state);
       document.getElementById('overview-resources').textContent = resourceSummary(state);
+      renderCapabilityHints(state);
       if (isProject) {
         ensureMetricDefaults(state);
         renderProject(state);
@@ -293,9 +299,12 @@
       const latest = state.metrics?.[selected]?.value;
       document.getElementById('overview-metric').textContent = selected ? selected + ': ' + valueText(latest) : '-';
       document.getElementById('workspace-caption').textContent = appState.selectedMetrics.join(', ') || 'No metric selected';
+      renderMetricSummary(state);
+      renderCompareBanner(null, state);
       drawChart('metric-chart', state, appState.selectedMetrics);
       drawChart('metric-lab-chart', state, appState.selectedMetrics);
       renderCompareLegend(null);
+      renderChartAffordance(state, null);
       renderContextTray(state);
       renderRunDetails(state);
       renderAgentWorkspace(state.agent_workspace || {});
@@ -306,6 +315,8 @@
       const metric = appState.selectedMetrics[0] || compare.metric || best?.metric;
       document.getElementById('overview-metric').textContent = metric ? metric + ': ' + valueText(best?.value) : '-';
       document.getElementById('workspace-caption').textContent = appState.compare ? 'Compare overlay: ' + (metric || '-') : 'Project overview and compare candidates';
+      renderMetricSummary(state);
+      renderCompareBanner(compare, state);
       if (appState.compare) {
         drawCompareChart('metric-chart', compare);
         drawCompareChart('metric-lab-chart', compare);
@@ -313,10 +324,63 @@
         drawProjectChart(state);
       }
       renderCompareLegend(compare);
+      renderChartAffordance(state, compare);
       renderRunPicker(compare.runs || state.compare_candidates || []);
       renderProjectRuns(state.runs || []);
       renderContextTray(state);
       renderRunDetails(state);
+    }
+    function renderCapabilityHints(state) {
+      const caps = state.capabilities || {};
+      const hints = [];
+      if (caps.run_count) hints.push(['Runs', caps.run_count]);
+      if (caps.metric_count) hints.push(['Metrics', caps.metric_count]);
+      if (caps.shared_metric_count) hints.push(['Shared', caps.shared_metric_count]);
+      if (caps.compare_ready) hints.push(['Compare ready', 'yes']);
+      if (caps.artifact_count) hints.push(['Artifacts', caps.artifact_count]);
+      if (caps.warning_count) hints.push(['Warnings', caps.warning_count]);
+      if (caps.agent_evidence) hints.push(['Agent evidence', caps.agent_run_count || 'yes']);
+      const box = document.getElementById('capability-hints');
+      box.innerHTML = hints.map(([label, value]) => (
+        '<span class="hint-chip"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(value) + '</strong></span>'
+      )).join('') || '<span class="hint-chip muted"><span>Local files</span><strong>waiting</strong></span>';
+    }
+    function renderMetricSummary(state) {
+      const catalog = state.metric_catalog || [];
+      const selected = appState.selectedMetrics.length ? appState.selectedMetrics : (state.selected_metrics || []);
+      const selectedSet = new Set(selected);
+      const selectedMetrics = catalog.filter(metric => selectedSet.has(metric.name)).slice(0, 4);
+      const groups = {};
+      catalog.forEach(metric => { groups[metric.group || 'metrics'] = (groups[metric.group || 'metrics'] || 0) + 1; });
+      const groupChips = Object.entries(groups).slice(0, 5).map(([group, count]) => (
+        '<span class="metric-chip group-chip">' + escapeHtml(group) + ' · ' + count + '</span>'
+      )).join('');
+      const metricChips = selectedMetrics.map(metric => {
+        const trend = metric.max !== metric.min ? valueText(metric.min) + '...' + valueText(metric.max) : valueText(metric.latest);
+        return '<span class="metric-chip selected"><strong>' + escapeHtml(metric.name) + '</strong><span>' +
+          valueText(metric.latest) + '</span><small>' + escapeHtml(trend) + '</small></span>';
+      }).join('');
+      document.getElementById('metric-summary').innerHTML = metricChips + groupChips;
+    }
+    function renderCompareBanner(compare, state) {
+      const banner = document.getElementById('compare-banner');
+      if (state.mode !== 'project' || !appState.compare) {
+        banner.classList.add('hidden');
+        banner.innerHTML = '';
+        return;
+      }
+      const selectedCount = (compare?.selected_run_ids || appState.selectedRuns || []).length;
+      const sharedCount = (compare?.shared_metrics || state.shared_metrics || []).length;
+      const bounds = compare?.bounds || {};
+      const warnings = (compare?.warnings || []).slice(0, 2);
+      banner.classList.remove('hidden');
+      banner.innerHTML =
+        '<span class="mode-chip">Compare mode</span>' +
+        '<strong>' + escapeHtml(compare?.metric || appState.selectedMetrics[0] || '-') + '</strong>' +
+        '<span>' + selectedCount + ' selected runs</span>' +
+        '<span>' + sharedCount + ' shared metrics</span>' +
+        '<span>bounds ' + (bounds.max_runs || 6) + ' runs / ' + (bounds.max_points || 240) + ' points</span>' +
+        warnings.map(text => '<span class="warning-chip">' + escapeHtml(text) + '</span>').join('');
     }
     function drawChart(id, state, metricNames) {
       const svg = document.getElementById(id);
@@ -326,9 +390,11 @@
       if (!selectedRows.some(rows => rows.length)) {
         svg.classList.add('hidden');
         document.getElementById('empty-state').classList.remove('hidden');
+        document.getElementById('compare-empty-state').classList.add('hidden');
         return;
       }
       document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('compare-empty-state').classList.add('hidden');
       svg.classList.remove('hidden');
       const width = Number(svg.viewBox.baseVal.width || 900);
       const height = Number(svg.viewBox.baseVal.height || 360);
@@ -346,12 +412,14 @@
       }).join('');
       const lines = selectedRows.map((rows, idx) => {
         const cooked = smoothRows(rows);
+        const metricName = names[idx] || 'metric';
         const points = cooked.map((row, index) => {
           const x = scale(xValue(row, index, cooked[0]?.step || 0), xMin, xMax, pad, width - pad);
           const y = scale(yValue(row.value), yMin, yMax, height - pad, pad);
           return x + ',' + y;
         }).join(' ');
-        return '<polyline class="chart-line ' + (idx ? 'secondary' : '') + '" points="' + points + '"></polyline>';
+        return '<polyline class="chart-line ' + (idx ? 'secondary' : '') + '" points="' + points + '"><title>' +
+          escapeHtml(metricName + ' · ' + cooked.length + ' points') + '</title></polyline>';
       }).join('');
       const markers = (state.context_markers || []).slice(-24).map((marker, index) => {
         const x = pad + ((width - pad * 2) / Math.max(1, 24)) * index;
@@ -363,6 +431,7 @@
       const svg = document.getElementById('metric-chart');
       svg.classList.remove('hidden');
       document.getElementById('empty-state').classList.add('hidden');
+      document.getElementById('compare-empty-state').classList.add('hidden');
       const rows = state.leaderboard || [];
       const width = 900;
       const height = 360;
@@ -408,17 +477,18 @@
           const y = scale(yValue(point.value), yMin, yMax, height - pad, pad);
           return x + ',' + y;
         }).join(' ');
-        return '<polyline class="chart-line compare-line line-' + (idx % 6) + '" points="' + points + '"><title>' + escapeHtml(item.run_id) + '</title></polyline>';
+        return '<polyline class="chart-line compare-line line-' + (idx % 6) + '" points="' + points + '"><title>' +
+          escapeHtml((item.run_name || item.run_id) + ' · ' + item.point_count + ' points') + '</title></polyline>';
       }).join('');
       svg.innerHTML = grid + lines;
     }
     function renderPanels(state) {
-      const catalog = filterCatalog(state.metric_catalog || []);
+      const catalog = filterCatalog(state.metric_catalog || []).slice(0, MAX_PANEL_ITEMS);
       document.getElementById('metrics-panel').innerHTML = catalog.map(metric => (
         '<button class="metric-item" type="button" data-metric="' + escapeAttr(metric.name) + '" aria-pressed="' + appState.selectedMetrics.includes(metric.name) + '">' +
         '<strong>' + escapeHtml(metric.name) + '</strong><div class="item-meta">' +
         escapeHtml(metric.group || 'metrics') + ' · latest ' + valueText(metric.latest) + ' · ' + metric.count + ' points' + (metric.run_count ? ' · ' + metric.run_count + ' runs' : '') + '</div></button>'
-      )).join('') || '<div class="empty-state">No metrics discovered.</div>';
+      )).join('') || '<div class="empty-state">No metrics discovered. Log metrics with RunLogger.log_metric or run python examples/live_demo.py --rich.</div>';
       document.querySelectorAll('[data-metric]').forEach(button => button.addEventListener('click', () => toggleMetric(button.dataset.metric)));
       const markers = state.context_markers || state.alerts || [];
       document.getElementById('context-panel').innerHTML = contextList(markers);
@@ -429,7 +499,7 @@
     function renderContextTray(state) {
       const markers = state.context_markers || state.alerts || [];
       document.getElementById('context-tray').innerHTML = contextList(markers.slice(-8));
-      document.getElementById('logs').textContent = (state.logs || []).slice(-80).join('\n');
+      document.getElementById('logs').textContent = (state.logs || []).slice(-80).join('\n') || 'No log file attached. Start watch with --log-file train.log to stream local logs.';
     }
     function renderRunDetails(state) {
       const details = [
@@ -438,6 +508,7 @@
         ['Run ID', state.manifest?.run_id || state.root_dir || '-'],
         ['Main metric', state.manifest?.main_metric?.name || '-'],
         ['Warnings', (state.warnings || []).length],
+        ['Artifacts', state.capabilities?.artifact_count || 0],
         ['Pinned', appState.pinnedMetrics.join(', ') || '-']
       ];
       document.getElementById('run-details').innerHTML = details.map(([label, value]) => (
@@ -445,14 +516,16 @@
       )).join('');
     }
     function renderProjectRuns(runs) {
-      document.getElementById('project-runs').innerHTML = runs.map(run => (
+      document.getElementById('project-runs').innerHTML = runs.slice(0, MAX_PANEL_ITEMS).map(run => (
         '<button class="run-item" type="button"><strong>' + escapeHtml(run.run_id || run.run_name || 'run') +
-        '</strong><div class="item-meta">' + escapeHtml(run.status || 'unknown') + ' · ' + escapeHtml(run.project || '') + '</div></button>'
-      )).join('') || '<div class="empty-state">No project runs found.</div>';
+        '</strong><div class="item-meta">' + escapeHtml(run.status || 'unknown') + ' · ' +
+        (run.capabilities?.metric_count || 0) + ' metrics · ' + (run.capabilities?.artifact_count || 0) +
+        ' artifacts</div></button>'
+      )).join('') || '<div class="empty-state">No project runs found. Watch a directory that contains run folders, or run python examples/live_demo.py --multi-run --runs 5 --rich.</div>';
     }
     function renderRunPicker(runs) {
       const selected = new Set(appState.selectedRuns);
-      document.getElementById('run-picker-list').innerHTML = (runs || []).map(run => {
+      document.getElementById('run-picker-list').innerHTML = (runs || []).slice(0, MAX_PANEL_ITEMS).map(run => {
         const checked = selected.has(run.run_id);
         const roles = (run.roles || [run.role || 'candidate']).join(', ');
         return '<button class="run-item" type="button" data-compare-run="' + escapeAttr(run.run_id) + '" aria-pressed="' + checked + '">' +
@@ -479,6 +552,17 @@
       }).join('');
       document.querySelectorAll('[data-compare-visibility]').forEach(button => button.addEventListener('click', () => toggleRunVisibility(button.dataset.compareVisibility)));
     }
+    function renderChartAffordance(state, compare) {
+      const markerCount = (state.context_markers || state.alerts || []).length;
+      const selected = appState.selectedMetrics[0] || compare?.metric || '';
+      const catalogItem = (state.metric_catalog || []).find(metric => metric.name === selected);
+      const bits = [];
+      if (selected) bits.push('<span><strong>Line</strong> ' + escapeHtml(selected) + '</span>');
+      if (catalogItem) bits.push('<span><strong>Range</strong> ' + valueText(catalogItem.min) + ' to ' + valueText(catalogItem.max) + '</span>');
+      if (markerCount) bits.push('<span><strong>Markers</strong> ' + markerCount + ' events/rules/artifacts</span>');
+      if (appState.scale === 'log') bits.push('<span class="warning-chip">Log scale clamps non-positive values</span>');
+      document.getElementById('chart-affordance').innerHTML = bits.join('');
+    }
     function toggleRun(runId) {
       if (!runId) return;
       if (appState.selectedRuns.includes(runId)) {
@@ -500,26 +584,45 @@
       render();
     }
     function renderAgentWorkspace(agent) {
-      document.getElementById('agent-workspace').innerHTML =
-        '<div>Actions: ' + Number(agent.actions_count || 0) + '</div>' +
-        '<div>Latest: ' + escapeHtml(agent.latest_status || '-') + ' ' + escapeHtml(agent.latest_target || '') + '</div>' +
-        '<div>Files: ' + escapeHtml((agent.files_changed || []).join(', ') || '-') + '</div>' +
-        '<div>Handoff: ' + (agent.handoff ? 'available' : 'missing') + '</div>' +
-        '<div>Decisions: ' + (agent.decisions ? 'available' : 'missing') + '</div>';
+      const hasEvidence = Number(agent.actions_count || 0) || agent.handoff || agent.decisions || (agent.files_changed || []).length;
+      if (!hasEvidence) {
+        document.getElementById('agent-workspace').innerHTML =
+          '<div class="empty-state" data-live-region="agent-empty">No agent evidence yet. Add local agent/actions.jsonl, handoff.md, or decisions.md when an agent workflow reviews the run.</div>';
+        return;
+      }
+      const cards = [
+        ['Actions', Number(agent.actions_count || 0)],
+        ['Latest', (agent.latest_status || '-') + ' ' + (agent.latest_target || '')],
+        ['Files', (agent.files_changed || []).join(', ') || '-'],
+        ['Handoff', agent.handoff ? 'available' : 'missing'],
+        ['Decisions', agent.decisions ? 'available' : 'missing'],
+      ];
+      document.getElementById('agent-workspace').innerHTML = '<div class="agent-card-grid" data-live-region="agent-showcase">' +
+        cards.map(([label, value]) => '<div class="evidence-card"><div class="stat-label">' + escapeHtml(label) +
+          '</div><strong>' + escapeHtml(value) + '</strong></div>').join('') + '</div>';
     }
     function contextList(markers) {
-      return (markers || []).map(marker => (
+      return (markers || []).slice(-MAX_PANEL_ITEMS).map(marker => (
         '<div class="context-item"><strong>' + escapeHtml(marker.label || marker.type || String(marker)) +
         '</strong><div class="item-meta">' + escapeHtml(marker.source || marker.severity || '') + '</div></div>'
-      )).join('') || '<div class="empty-state">No correlated context yet.</div>';
+      )).join('') || '<div class="empty-state">No correlated context yet. Notes, rule traces, artifacts, and warnings will appear here as local files are written.</div>';
     }
     function artifactList(artifacts) {
-      return (artifacts || []).map(item => (
+      const items = (artifacts || []).slice(0, MAX_PANEL_ITEMS);
+      if (!items.length) {
+        return '<div class="empty-state">No artifacts discovered. Build a report or run python examples/live_demo.py --rich to create local report, table, and figure artifacts.</div>';
+      }
+      const groups = {};
+      items.forEach(item => { groups[item.type || 'artifact'] = (groups[item.type || 'artifact'] || 0) + 1; });
+      const summary = '<div class="artifact-group-row" data-live-region="artifact-groups">' +
+        Object.entries(groups).map(([type, count]) => '<span class="hint-chip"><span>' + escapeHtml(type) +
+          '</span><strong>' + count + '</strong></span>').join('') + '</div>';
+      return summary + items.map(item => (
         '<button class="artifact-item" type="button" data-artifact-preview="' + escapeAttr(encodeURIComponent(JSON.stringify(item))) + '">' +
         '<strong>' + escapeHtml(item.name || item.path || 'artifact') +
         '</strong><div class="item-meta">' + escapeHtml(item.type || 'artifact') + ' · ' + escapeHtml(item.path || '') +
-        (item.size ? ' · ' + item.size + ' bytes' : '') + '</div></button>'
-      )).join('') || '<div class="empty-state">No artifacts discovered.</div>';
+        (item.size ? ' · ' + item.size + ' bytes' : '') + (item.modified ? ' · modified ' + item.modified : '') + '</div></button>'
+      )).join('');
     }
     function openArtifactPreview(payload) {
       let item = {};
