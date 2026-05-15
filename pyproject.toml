@@ -20,6 +20,7 @@ dev = [
   "pytest>=8.0",
   "ruff>=0.4",
   "build>=1.2",
+  "wheel>=0.43",
   "tomli>=2.0; python_version < '3.11'",
 ]
 dashboard = [

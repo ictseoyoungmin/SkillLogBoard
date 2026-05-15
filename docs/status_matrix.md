@@ -83,3 +83,6 @@
 | Live Board default view policy | Supported | Implemented project-mode Overview default and single-run Metric Lab default | v1.2 |
 | Live Board view-scoped state | Supported | Implemented `/api/state?view=...` with summary-first Overview/Runs and bounded Compare/Metric Lab series | v1.2 |
 | Live Board project summary cache | Supported | Implemented mtime-invalidated metric summary cache for local project payloads | v1.2 |
+| Live Board React frontend source | Supported | Implemented Vite/React/TypeScript source app with packaged static output | v1.3 |
+| Live Board commercial views | Supported | Implemented componentized Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Settings views | v1.3 |
+| Live Board command palette and inspector | Supported | Implemented local keyboard palette and metadata inspector drawer | v1.3 |

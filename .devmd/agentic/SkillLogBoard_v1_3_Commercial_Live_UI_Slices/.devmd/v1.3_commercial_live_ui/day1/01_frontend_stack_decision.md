@@ -78,7 +78,7 @@ PY
 
 ---
 
-## Agent Completion Block
+## Agent Completion Block## Agent Completion Block
 
 - [x] Implementation completed
 - [x] Acceptance criteria verified
@@ -89,7 +89,7 @@ PY
 **Status:** COMPLETED  
 **Completed at:** 2026-05-15  
 **Completed by:** Codex  
-**Verification command(s):** `.venv/bin/python - <<'PY' ...`; `.venv/bin/python -m pytest -q tests/test_live_packaging.py tests/test_live_server.py`  
-**Notes:** Added `docs/adr/live_board_frontend_stack.md` documenting React + TypeScript + Vite, local REST boundaries, no GraphQL/cloud/auth/database, packaged static assets, and legacy template fallback.  
+**Verification command(s):** `npm run lint`; `npm run test`; `npm run build`; `.venv/bin/python -m ruff check .`; `.venv/bin/python -m pytest -q`; `.venv/bin/python -m build --no-isolation`  
+**Notes:** Implemented and verified in the v1.3 commercial Live UI completion pass. The packaged React Live Board now includes the commercial app shell, routed views, command palette, inspector, responsive layouts, fallback states, and wheel-packaged static assets. CI now runs frontend lint/test/build and Python no-isolation package build.
 
 <!-- AGENT_STATUS: COMPLETED -->

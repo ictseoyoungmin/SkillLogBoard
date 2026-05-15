@@ -77,7 +77,7 @@ cd frontend/live-board && npm run build
 
 ---
 
-## Agent Completion Block
+## Agent Completion Block## Agent Completion Block
 
 - [x] Implementation completed
 - [x] Acceptance criteria verified
@@ -88,7 +88,7 @@ cd frontend/live-board && npm run build
 **Status:** COMPLETED  
 **Completed at:** 2026-05-15  
 **Completed by:** Codex  
-**Verification command(s):** `cd frontend/live-board && npm install --package-lock-only`; `cd frontend/live-board && npm install`; `cd frontend/live-board && npm run build`; `cd frontend/live-board && npm run lint`; `cd frontend/live-board && npm run test`  
-**Notes:** Created private Vite React TypeScript source project. Used Vite 4 / React 18 so the available npm Node runtime (`v16.17.1`) can build the skeleton. `node_modules` was removed after verification and ignored in `.gitignore`.  
+**Verification command(s):** `npm run lint`; `npm run test`; `npm run build`; `.venv/bin/python -m ruff check .`; `.venv/bin/python -m pytest -q`; `.venv/bin/python -m build --no-isolation`  
+**Notes:** Implemented and verified in the v1.3 commercial Live UI completion pass. The packaged React Live Board now includes the commercial app shell, routed views, command palette, inspector, responsive layouts, fallback states, and wheel-packaged static assets. CI now runs frontend lint/test/build and Python no-isolation package build.
 
 <!-- AGENT_STATUS: COMPLETED -->

@@ -8,6 +8,14 @@
 - Added chart spec export, SVG fallback figures, report validation JSON, report opening, and zip bundling.
 - Kept report HTML offline-friendly and CDN-free across all rendering modes.
 
+## 1.3.0-dev commercial Live UI candidate
+
+- Added React, TypeScript, and Vite source frontend for the local Live Board.
+- Added packaged compiled assets under `skilllogboard.live.static.app` with server fallback to the
+  v1.2 bundled template when the build is absent.
+- Added componentized commercial views, a command palette, inspector drawer, reusable table, and
+  SVG chart wrapper while keeping REST/local API boundaries.
+
 ## 1.2.0-dev app shell refactor candidate
 
 - Added a Live Board app shell with Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Local Settings views.

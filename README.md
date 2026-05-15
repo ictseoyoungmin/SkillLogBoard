@@ -42,7 +42,8 @@ pip install -e ".[dev,dashboard,live]"
 
 Live Board frontend source lives in `frontend/live-board/`. Node is a development/build tool only;
 the Python package serves compiled local assets when present and falls back to the bundled template
-otherwise.
+otherwise. The v1.3 source app contains the componentized app shell, view router, command palette,
+inspector drawer, reusable tables, and SVG chart wrapper for the local REST API.
 
 ## CLI
 

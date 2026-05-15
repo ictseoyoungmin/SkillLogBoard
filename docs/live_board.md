@@ -138,3 +138,8 @@ source checkouts remain usable without Node.
 The v1.3 frontend keeps the REST/local API contract: `/api/health`, `/api/config`, `/api/state`, and
 `/api/compare`. It deliberately does not add GraphQL, cloud sync, accounts, server-side UI
 preferences, or a database.
+
+The commercial UI source is componentized around the app shell, view router, reusable table, SVG
+chart wrapper, command palette, inspector drawer, and responsive view layouts for Overview, Runs,
+Compare, Metric Lab, Artifacts, Reports, Agent, and Local Settings. Run selections, active view,
+and selected metric are kept in browser local storage scoped to the local target.
