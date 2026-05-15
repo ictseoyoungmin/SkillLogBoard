@@ -2,11 +2,14 @@
 
 ## v1.4 Portable Report Maturity
 
-- [ ] Run report-focused regression tests.
-- [ ] Build a rich demo report package in all render modes.
-- [ ] Validate `report_manifest.yaml` schema and provenance.
-- [ ] Confirm `report.html` has no external CDN references.
-- [ ] Bundle a report zip and inspect archive contents.
+- [x] Run report-focused regression tests.
+- [x] Build a rich demo report package.
+- [x] Validate `report_manifest.yaml` schema and provenance.
+- [x] Confirm `report.html` has no external CDN references.
+- [x] Bundle a report zip and inspect archive contents.
+
+Evidence recorded in `docs/v1_4_release_candidate_note.md`. Local frontend npm checks were blocked
+by the WSL Node launcher; GitHub Actions uses `actions/setup-node@v4`.
 
 ## v1.1.2 Live Board Showcase Candidate
 

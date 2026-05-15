@@ -7,6 +7,8 @@
 - Expanded `report_manifest.yaml` provenance with source files, metric, columns, run IDs, and step range metadata.
 - Added chart spec export, SVG fallback figures, report validation JSON, report opening, and zip bundling.
 - Kept report HTML offline-friendly and CDN-free across all rendering modes.
+- Cleanup: synchronized package/CLI version to `1.4.0.dev0`, documented baseline-delta support
+  boundaries, and added `code`, `severity`, and `suggested_action` to report validation JSON.
 
 ## 1.3.0-dev commercial Live UI candidate
 

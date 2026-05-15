@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from skilllogboard import RunLogger
@@ -50,7 +52,11 @@ def test_cli_report_build_and_check(tmp_path, capsys):
 
     validate = main(["report", "validate", str(out), "--json"])
     assert validate == 0
-    assert '"ok": true' in capsys.readouterr().out
+    validation = json.loads(capsys.readouterr().out)
+    assert validation["ok"] is True
+    assert all("code" in result for result in validation["results"])
+    assert all("severity" in result for result in validation["results"])
+    assert all("suggested_action" in result for result in validation["results"])
 
     opened = main(["report", "open", str(out), "--dry-run"])
     assert opened == 0

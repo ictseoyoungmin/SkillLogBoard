@@ -30,20 +30,25 @@ reports are reviewable offline by opening `report.html` directly.
 
 ## Render Mode Policy
 
-`minimal` embeds offline CSS and prefers SVG fallback figures when optional plotting dependencies are
-missing. This is the smallest portable mode.
+| Render mode | Assets | JavaScript | Portability notes |
+|---|---|---|---|
+| `minimal` | Inline offline CSS | None | Smallest static HTML mode; prefers SVG fallback figures when optional plotting dependencies are missing. |
+| `portable_interactive` | Inline offline CSS | Inline local table filtering | `report.html` remains readable without JavaScript and must not reference external CDNs. |
+| `package` | Relative `assets/report.css` and `assets/report.js` | Local `assets/report.js` | Useful when reviewers want inspectable assets next to `report.html`; all links stay relative. |
 
-`portable_interactive` embeds offline CSS and small inline JavaScript for local table filtering. It
-must not reference external CDNs.
-
-`package` writes `assets/report.css` and `assets/report.js` next to `report.html` using relative
-paths. It is useful when reviewers want inspectable assets rather than a single HTML file.
+`report.js` is an enhancement layer for local table filtering. The report body, tables, manifest,
+and provenance remain readable without JavaScript.
 
 ## Provenance
 
 `report_manifest.yaml` uses schema version `2.0` and records source files, metrics, table columns,
 run ids, and metric step ranges where available. Table and figure outputs also carry per-artifact
 provenance. Chart specs are exported as JSON so generated charts remain inspectable and reproducible.
+
+`ReportSpec.md` supports baseline/reference/delta metadata fields such as `baseline_run_id`,
+`reference_run_id`, and `delta_mode`. In v1.4 these fields are parsed and preserved for report
+planning, but generated tables do not yet compute full baseline deltas automatically. Broader
+baseline-delta table wiring is deferred to v1.5 Compare and Operational Rules work.
 
 ## CLI
 
@@ -55,6 +60,10 @@ skilllog report validate runs/demo/report --json
 skilllog report open runs/demo/report --dry-run
 skilllog report bundle runs/demo/report --output runs/demo/report.zip
 ```
+
+`skilllog report validate --json` keeps the original `outcome`, `name`, `message`, and `path`
+fields and adds `code`, `severity`, and `suggested_action` for lightweight agent parsing. The full
+v1.5 agent feedback schema remains future work.
 
 For screenshot review, capture `report.html` at desktop and narrow widths. The report should render
 without network access and without external `http://` or `https://` resources.

@@ -39,6 +39,8 @@
 | Report chart specs | Supported | Implemented JSON chart spec exports for generated figure records | v1.4 |
 | Report offline asset policy | Supported | Implemented inline/package CSS and JS with no CDN references | v1.4 |
 | `skilllog report validate/open/bundle` | Supported | Implemented JSON validation, local open helper, and zip bundling | v1.4 |
+| Agent-readable report validation JSON | Supported | Implemented `code`, `severity`, and `suggested_action` fields while preserving existing fields | v1.4-cleanup |
+| ReportSpec baseline/reference/delta metadata | Supported | Parsed and preserved in spec items; generated baseline-delta tables deferred to v1.5 | v1.4-cleanup |
 | Agent Research Layer | Supported | Implemented local file workflow | v0.8 |
 | `.skilllog/agent_skills.md` | Supported | Implemented project control file | v0.8 |
 | `.skilllog/experiment_plan.md` | Supported | Implemented project control file | v0.8 |

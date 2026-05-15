@@ -16,6 +16,19 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e ".[dev,dashboard]"
+      - name: Check package and CLI version sync
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          import skilllogboard
+
+          match = re.search(r'^version = "([^"]+)"', Path("pyproject.toml").read_text(), re.M)
+          assert match, "pyproject.toml version field not found"
+          assert match.group(1) == skilllogboard.__version__
+          print(f"version sync: {skilllogboard.__version__}")
+          PY
+          python -m skilllogboard.cli.main --version
       - run: ruff check .
       - run: pytest -q
       - run: python -m build --no-isolation

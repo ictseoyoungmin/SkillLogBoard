@@ -175,6 +175,10 @@ Use `--render-mode minimal` for inline CSS, `--render-mode portable_interactive`
 offline table filtering, or `--render-mode package` for `report.html` plus local
 `assets/report.css` and `assets/report.js`. No mode uses a CDN.
 
+Portable report packages are static evidence artifacts: they can be opened, validated, bundled, and
+archived without starting the Live Board. The Live Board is a separate optional local server for
+active inspection of run files.
+
 Report tables are available independently through `export-table`:
 
 ```bash
@@ -193,7 +197,8 @@ Without the optional plotting dependency, report builds still produce tables, Ma
 `report_manifest.yaml`, while recording a skipped-figure warning. The manifest records file,
 metric, column, run, and step-range provenance for generated evidence.
 
-`skilllog report validate REPORT_DIR --json` produces agent-friendly validation output, and
+`skilllog report validate REPORT_DIR --json` produces agent-friendly validation output with stable
+`code`, `severity`, and `suggested_action` fields, and
 `skilllog report bundle REPORT_DIR --output report.zip` creates a portable handoff archive.
 
 Report APIs can also be imported directly:
