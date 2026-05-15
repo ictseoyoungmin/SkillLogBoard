@@ -34,22 +34,26 @@ def require_live_dependencies():
     try:
         from fastapi import FastAPI
         from fastapi.responses import HTMLResponse
+        from fastapi.staticfiles import StaticFiles
     except ImportError as exc:
         raise LiveDependencyError(
             "Live Board server requires optional dependencies. "
             'Install with `pip install -e ".[live]"` or `pip install skilllogboard[live]`.'
         ) from exc
-    return FastAPI, HTMLResponse
+    return FastAPI, HTMLResponse, StaticFiles
 
 
 def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = None):
-    FastAPI, HTMLResponse = require_live_dependencies()
+    FastAPI, HTMLResponse, StaticFiles = require_live_dependencies()
     from skilllogboard.live.project import build_compare_state, build_live_project_state
     from skilllogboard.live.state import build_live_run_state
 
     opts = options or LiveServerOptions()
     target = Path(target_dir)
     app = FastAPI(title="SkillLogBoard Live Board")
+    static_root = compiled_live_static_root()
+    if static_root is not None:
+        app.mount("/live-static", StaticFiles(directory=static_root), name="live-static")
     config = {
         "mode": "project" if opts.project else "run",
         "default_view": PROJECT_DEFAULT_VIEW if opts.project else RUN_DEFAULT_VIEW,
@@ -114,9 +118,32 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
 
     @app.get("/", response_class=HTMLResponse)
     def index():
-        return HTMLResponse(load_live_template())
+        return HTMLResponse(load_live_app_html())
 
     return app
+
+
+def load_live_app_html() -> str:
+    """Return the compiled v1.3 app when present, otherwise the bundled fallback."""
+
+    static_root = compiled_live_static_root()
+    if static_root is not None:
+        index_path = static_root / "index.html"
+        if index_path.exists():
+            return index_path.read_text(encoding="utf-8")
+    return load_live_template()
+
+
+def compiled_live_static_root() -> Path | None:
+    try:
+        static_root = resources.files("skilllogboard.live.static").joinpath("app")
+    except ModuleNotFoundError:
+        return None
+    if not static_root.is_dir():
+        return None
+    with resources.as_file(static_root) as path:
+        resolved = Path(path)
+        return resolved if (resolved / "index.html").exists() else None
 
 
 def load_live_template() -> str:

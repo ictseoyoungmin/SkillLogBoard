@@ -1,0 +1,92 @@
+---
+milestone: "v1.3"
+phase: "Commercial Live UI"
+day: "day1"
+slice: "04_api_client_contract"
+title: "frontend API client contract"
+priority: "P0"
+status: "completed"
+target_version: "v1.3"
+---
+
+# 04_api_client_contract — frontend API client contract
+
+## Objective
+
+Create typed client contract for local Live Board APIs.
+
+## Context
+
+v1.3 upgrades the v1.2 app shell into a commercial-quality local Live Board frontend, using compiled static assets served by the Python package while preserving local-first semantics.
+
+## Dependencies
+
+- v1.2 App Shell Refactor completed.
+- View-scoped API contracts are stable enough for frontend consumption.
+- Static dashboard/report outputs remain separate portable evidence artifacts.
+
+## Target Files
+
+- frontend/live-board/src/api/
+- src/skilllogboard/live/server.py
+- docs/live_board.md
+
+## Implementation Steps
+
+1. Define TypeScript types for config, overview, runs, compare, metric series, artifacts, reports, agent.
+2. Create lightweight fetch client.
+3. Avoid GraphQL/Apollo.
+4. Handle API errors with local-first copy.
+5. Document API assumptions.
+
+## Acceptance Criteria
+
+- Typed API contract exists.
+- Client uses REST/local API.
+- Error handling is explicit.
+- No GraphQL dependency is introduced.
+
+## Verification Commands
+
+```bash
+cd frontend/live-board && npm run build
+```
+
+## Non-goals
+
+- Do not require Node.js at runtime for end users.
+- Do not add GraphQL/Apollo/Redux unless separately approved.
+- Do not include node_modules in the Python package.
+- Do not implement TensorBoard/W&B import.
+- Do not implement Prometheus/Grafana integration.
+- Do not implement cloud sync.
+- Do not implement multi-user auth.
+- Do not add a database backend.
+- Do not perform TestPyPI/PyPI publishing in this slice.
+- Do not weaken local-first, inspectable-file behavior.
+
+## Handoff Notes
+
+- Keep the slice focused and reviewable.
+- Prefer additive state/API fields over breaking existing contracts.
+- Keep static dashboard/report portability separate from Live Board app behavior.
+- If an item is deferred, document the reason in the Agent Completion Block.
+- Update related docs/status/changelog when user-visible behavior changes.
+
+---
+
+## Agent Completion Block
+
+- [x] Implementation completed
+- [x] Acceptance criteria verified
+- [x] Tests or smoke checks executed
+- [x] No unrelated files changed
+- [x] Notes added below if anything was skipped or deferred
+
+**Status:** COMPLETED  
+**Completed at:** 2026-05-15  
+**Completed by:** Codex  
+**Verification command(s):** `cd frontend/live-board && npm run build`; `cd frontend/live-board && npm run lint`; `cd frontend/live-board && npm run test`  
+**Notes:** Added typed REST client under `frontend/live-board/src/api/` for health, config, state, and compare endpoints with explicit local API error handling. No GraphQL/Apollo dependency was introduced.  
+
+<!-- AGENT_STATUS: COMPLETED -->

@@ -120,3 +120,18 @@ sync state to a cloud service.
 
 The Live Board does not replace static outputs. `dashboard.html`, `summary.md`, `report.md`,
 `report.html`, and compare reports remain file-based artifacts that can be opened without a server.
+
+## v1.3 frontend source
+
+v1.3 introduces a React, TypeScript, and Vite source app in `frontend/live-board/`. The source app is
+for development and release builds only; installed Python users still run a local FastAPI server and
+do not need Node at runtime.
+
+Release builds compile the frontend into `src/skilllogboard/live/static/app/`. When that directory
+contains `index.html`, the Live Board serves the compiled app at `/` and its assets below
+`/live-static/`. If the compiled app is absent, the server falls back to the bundled v1.2 template so
+source checkouts remain usable without Node.
+
+The v1.3 frontend keeps the REST/local API contract: `/api/health`, `/api/config`, `/api/state`, and
+`/api/compare`. It deliberately does not add GraphQL, cloud sync, accounts, server-side UI
+preferences, or a database.

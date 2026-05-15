@@ -16,3 +16,9 @@ def test_live_ui_tokens_are_packaged():
 
     assert "--slb-bg" in text
     assert "--slb-cyan" in text
+
+
+def test_live_static_package_exists_for_built_app_assets():
+    static_root = resources.files("skilllogboard.live.static")
+
+    assert static_root.joinpath("__init__.py").is_file()

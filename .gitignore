@@ -13,3 +13,4 @@ runs/
 .devmd/docs/
 .vscode/
 SkillLogBoard_v1_2_AppShell_UI_Prototype
+frontend/live-board/node_modules/

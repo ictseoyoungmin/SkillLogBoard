@@ -8,7 +8,12 @@ from urllib.request import urlopen
 import pytest
 import yaml
 
-from skilllogboard.live.server import LiveServerOptions, create_live_app, load_live_template
+from skilllogboard.live.server import (
+    LiveServerOptions,
+    create_live_app,
+    load_live_app_html,
+    load_live_template,
+)
 
 
 def _call_route(app, path, **kwargs):
@@ -25,6 +30,13 @@ def test_load_live_template_is_self_contained():
     assert "/api/state" in html
     assert "https://" not in html
     assert "http://" not in html
+
+
+def test_load_live_app_html_has_fallback_or_compiled_app():
+    html = load_live_app_html()
+
+    assert "<!doctype html>" in html.lower()
+    assert "SkillLogBoard Live" in html
 
 
 @pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")
@@ -132,7 +144,8 @@ def test_live_server_http_smoke_run_mode(tmp_path):
     assert health["poll_interval"] == 1.5
     assert state["mode"] == "run"
     assert state["status"] == "running"
-    assert 'data-skilllogboard-ui="v1.1.1"' in html
+    assert "SkillLogBoard Live" in html
+    assert 'data-skilllogboard-ui="v1.1.1"' in html or 'data-skilllogboard-ui="v1.3-react"' in html
 
 
 @pytest.mark.skipif(importlib.util.find_spec("fastapi") is None, reason="fastapi not installed")

@@ -68,6 +68,8 @@ skilllogboard = [
   "template_forge/harness/*.txt",
   "live/templates/*.html",
   "live/templates/*.css",
+  "live/static/app/*.html",
+  "live/static/app/assets/*",
 ]
 
 [tool.ruff]

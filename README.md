@@ -21,8 +21,8 @@ and multi-run comparison reports:
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
   and template validation
-- v1.2 optional local-first Live Board with app shell views, project Overview default,
-  single-run Metric Lab default, and view-scoped lazy state loading
+- v1.3 optional local-first Live Board with React/Vite source frontend, app shell views,
+  project Overview default, single-run Metric Lab default, and view-scoped lazy state loading
 - CLI `init`, `inspect`, `report`, and `dashboard`
 - CLI `compare`, `export-table`, `export-figure`, `report build/check`, and `agent`
 - CLI `forge init-brief`, `forge plan`, `forge scaffold`, and `forge validate`
@@ -39,6 +39,10 @@ pip install -e ".[dev,dashboard,report]"
 # Optional local Live Board server.
 pip install -e ".[dev,dashboard,live]"
 ```
+
+Live Board frontend source lives in `frontend/live-board/`. Node is a development/build tool only;
+the Python package serves compiled local assets when present and falls back to the bundled template
+otherwise.
 
 ## CLI
 
