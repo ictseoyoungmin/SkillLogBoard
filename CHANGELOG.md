@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0-dev portable report maturity candidate
+
+- Added v1.4 portable report rendering modes: `minimal`, `portable_interactive`, and `package`.
+- Added report `assets/` layout support with local `report.css` and `report.js` for package mode.
+- Expanded `report_manifest.yaml` provenance with source files, metric, columns, run IDs, and step range metadata.
+- Added chart spec export, SVG fallback figures, report validation JSON, report opening, and zip bundling.
+- Kept report HTML offline-friendly and CDN-free across all rendering modes.
+
 ## 1.2.0-dev app shell refactor candidate
 
 - Added a Live Board app shell with Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Local Settings views.

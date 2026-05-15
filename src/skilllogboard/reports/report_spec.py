@@ -25,6 +25,10 @@ class ReportSpecItem:
     mode: str = "max"
     group_by: list[str] = field(default_factory=list)
     metrics: list[str] = field(default_factory=list)
+    render_mode: str = ""
+    baseline_run_id: str = ""
+    reference_run_id: str = ""
+    delta_mode: str = ""
     params: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,6 +42,10 @@ class ReportSpecItem:
             "mode": self.mode,
             "group_by": self.group_by,
             "metrics": self.metrics,
+            "render_mode": self.render_mode,
+            "baseline_run_id": self.baseline_run_id,
+            "reference_run_id": self.reference_run_id,
+            "delta_mode": self.delta_mode,
             "params": self.params,
         }
 
@@ -110,6 +118,10 @@ def _build_item(item_id: str, fields: dict[str, Any]) -> ReportSpecItem:
     mode = str(fields.pop("mode", "max"))
     group_by = _as_list(fields.pop("group_by", []))
     metrics = _as_list(fields.pop("metrics", []))
+    render_mode = str(fields.pop("render_mode", ""))
+    baseline_run_id = str(fields.pop("baseline_run_id", fields.pop("baseline", "")))
+    reference_run_id = str(fields.pop("reference_run_id", fields.pop("reference", "")))
+    delta_mode = str(fields.pop("delta_mode", ""))
     return ReportSpecItem(
         id=item_id,
         kind=kind,
@@ -120,6 +132,10 @@ def _build_item(item_id: str, fields: dict[str, Any]) -> ReportSpecItem:
         mode=mode,
         group_by=group_by,
         metrics=metrics,
+        render_mode=render_mode,
+        baseline_run_id=baseline_run_id,
+        reference_run_id=reference_run_id,
+        delta_mode=delta_mode,
         params=fields,
     )
 

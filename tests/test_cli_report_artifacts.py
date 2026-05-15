@@ -32,6 +32,8 @@ def test_cli_report_build_and_check(tmp_path, capsys):
             "val/acc",
             "--output-dir",
             str(out),
+            "--render-mode",
+            "package",
         ]
     )
 
@@ -39,11 +41,24 @@ def test_cli_report_build_and_check(tmp_path, capsys):
     assert (out / "report.md").exists()
     assert (out / "report.html").exists()
     assert (out / "report_manifest.yaml").exists()
+    assert (out / "assets" / "report.css").exists()
     assert "Report directory" in capsys.readouterr().out
 
     check = main(["report", "check", str(out), "--required-table", "leaderboard"])
     assert check == 0
     assert "passed" in capsys.readouterr().out
+
+    validate = main(["report", "validate", str(out), "--json"])
+    assert validate == 0
+    assert '"ok": true' in capsys.readouterr().out
+
+    opened = main(["report", "open", str(out), "--dry-run"])
+    assert opened == 0
+    assert "report.html" in capsys.readouterr().out
+
+    bundled = main(["report", "bundle", str(out), "--output", str(tmp_path / "report.zip")])
+    assert bundled == 0
+    assert (tmp_path / "report.zip").exists()
 
 
 def test_cli_export_table_supports_seed_summary(tmp_path):

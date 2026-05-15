@@ -15,8 +15,8 @@ and multi-run comparison reports:
 - `summary.md` and single-run `dashboard.html`
 - Skills.md v0.3 MVP rule checks with `skill_trace.jsonl`
 - v0.4 multi-run compare outputs: `compare.csv`, `compare.md`, and `compare.html`
-- v0.7 report artifact packages: `report.md`, `report.html`, `report_manifest.yaml`,
-  report tables, and optional figures
+- v1.4 portable report packages: `report.md`, `report.html`, `report_manifest.yaml`,
+  local assets, report tables, chart specs, optional figures, and provenance metadata
 - v0.8 agent research workflow files: `.skilllog/`, `agent/actions.jsonl`,
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
@@ -33,7 +33,7 @@ and multi-run comparison reports:
 ```bash
 pip install -e ".[dev,dashboard]"
 
-# Optional PNG figure export for v0.7 report artifacts.
+# Optional PNG figure export for v1.4 report packages.
 pip install -e ".[dev,dashboard,report]"
 
 # Optional local Live Board server.
@@ -52,7 +52,9 @@ skilllog init
 skilllog inspect runs/demo/{run_id}
 skilllog compare runs/demo --metric val/acc --mode max --output-dir runs/demo/compare
 skilllog export-table runs/demo --metric val/acc --format md --output runs/demo/compare.md
-skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report
+skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/demo/report --render-mode package
+skilllog report validate runs/demo/report --json
+skilllog report bundle runs/demo/report --output runs/demo/report.zip
 skilllog report check runs/demo/report --required-table leaderboard
 skilllog agent init
 skilllog forge init-brief --output ResearchBrief.md
@@ -149,7 +151,7 @@ skilllog export-table runs/demo --metric val/acc --format latex --output compare
 Compare includes a leaderboard, config diff, inferred ablation axes, and seed summary. Research
 templates build on these static outputs without adding mandatory domain dependencies.
 
-## v0.7 Report Artifact Layer
+## v1.4 Portable Report Packages
 
 Generate a report-ready artifact package from existing run folders:
 
@@ -163,9 +165,14 @@ This writes:
 report.md
 report.html
 report_manifest.yaml
+assets/
 tables/
 figures/
 ```
+
+Use `--render-mode minimal` for inline CSS, `--render-mode portable_interactive` for inline
+offline table filtering, or `--render-mode package` for `report.html` plus local
+`assets/report.css` and `assets/report.js`. No mode uses a CDN.
 
 Report tables are available independently through `export-table`:
 
@@ -182,7 +189,11 @@ skilllog export-figure runs/demo --type metric-curve-overlay --metric val/acc --
 ```
 
 Without the optional plotting dependency, report builds still produce tables, Markdown, HTML, and
-`report_manifest.yaml`, while recording a skipped-figure warning.
+`report_manifest.yaml`, while recording a skipped-figure warning. The manifest records file,
+metric, column, run, and step-range provenance for generated evidence.
+
+`skilllog report validate REPORT_DIR --json` produces agent-friendly validation output, and
+`skilllog report bundle REPORT_DIR --output report.zip` creates a portable handoff archive.
 
 Report APIs can also be imported directly:
 

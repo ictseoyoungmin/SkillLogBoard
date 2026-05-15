@@ -9,6 +9,7 @@ from skilllogboard.reports.figure_builder import (
     build_seed_errorbar_figure,
     require_matplotlib,
 )
+from skilllogboard.reports.figures import list_figure_types, write_svg_fallback
 
 
 def _make_runs(tmp_path):
@@ -75,3 +76,11 @@ def test_aggregate_figures_build_when_report_extra_available(tmp_path):
     assert ablation_out.exists()
     assert seed.figure_type == "seed-errorbar"
     assert ablation.figure_type == "ablation-bar"
+
+
+def test_figure_registry_and_svg_fallback(tmp_path):
+    out = write_svg_fallback(tmp_path / "fallback.svg", "Metric Curve", "matplotlib unavailable")
+
+    assert "metric-curve-overlay" in list_figure_types()
+    assert out.exists()
+    assert "<svg" in out.read_text(encoding="utf-8")

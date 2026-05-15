@@ -34,6 +34,11 @@
 | `skilllog export-figure` | Supported | Implemented optional figure command | v0.7 |
 | `skilllog report build` | Supported | Implemented report package builder | v0.7 |
 | `skilllog report check` | Supported | Implemented report artifact validation checks | v0.7 |
+| Portable report render modes | Supported | Implemented minimal, portable_interactive, and package modes | v1.4 |
+| Report manifest schema v2 | Supported | Implemented output and package provenance metadata | v1.4 |
+| Report chart specs | Supported | Implemented JSON chart spec exports for generated figure records | v1.4 |
+| Report offline asset policy | Supported | Implemented inline/package CSS and JS with no CDN references | v1.4 |
+| `skilllog report validate/open/bundle` | Supported | Implemented JSON validation, local open helper, and zip bundling | v1.4 |
 | Agent Research Layer | Supported | Implemented local file workflow | v0.8 |
 | `.skilllog/agent_skills.md` | Supported | Implemented project control file | v0.8 |
 | `.skilllog/experiment_plan.md` | Supported | Implemented project control file | v0.8 |

@@ -2,6 +2,7 @@ from skilllogboard.reports.report_manifest import (
     ReportArtifact,
     ReportManifest,
     read_report_manifest,
+    validate_report_manifest_schema,
     write_report_manifest,
 )
 
@@ -41,5 +42,12 @@ def test_report_manifest_roundtrip(tmp_path):
 
     assert loaded["report_id"] == "report-demo"
     assert loaded["source"]["run_count"] == 2
+    assert loaded["schema_version"] == "2.0"
     assert {item["type"] for item in loaded["outputs"]} == {"table", "figure"}
     assert loaded["warnings"] == ["figure skipped"]
+
+
+def test_report_manifest_schema_validation_requires_output_fields():
+    errors = validate_report_manifest_schema({"report_id": "r", "outputs": [{"id": "x"}]})
+
+    assert "outputs[0].path is required" in errors

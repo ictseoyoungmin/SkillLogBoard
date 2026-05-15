@@ -1,5 +1,13 @@
 # Release Candidate Checklist
 
+## v1.4 Portable Report Maturity
+
+- [ ] Run report-focused regression tests.
+- [ ] Build a rich demo report package in all render modes.
+- [ ] Validate `report_manifest.yaml` schema and provenance.
+- [ ] Confirm `report.html` has no external CDN references.
+- [ ] Bundle a report zip and inspect archive contents.
+
 ## v1.1.2 Live Board Showcase Candidate
 
 - [ ] Confirm README, Live Board docs, changelog, status matrix, and UI guidelines mention v1.1.2 showcase polish.

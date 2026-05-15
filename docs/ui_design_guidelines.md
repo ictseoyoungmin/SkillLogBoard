@@ -3,6 +3,12 @@
 SkillLogBoard UI should feel like a local-first research product: quiet by default, fast to scan,
 and explicit about local evidence.
 
+## Portable Reports
+
+Static report screenshots should show the report as an offline document, not as a Live Board view.
+Capture `report.html` with local relative assets loaded, no CDN dependencies, and provenance visible
+through `report_manifest.yaml`. Prefer desktop and narrow viewport captures for release notes.
+
 ## Live Board Principles
 
 - Use the v1.2 app shell as the durable information architecture: Project contains Overview,

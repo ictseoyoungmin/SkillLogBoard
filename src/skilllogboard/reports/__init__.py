@@ -1,4 +1,4 @@
-"""Report builders and v0.7 report artifact helpers."""
+"""Report builders and portable report artifact helpers."""
 
 from skilllogboard.reports.figure_builder import (
     OptionalFigureDependencyError,
@@ -17,6 +17,7 @@ from skilllogboard.reports.report_manifest import (
     ReportArtifact,
     ReportManifest,
     read_report_manifest,
+    validate_report_manifest_schema,
     write_report_manifest,
 )
 from skilllogboard.reports.report_spec import (
@@ -31,6 +32,11 @@ from skilllogboard.reports.table_builder import (
     table_to_latex,
     table_to_markdown,
 )
+from skilllogboard.reports.validate import (
+    ReportValidationResult,
+    validate_report_package,
+    validation_summary,
+)
 
 __all__ = [
     "OptionalFigureDependencyError",
@@ -40,6 +46,7 @@ __all__ = [
     "ReportManifest",
     "ReportSpecItem",
     "ReportTable",
+    "ReportValidationResult",
     "build_ablation_bar_figure",
     "build_metric_curve_figure",
     "build_metric_curve_overlay_figure",
@@ -53,5 +60,8 @@ __all__ = [
     "table_to_csv_string",
     "table_to_latex",
     "table_to_markdown",
+    "validate_report_manifest_schema",
+    "validate_report_package",
+    "validation_summary",
     "write_report_manifest",
 ]

@@ -11,6 +11,7 @@ from skilllogboard.reports.table_builder import (
     table_to_latex,
     table_to_markdown,
 )
+from skilllogboard.reports.tables import get_table_definition, list_table_types
 
 
 def _make_runs(tmp_path):
@@ -66,3 +67,8 @@ def test_report_table_adapters_build_from_runs(tmp_path):
     assert seed_summary.rows[0]["count"] == 3
     assert any(row["axis"] == "lr" for row in ablation.rows)
     assert len(audit.rows) == 3
+
+
+def test_table_registry_lists_supported_tables():
+    assert "leaderboard" in list_table_types()
+    assert get_table_definition("leaderboard").requires_metric is True

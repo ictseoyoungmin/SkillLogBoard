@@ -120,6 +120,9 @@ sync state to a cloud service.
 
 The Live Board does not replace static outputs. `dashboard.html`, `summary.md`, `report.md`,
 `report.html`, and compare reports remain file-based artifacts that can be opened without a server.
+v1.4 portable report packages deliberately stay static evidence documents: their render modes,
+assets, manifest provenance, and chart specs are designed for offline review rather than active
+polling or Live Board interactions.
 
 ## v1.3 frontend source
 

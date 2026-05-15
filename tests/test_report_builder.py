@@ -24,6 +24,7 @@ def test_create_report_layout_uses_explicit_output_dir(tmp_path):
 
     assert (out / "tables").exists()
     assert (out / "figures").exists()
+    assert (out / "assets").exists()
 
 
 def test_build_report_package_writes_reports_and_manifest(tmp_path):
@@ -47,7 +48,14 @@ def test_build_report_package_writes_reports_and_manifest(tmp_path):
     manifest = read_report_manifest(result.report_manifest)
     assert manifest["source"]["run_count"] == 2
     assert any(output["type"] == "table" for output in manifest["outputs"])
+    assert any(output["type"] == "chart-spec" for output in manifest["outputs"])
     assert manifest["parameters"]["metric"] == "val/acc"
+    assert manifest["parameters"]["render_mode"] == "minimal"
+    leaderboard = next(output for output in manifest["outputs"] if output["id"] == "leaderboard")
+    assert leaderboard["provenance"]["metrics"] == ["val/acc"]
+    assert leaderboard["provenance"]["columns"]
+    assert leaderboard["provenance"]["step_range"] == {"min": 1, "max": 2}
+    assert manifest["provenance"]["step_range"] == {"min": 1, "max": 2}
 
 
 def test_build_report_package_executes_spec_fig_blocks_or_records_skip(tmp_path):
@@ -84,3 +92,43 @@ def test_build_report_package_executes_spec_fig_blocks_or_records_skip(tmp_path)
     assert figures[0]["metadata"]["status"] in {"generated", "skipped"}
     if figures[0]["metadata"]["status"] == "skipped":
         assert result.warnings
+
+
+def test_build_report_package_minimal_uses_svg_fallback_when_figures_unavailable(tmp_path, monkeypatch):
+    import skilllogboard.reports.report_builder as report_builder
+
+    def missing(*args, **kwargs):
+        raise report_builder.OptionalFigureDependencyError("missing report extra")
+
+    monkeypatch.setattr(report_builder, "build_metric_curve_overlay_figure", missing)
+    result = build_report_package(_make_runs(tmp_path), metric="val/acc", output_dir=tmp_path / "report")
+    manifest = read_report_manifest(result.report_manifest)
+    figure = next(output for output in manifest["outputs"] if output["type"] == "figure")
+
+    assert figure["metadata"]["fallback"] == "svg"
+    assert (result.report_dir / figure["path"]).exists()
+
+
+def test_build_report_package_package_mode_writes_local_assets(tmp_path):
+    runs_root = _make_runs(tmp_path)
+    out_dir = tmp_path / "report"
+
+    result = build_report_package(
+        runs_root,
+        metric="val/acc",
+        mode="max",
+        output_dir=out_dir,
+        render_mode="package",
+    )
+
+    html = result.report_html.read_text(encoding="utf-8")
+    manifest = read_report_manifest(result.report_manifest)
+
+    assert (out_dir / "assets" / "report.css").exists()
+    assert (out_dir / "assets" / "report.js").exists()
+    assert 'href="assets/report.css"' in html
+    assert 'src="assets/report.js"' in html
+    assert "https://" not in html
+    assert "http://" not in html
+    assert {asset.name for asset in result.assets} == {"report.css", "report.js"}
+    assert any(output["type"] == "asset" for output in manifest["outputs"])

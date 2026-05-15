@@ -126,6 +126,12 @@ def cmd_report(args) -> int:
         return _cmd_report_build(args, report_args[1:])
     if report_args and report_args[0] == "check":
         return _cmd_report_check(args, report_args[1:])
+    if report_args and report_args[0] == "validate":
+        return _cmd_report_validate(args, report_args[1:])
+    if report_args and report_args[0] == "open":
+        return _cmd_report_open(args, report_args[1:])
+    if report_args and report_args[0] == "bundle":
+        return _cmd_report_bundle(args, report_args[1:])
     return _cmd_report_summary(report_args)
 
 
@@ -154,6 +160,11 @@ def _cmd_report_build(parent_args, report_args: list[str]) -> int:
     parser.add_argument("--spec")
     parser.add_argument("--output-dir")
     parser.add_argument("--group-by", action="append")
+    parser.add_argument(
+        "--render-mode",
+        choices=["minimal", "portable_interactive", "package"],
+        default="minimal",
+    )
     parsed = parser.parse_args(report_args)
 
     from skilllogboard.reports.report_builder import build_report_package
@@ -166,6 +177,7 @@ def _cmd_report_build(parent_args, report_args: list[str]) -> int:
             output_dir=parsed.output_dir,
             group_by=parsed.group_by,
             spec_path=parsed.spec,
+            render_mode=parsed.render_mode,
         )
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
@@ -184,6 +196,7 @@ def _cmd_report_check(parent_args, report_args: list[str]) -> int:
     parser.add_argument("root_or_report_dir")
     parser.add_argument("--required-table", action="append", default=[])
     parser.add_argument("--required-figure", action="append", default=[])
+    parser.add_argument("--json", action="store_true")
     parsed = parser.parse_args(report_args)
 
     from skilllogboard.skills.report_rules import check_report_artifacts
@@ -193,9 +206,63 @@ def _cmd_report_check(parent_args, report_args: list[str]) -> int:
         required_tables=parsed.required_table,
         required_figures=parsed.required_figure,
     )
-    for result in results:
-        print(f"{result.outcome}: {result.rule_type}: {result.message}")
+    if parsed.json:
+        print(json.dumps([result.to_dict() for result in results], indent=2, sort_keys=True))
+    else:
+        for result in results:
+            print(f"{result.outcome}: {result.rule_type}: {result.message}")
     return 1 if any(result.outcome == "error" for result in results) else 0
+
+
+def _cmd_report_validate(parent_args, report_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog report validate")
+    parser.add_argument("report_dir")
+    parser.add_argument("--json", action="store_true")
+    parsed = parser.parse_args(report_args)
+
+    from skilllogboard.reports.validate import validate_report_package, validation_summary
+
+    results = validate_report_package(parsed.report_dir)
+    if parsed.json:
+        print(json.dumps(validation_summary(results), indent=2, sort_keys=True))
+    else:
+        for result in results:
+            print(f"{result.outcome}: {result.name}: {result.message}")
+    return 1 if any(result.outcome == "error" for result in results) else 0
+
+
+def _cmd_report_open(parent_args, report_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog report open")
+    parser.add_argument("report_dir")
+    parser.add_argument("--dry-run", action="store_true")
+    parsed = parser.parse_args(report_args)
+
+    html = Path(parsed.report_dir) / "report.html"
+    if not html.exists():
+        print(f"Report HTML not found: {html}", file=sys.stderr)
+        return 1
+    url = html.resolve().as_uri()
+    print(f"Report HTML: {url}")
+    if not parsed.dry_run:
+        webbrowser.open(url)
+    return 0
+
+
+def _cmd_report_bundle(parent_args, report_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog report bundle")
+    parser.add_argument("report_dir")
+    parser.add_argument("--output")
+    parsed = parser.parse_args(report_args)
+
+    from skilllogboard.reports.package import bundle_report_zip
+
+    try:
+        out = bundle_report_zip(parsed.report_dir, parsed.output)
+    except ValueError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
+    print(f"Report bundle: {out}")
+    return 0
 
 
 def cmd_compare(args) -> int:
@@ -762,7 +829,7 @@ def build_parser() -> ArgumentParser:
 
     p_report = sub.add_parser(
         "report",
-        help="Build summary.md, or use 'report build/check' for v0.7 report artifacts",
+        help="Build summary.md, or use report build/check/validate/open/bundle",
     )
     p_report.add_argument("report_args", nargs=REMAINDER)
     p_report.set_defaults(func=cmd_report)

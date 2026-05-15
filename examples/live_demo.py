@@ -20,11 +20,14 @@ def main() -> None:
     parser.add_argument("--rich", action="store_true", help="create richer showcase evidence")
     args = parser.parse_args()
     if args.multi_run:
+        project_root = Path("runs/live_demo")
         count = max(args.runs, 5) if args.rich else args.runs
         run_dirs = [
-            _write_demo_run(index, root_dir=Path("runs/live_demo"), rich=args.rich)
+            _write_demo_run(index, root_dir=project_root, rich=args.rich)
             for index in range(count)
         ]
+        if args.rich:
+            _write_portable_report_package(project_root, project_root / "report")
         print(f"Project directory: {Path('runs/live_demo')}")
         print("Run directories:")
         for run_dir in run_dirs:
@@ -37,6 +40,7 @@ def main() -> None:
         _write_rich_steps(logger, profile=_profile_for_index(0))
         _write_showcase_evidence(logger, profile=_profile_for_index(0))
         logger.finish()
+        _write_portable_report_package(logger.run_dir, logger.run_dir / "report")
     else:
         _write_steps(logger, offset=0.0)
         logger.finish(build_dashboard=True, build_report=True)
@@ -285,6 +289,19 @@ def _write_agent_workspace(run_dir: Path, run_name: str) -> None:
     )
     (agent_dir / "handoff.md").write_text(f"# Handoff\n\nRun `{run_name}` is ready for local review.\n", encoding="utf-8")
     (agent_dir / "decisions.md").write_text("# Decisions\n\n- Keep demo evidence local and deterministic.\n", encoding="utf-8")
+
+
+def _write_portable_report_package(root_dir: Path, output_dir: Path) -> None:
+    from skilllogboard.reports.report_builder import build_report_package
+
+    build_report_package(
+        root_dir,
+        metric="val/acc",
+        mode="max",
+        output_dir=output_dir,
+        group_by=["model_name"],
+        render_mode="package",
+    )
 
 
 if __name__ == "__main__":
