@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+from concurrent.futures import ThreadPoolExecutor
+import json
 import os
 
 from skilllogboard.live.downsample import downsample_points
-from skilllogboard.live.readers import read_artifacts, read_manifest, read_metric_summary, read_metrics
-from skilllogboard.live.state import read_agent_workspace, read_report_artifacts
+from skilllogboard.live.readers import read_manifest, read_metric_summary, read_metrics
 from skilllogboard.query import filter_runs
 
 DEFAULT_MAX_DISCOVERY_DEPTH = 4
@@ -79,8 +80,10 @@ def build_live_project_state(
     runs = []
     counts: dict[str, int] = {}
     warnings: list[str] = []
-    for run_dir in run_dirs:
-        state = _read_project_run_summary(run_dir)
+    max_workers = min(16, max(1, len(run_dirs)))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        run_states = list(executor.map(_read_project_run_summary, run_dirs))
+    for run_dir, state in zip(run_dirs, run_states):
         status = state["status"]
         counts[status] = counts.get(status, 0) + 1
         warnings.extend(f"{run_dir.name}: {warning}" for warning in state["warnings"])
@@ -236,9 +239,9 @@ def _read_project_run_summary(run_dir: Path) -> dict[str, Any]:
     main_name = main_metric.get("name") if isinstance(main_metric, dict) else None
     for metric in metric_catalog:
         metric["pinned"] = metric.get("name") == main_name
-    artifacts, artifact_warnings = read_artifacts(run_dir, limit=1)
-    report_artifacts = read_report_artifacts(run_dir)
-    agent_workspace = read_agent_workspace(run_dir)
+    artifact_count, artifact_warnings = _quick_artifact_count(run_dir)
+    report_artifact_count = _quick_report_artifact_count(run_dir)
+    agent_evidence = _quick_agent_evidence(run_dir)
     warnings = manifest_warnings + metric_warnings + artifact_warnings
     status = str(manifest.get("status", "unknown"))
     run_id = str(manifest.get("run_id") or run_dir.name)
@@ -249,15 +252,10 @@ def _read_project_run_summary(run_dir: Path) -> dict[str, Any]:
         "shared_metric_count": 0,
         "event_count": 0,
         "rule_count": 0,
-        "artifact_count": len(artifacts) + len(report_artifacts),
-        "report_artifact_count": len(report_artifacts),
+        "artifact_count": artifact_count + report_artifact_count,
+        "report_artifact_count": report_artifact_count,
         "warning_count": len(warnings),
-        "agent_evidence": bool(
-            agent_workspace.get("actions_count")
-            or agent_workspace.get("handoff")
-            or agent_workspace.get("decisions")
-            or agent_workspace.get("files_changed")
-        ),
+        "agent_evidence": agent_evidence,
         "compare_ready": False,
     }
     summary = {
@@ -291,15 +289,49 @@ def _run_summary_fingerprint(run_dir: Path) -> tuple[float, ...]:
         run_dir / "manifest.yaml",
         run_dir / "metrics.csv",
         run_dir / "artifact_index.json",
-        run_dir / "summary.md",
-        run_dir / "dashboard.html",
-        run_dir / "report_manifest.yaml",
-        run_dir / "report" / "report_manifest.yaml",
         run_dir / "agent" / "actions.jsonl",
-        run_dir / "agent" / "handoff.md",
-        run_dir / "agent" / "decisions.md",
     ]
     return tuple(path.stat().st_mtime if path.exists() else 0.0 for path in paths)
+
+
+def _quick_artifact_count(run_dir: Path) -> tuple[int, list[str]]:
+    index_path = run_dir / "artifact_index.json"
+    if index_path.exists():
+        try:
+            data = json.loads(index_path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            return 0, [f"could not read {index_path.name}: {exc}"]
+        artifacts = data.get("artifacts", []) if isinstance(data, dict) else []
+        return len([item for item in artifacts if isinstance(item, dict)]), []
+    artifacts_dir = run_dir / "artifacts"
+    if artifacts_dir.exists() and artifacts_dir.is_dir():
+        return sum(1 for item in artifacts_dir.iterdir() if item.is_file()), []
+    return 0, ["missing artifact_index.json"]
+
+
+def _quick_report_artifact_count(run_dir: Path) -> int:
+    count = 0
+    for name in ["dashboard.html", "summary.md", "report.md", "report.html", "report_manifest.yaml"]:
+        path = run_dir / name
+        if path.exists() and path.is_file():
+            count += 1
+    report_manifest = run_dir / "report" / "report_manifest.yaml"
+    if report_manifest.exists() and report_manifest.is_file():
+        count += 1
+    return count
+
+
+def _quick_agent_evidence(run_dir: Path) -> bool:
+    agent_dir = run_dir / "agent"
+    return any(
+        path.exists() and (path.stat().st_size > 0 if path.is_file() else True)
+        for path in [
+            agent_dir / "actions.jsonl",
+            agent_dir / "handoff.md",
+            agent_dir / "handoff.json",
+            agent_dir / "decisions.md",
+        ]
+    )
 
 
 def _normalized_view(view: str | None) -> str:

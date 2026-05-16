@@ -3,12 +3,14 @@ import type { CompareState, LiveConfig, LiveHealth, LiveState, LiveView } from "
 export class LiveApiError extends Error {
   status: number;
   body: string;
+  path: string;
 
-  constructor(message: string, status: number, body: string) {
+  constructor(message: string, status: number, body: string, path: string) {
     super(message);
     this.name = "LiveApiError";
     this.status = status;
     this.body = body;
+    this.path = path;
   }
 }
 
@@ -32,7 +34,7 @@ export class LiveApiClient {
 
   constructor(options: LiveApiClientOptions = {}) {
     this.baseUrl = options.baseUrl ?? "";
-    this.fetchImpl = options.fetchImpl ?? fetch;
+    this.fetchImpl = options.fetchImpl ?? ((input, init) => fetch(input, init));
   }
 
   health(): Promise<LiveHealth> {
@@ -61,18 +63,36 @@ export class LiveApiClient {
   }
 
   private async fetchJson<T>(path: string): Promise<T> {
-    const response = await this.fetchImpl(`${this.baseUrl}${path}`, {
-      headers: { Accept: "application/json" }
-    });
-    if (!response.ok) {
-      const body = await response.text();
+    let response: Response;
+    try {
+      response = await this.fetchImpl(`${this.baseUrl}${path}`, {
+        headers: { Accept: "application/json" }
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "network request failed";
       throw new LiveApiError(
-        `Could not read local SkillLogBoard API ${path}. Check that skilllog watch is still running.`,
-        response.status,
-        body
+        `Could not reach ${path}. Restart skilllog watch and refresh the browser. (${message})`,
+        0,
+        "",
+        path
       );
     }
-    return (await response.json()) as T;
+    if (!response.ok) {
+      const body = await response.text();
+      const detail = body.slice(0, 300).replace(/\s+/g, " ").trim();
+      throw new LiveApiError(
+        `Local API ${path} returned HTTP ${response.status}${detail ? `: ${detail}` : "."}`,
+        response.status,
+        body,
+        path
+      );
+    }
+    try {
+      return (await response.json()) as T;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "invalid JSON";
+      throw new LiveApiError(`Local API ${path} returned invalid JSON: ${message}`, response.status, "", path);
+    }
   }
 }
 

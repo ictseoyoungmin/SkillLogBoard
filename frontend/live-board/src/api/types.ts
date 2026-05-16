@@ -74,6 +74,9 @@ export interface CompareRun {
   role?: string;
   roles?: string[];
   metric?: string | null;
+  tags?: string[];
+  group?: string;
+  baseline?: boolean;
 }
 
 export interface CompareSeries {
@@ -86,6 +89,14 @@ export interface CompareSeries {
   visible?: boolean;
   points: MetricPoint[];
   point_count?: number;
+  downsampling?: {
+    method?: string;
+    downsampled?: boolean;
+    original_count?: number;
+    returned_count?: number;
+    max_points?: number;
+  };
+  delta_from_baseline?: number | null;
 }
 
 export interface CompareState {
@@ -134,7 +145,11 @@ export interface Capabilities {
   report_artifact_count?: number;
   warning_count?: number;
   agent_evidence?: boolean;
+  agent_run_count?: number;
   compare_ready?: boolean;
+  completed_count?: number;
+  running_count?: number;
+  failed_count?: number;
 }
 
 export interface LiveState {

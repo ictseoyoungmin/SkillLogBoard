@@ -186,7 +186,7 @@ function App() {
           onPalette={() => setPaletteOpen(true)}
           onInspector={() => setInspectorOpen(true)}
         />
-        {error ? <StateMessage tone="error" title="Local API unavailable" detail={error} /> : null}
+        {error ? <StateMessage tone="error" title="Local API unavailable" detail={error} action="Retry" onAction={refresh} /> : null}
         {loading && !state ? <StateMessage title="Loading local files" detail="Reading current state." /> : null}
         {state ? (
           <ViewRouter
@@ -250,14 +250,18 @@ function Topbar(props: {
   onInspector: () => void;
 }) {
   const status = props.state?.status ?? props.state?.current_view ?? (props.loading ? "loading" : "ready");
+  const scope = props.state?.payload_scope ?? "local";
+  const target = props.config?.target_dir ?? props.state?.root_dir ?? props.state?.run_dir ?? "";
   return (
     <header className="topbar">
       <div>
         <p className="eyebrow">{props.config?.mode ?? "local"} board</p>
         <h1>{labelForView(props.activeView)}</h1>
+        <p className="topbar-subtitle">{target}</p>
       </div>
       <div className="topbar-actions">
         <span className="status-pill">{status}</span>
+        <span className="status-pill muted">{scope}</span>
         <button type="button" className="icon-button" onClick={props.onPalette} aria-label="Open command palette">
           K
         </button>
@@ -340,20 +344,29 @@ function OverviewView({ state, onView }: { state: LiveState; onView: (view: Live
   const runs = state.runs ?? [];
   const capabilities = state.capabilities ?? {};
   const cards = [
-    ["Runs", capabilities.run_count ?? runs.length ?? (state.mode === "run" ? 1 : 0)],
-    ["Metrics", capabilities.metric_count ?? state.metric_catalog?.length ?? 0],
-    ["Artifacts", capabilities.artifact_count ?? state.artifacts?.length ?? 0],
-    ["Warnings", capabilities.warning_count ?? state.warnings?.length ?? state.alerts?.length ?? 0]
+    ["Runs", capabilities.run_count ?? runs.length ?? (state.mode === "run" ? 1 : 0), "completed", capabilities.completed_count ?? 0],
+    ["Metrics", capabilities.metric_count ?? state.metric_catalog?.length ?? 0, "shared", capabilities.shared_metric_count ?? 0],
+    ["Artifacts", capabilities.artifact_count ?? state.artifacts?.length ?? 0, "reports", capabilities.report_artifact_count ?? 0],
+    ["Warnings", capabilities.warning_count ?? state.warnings?.length ?? state.alerts?.length ?? 0, "failed", capabilities.failed_count ?? 0]
   ];
+  const metricCatalog = state.metric_catalog ?? [];
+  const statusRows = Object.entries(state.status_counts ?? {}).map(([status, count]) => ({ status, count }));
   return (
     <div className="view-stack">
       <section className="summary-grid" aria-label="Local project summary">
-        {cards.map(([label, value]) => (
+        {cards.map(([label, value, caption, secondary]) => (
           <article key={label}>
             <span>{label}</span>
             <strong>{value}</strong>
+            <em>{caption}: {secondary}</em>
           </article>
         ))}
+      </section>
+      <section className="signal-strip" aria-label="Project signals">
+        <Signal label="Compare" value={capabilities.compare_ready ? "ready" : "limited"} tone={capabilities.compare_ready ? "good" : "warn"} />
+        <Signal label="Agent evidence" value={capabilities.agent_evidence ? "available" : "none"} tone={capabilities.agent_evidence ? "good" : "neutral"} />
+        <Signal label="Payload" value={state.payload_scope ?? "summary"} tone="neutral" />
+        <Signal label="Alerts" value={String(state.alerts?.length ?? 0)} tone={(state.alerts?.length ?? 0) ? "warn" : "good"} />
       </section>
       <section className="split-grid">
         <div className="panel">
@@ -374,6 +387,23 @@ function OverviewView({ state, onView }: { state: LiveState; onView: (view: Live
           <RunList runs={runs.slice(0, 5)} />
         </div>
       </section>
+      <section className="split-grid lower">
+        <div className="panel">
+          <PanelHead title="Metric Catalog" action="Open lab" onAction={() => onView("lab")} />
+          <div className="metric-chip-grid">
+            {metricCatalog.slice(0, 12).map((metric) => (
+              <span className="metric-chip" key={metric.name}>
+                <strong>{metric.name}</strong>
+                <em>{formatNumber(metric.latest)}</em>
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="panel">
+          <PanelHead title="Status" />
+          <DataTable columns={["status", "count"]} rows={statusRows} empty="No status counts" />
+        </div>
+      </section>
     </div>
   );
 }
@@ -389,6 +419,8 @@ function RunsView(props: {
   const rows = props.runs.filter((run) =>
     [run.run_id, run.run_name, run.status, run.group].join(" ").toLowerCase().includes(props.query.toLowerCase())
   );
+  const completed = props.runs.filter((run) => run.status === "completed").length;
+  const failed = props.runs.filter((run) => run.status === "failed").length;
   return (
     <section className="panel">
       <PanelHead title="Runs" action="Inspect" onAction={props.onInspect} />
@@ -401,9 +433,12 @@ function RunsView(props: {
           aria-label="Filter runs"
         />
         <span className="meta">{props.selectedRunIds.length} selected</span>
+        <span className="meta">{rows.length} shown</span>
+        <span className="meta">{completed} completed</span>
+        <span className="meta">{failed} failed</span>
       </div>
       <DataTable
-        columns={["selected", "run_id", "run_name", "status", "artifact_count", "warning_count"]}
+        columns={["selected", "run_name", "status", "best", "artifacts", "warnings"]}
         rows={rows.map((run) => ({
           selected: (
             <input
@@ -413,11 +448,11 @@ function RunsView(props: {
               aria-label={`Select ${run.run_id}`}
             />
           ),
-          run_id: run.run_id,
-          run_name: run.run_name ?? "",
-          status: run.status ?? "",
-          artifact_count: run.artifact_count ?? 0,
-          warning_count: run.warning_count ?? 0
+          run_name: <RunName run={run} />,
+          status: <StatusBadge status={run.status ?? "unknown"} />,
+          best: formatBestMetric(run.best_metric),
+          artifacts: run.artifact_count ?? 0,
+          warnings: run.warning_count ?? 0
         }))}
         empty="No runs indexed"
       />
@@ -435,6 +470,7 @@ function CompareView(props: {
 }) {
   const compare = props.compare;
   const metrics = compare?.shared_metrics ?? [];
+  const baseline = compare?.runs.find((run) => run.roles?.includes("baseline") || run.baseline);
   return (
     <div className="view-stack">
       <section className="panel">
@@ -453,8 +489,10 @@ function CompareView(props: {
           </select>
           <span className="meta">{compare?.selected_run_ids.length ?? 0} runs</span>
           <span className="meta">{compare?.bounds.max_points ?? 0} max points</span>
+          <span className="meta">baseline: {baseline?.run_name ?? baseline?.run_id ?? "auto"}</span>
         </div>
         <SeriesChart series={compare?.series ?? []} />
+        <CompareLegend series={compare?.series ?? []} />
       </section>
       <section className="panel">
         <PanelHead title="Run Selection" />
@@ -467,7 +505,7 @@ function CompareView(props: {
                 onChange={() => props.onRunToggle(run.run_id)}
               />
               <span>{run.run_name || run.run_id}</span>
-              <em>{run.status}</em>
+              <StatusBadge status={run.status ?? "unknown"} />
             </label>
           ))}
         </div>
@@ -702,8 +740,8 @@ function RunList({ runs }: { runs: RunSummary[] }) {
     <div className="run-list">
       {runs.map((run) => (
         <article key={run.run_id}>
-          <strong>{run.run_name || run.run_id}</strong>
-          <span>{run.status}</span>
+          <RunName run={run} />
+          <StatusBadge status={run.status ?? "unknown"} />
         </article>
       ))}
     </div>
@@ -723,11 +761,26 @@ function EmptyState({ title }: { title: string }) {
   return <div className="empty-state">{title}</div>;
 }
 
-function StateMessage({ title, detail, tone }: { title: string; detail: string; tone?: "error" }) {
+function StateMessage({
+  title,
+  detail,
+  tone,
+  action,
+  onAction
+}: {
+  title: string;
+  detail: string;
+  tone?: "error";
+  action?: string;
+  onAction?: () => void;
+}) {
   return (
     <div className={tone === "error" ? "error-state" : "empty-state"} role={tone === "error" ? "alert" : "status"}>
-      <strong>{title}</strong>
-      <span>{detail}</span>
+      <div>
+        <strong>{title}</strong>
+        <span>{detail}</span>
+      </div>
+      {action && onAction ? <button type="button" className="button subtle" onClick={onAction}>{action}</button> : null}
     </div>
   );
 }
@@ -747,7 +800,9 @@ function KeyValue({ title, values }: { title: string; values: object }) {
 }
 
 function apiMessage(err: unknown) {
-  return err instanceof LiveApiError ? err.message : "Could not read local Live Board files.";
+  if (err instanceof LiveApiError) return err.message;
+  if (err instanceof Error) return err.message;
+  return "Could not read local Live Board files.";
 }
 
 function labelForView(view: LiveView) {
@@ -783,6 +838,51 @@ function scale(value: number, min: number, max: number, outMin: number, outMax: 
 
 function formatNumber(value: unknown) {
   return typeof value === "number" ? value.toFixed(Math.abs(value) >= 10 ? 1 : 4) : "";
+}
+
+function Signal({ label, value, tone }: { label: string; value: string; tone: "good" | "warn" | "neutral" }) {
+  return (
+    <article className="signal" data-tone={tone}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </article>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  return <span className="status-badge" data-status={status}>{status}</span>;
+}
+
+function RunName({ run }: { run: RunSummary }) {
+  return (
+    <span className="run-name">
+      <strong>{run.run_name || run.run_id}</strong>
+      <code>{run.run_id}</code>
+    </span>
+  );
+}
+
+function formatBestMetric(value: Record<string, unknown> | null | undefined) {
+  if (!value) return "";
+  const name = typeof value.name === "string" ? value.name : "";
+  const raw = value.value ?? value.best_value;
+  const metric = typeof raw === "number" ? formatNumber(raw) : String(raw ?? "");
+  return name && metric ? `${name} ${metric}` : name || metric;
+}
+
+function CompareLegend({ series }: { series: CompareSeries[] }) {
+  if (!series.length) return null;
+  return (
+    <div className="legend-grid">
+      {series.map((item) => (
+        <article key={item.run_id}>
+          <strong>{item.run_name || item.run_id}</strong>
+          <span>{item.role ?? "candidate"}</span>
+          <em>{typeof item.delta_from_baseline === "number" ? `Δ ${formatNumber(item.delta_from_baseline)}` : `${item.point_count ?? item.points.length} pts`}</em>
+        </article>
+      ))}
+    </div>
+  );
 }
 
 export default App;
