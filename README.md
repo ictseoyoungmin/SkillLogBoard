@@ -17,6 +17,8 @@ and multi-run comparison reports:
 - v0.4 multi-run compare outputs: `compare.csv`, `compare.md`, and `compare.html`
 - v1.4 portable report packages: `report.md`, `report.html`, `report_manifest.yaml`,
   local assets, report tables, chart specs, optional figures, and provenance metadata
+- v1.5 project index, lazy series APIs, run filters, dry-run retention planning, JSONL rotation,
+  artifact storage modes, structured agent handoff JSON, and operational guardrails
 - v0.8 agent research workflow files: `.skilllog/`, `agent/actions.jsonl`,
   `agent/handoff.md`, and local completion checks
 - v0.9 Template Forge: `ResearchBrief.md`, `TemplateSpec.md`, local scaffold generation,
@@ -57,6 +59,10 @@ skilllog report build runs/demo --metric val/acc --mode max --output-dir runs/de
 skilllog report validate runs/demo/report --json
 skilllog report bundle runs/demo/report --output runs/demo/report.zip
 skilllog report check runs/demo/report --required-table leaderboard
+skilllog index rebuild runs/demo
+skilllog runs list runs/demo --filter "tag:nightly status:completed"
+skilllog prune runs/demo --dry-run
+skilllog rotate runs/demo/{run_id} --max-lines 100000
 skilllog agent init
 skilllog forge init-brief --output ResearchBrief.md
 skilllog watch runs/demo/{run_id} --no-open

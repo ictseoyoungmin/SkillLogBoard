@@ -88,3 +88,10 @@
 | Live Board React frontend source | Supported | Implemented Vite/React/TypeScript source app with packaged static output | v1.3 |
 | Live Board commercial views | Supported | Implemented componentized Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, and Settings views | v1.3 |
 | Live Board command palette and inspector | Supported | Implemented local keyboard palette and metadata inspector drawer | v1.3 |
+| Project index `.skilllogboard/index.json` | Supported | Implemented derived summary-first index and rebuild CLI | v1.5 |
+| Lazy series API and downsampling metadata | Supported | Implemented `/api/series`, clamped compare bounds, and deterministic first/last downsampling | v1.5 |
+| Run filters for tags/groups/status/metrics | Supported | Implemented query parser plus runs-list and compare integration | v1.5 |
+| Retention prune planning | Supported | Implemented dry-run planner with best/latest/baseline/tag protections | v1.5 |
+| JSONL rotation policy | Supported | Implemented dry-run/execute rotation with summary snapshots | v1.5 |
+| Artifact storage modes | Supported | Implemented copy/symlink/hardlink with safe copy fallback metadata | v1.5 |
+| Agent safety gate and structured handoff | Supported | Implemented path/command gates, decision policy, feedback schema, and `handoff.json` | v1.5 |

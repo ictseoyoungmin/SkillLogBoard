@@ -91,6 +91,10 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
         max_points: int = 240,
         normalize: bool = False,
         align: str = "step",
+        filter: str | None = None,
+        tag: str | None = None,
+        group: str | None = None,
+        status: str | None = None,
     ) -> dict[str, Any]:
         if not opts.project:
             return {
@@ -105,6 +109,7 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
                 "warnings": ["compare mode is available in project mode"],
             }
         selected = [item.strip() for item in (runs or "").split(",") if item.strip()]
+        filter_expression = _filter_expression(filter, tag=tag, group=group, status=status)
         return build_compare_state(
             target,
             metric=metric,
@@ -114,6 +119,42 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
             normalize=normalize,
             align=align,
             latest=opts.latest,
+            filters=filter_expression,
+        )
+
+    @app.get("/api/series")
+    def series(
+        metric: str,
+        runs: str | None = None,
+        max_runs: int = 6,
+        max_points: int = 240,
+        normalize: bool = False,
+        align: str = "step",
+        filter: str | None = None,
+    ) -> dict[str, Any]:
+        if not opts.project:
+            return {
+                "metric": metric,
+                "align": align,
+                "normalize": normalize,
+                "bounds": {"max_runs": max_runs, "max_points": max_points},
+                "runs": [],
+                "selected_run_ids": [],
+                "shared_metrics": [],
+                "series": [],
+                "warnings": ["series API is available in project mode"],
+            }
+        selected = [item.strip() for item in (runs or "").split(",") if item.strip()]
+        return build_compare_state(
+            target,
+            metric=metric,
+            selected_run_ids=selected,
+            max_runs=max_runs,
+            max_points=max_points,
+            normalize=normalize,
+            align=align,
+            latest=opts.latest,
+            filters=filter,
         )
 
     @app.get("/", response_class=HTMLResponse)
@@ -121,6 +162,22 @@ def create_live_app(target_dir: str | Path, options: LiveServerOptions | None = 
         return HTMLResponse(load_live_app_html())
 
     return app
+
+
+def _filter_expression(
+    base: str | None,
+    tag: str | None = None,
+    group: str | None = None,
+    status: str | None = None,
+) -> str:
+    parts = [base or ""]
+    if tag:
+        parts.append(f"tag:{tag}")
+    if group:
+        parts.append(f"group:{group}")
+    if status:
+        parts.append(f"status:{status}")
+    return " ".join(part for part in parts if part)
 
 
 def load_live_app_html() -> str:

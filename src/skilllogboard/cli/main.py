@@ -218,12 +218,16 @@ def _cmd_report_validate(parent_args, report_args: list[str]) -> int:
     parser = ArgumentParser(prog="skilllog report validate")
     parser.add_argument("report_dir")
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--feedback-json", action="store_true")
     parsed = parser.parse_args(report_args)
 
     from skilllogboard.reports.validate import validate_report_package, validation_summary
+    from skilllogboard.agent.feedback import feedback_list
 
     results = validate_report_package(parsed.report_dir)
-    if parsed.json:
+    if parsed.feedback_json:
+        print(json.dumps(feedback_list(results), indent=2, sort_keys=True))
+    elif parsed.json:
         print(json.dumps(validation_summary(results), indent=2, sort_keys=True))
     else:
         for result in results:
@@ -675,6 +679,7 @@ def _cmd_forge_validate(forge_args: list[str]) -> int:
     parser.add_argument("template_name", help="Template name, for example custom-task.")
     parser.add_argument("--root-dir", default=".", help="Project root containing scaffold files.")
     parser.add_argument("--json", action="store_true", help="Print machine-readable validation results.")
+    parser.add_argument("--feedback-json", action="store_true", help="Print agent feedback records.")
     parsed = parser.parse_args(forge_args)
 
     from skilllogboard.template_forge import validate_template
@@ -685,7 +690,11 @@ def _cmd_forge_validate(forge_args: list[str]) -> int:
         print(str(exc), file=sys.stderr)
         return 1
     data = [result.to_dict() for result in results]
-    if parsed.json:
+    if parsed.feedback_json:
+        from skilllogboard.agent.feedback import feedback_list
+
+        print(json.dumps(feedback_list(results), indent=2, sort_keys=True))
+    elif parsed.json:
         print(json.dumps(data, indent=2, sort_keys=True))
     else:
         for result in results:
@@ -745,6 +754,123 @@ def cmd_templates(args) -> int:
     return 0
 
 
+def cmd_index(args) -> int:
+    index_args = list(args.index_args)
+    if index_args and index_args[0] == "rebuild":
+        return _cmd_index_rebuild(index_args[1:])
+    print("Usage: skilllog index rebuild PROJECT_DIR [--dry-run] [--json]", file=sys.stderr)
+    return 2
+
+
+def _cmd_index_rebuild(index_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog index rebuild")
+    parser.add_argument("project_dir")
+    parser.add_argument("--output")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--json", action="store_true")
+    parsed = parser.parse_args(index_args)
+
+    from skilllogboard.index.builder import rebuild_project_index
+
+    index, output = rebuild_project_index(parsed.project_dir, output_path=parsed.output, dry_run=parsed.dry_run)
+    data = index.to_dict()
+    data["output_path"] = str(output)
+    data["dry_run"] = parsed.dry_run
+    if parsed.json:
+        print(json.dumps(data, indent=2, sort_keys=True))
+    else:
+        action = "Previewed" if parsed.dry_run else "Rebuilt"
+        print(f"{action} project index: {output}")
+        print(f"Runs: {data['run_count']}")
+        print(f"Warnings: {len(data['warnings'])}")
+    return 0
+
+
+def cmd_runs(args) -> int:
+    run_args = list(args.run_args)
+    if run_args and run_args[0] == "list":
+        return _cmd_runs_list(run_args[1:])
+    print("Usage: skilllog runs list PROJECT_DIR [--filter EXPR] [--json]", file=sys.stderr)
+    return 2
+
+
+def _cmd_runs_list(run_args: list[str]) -> int:
+    parser = ArgumentParser(prog="skilllog runs list")
+    parser.add_argument("project_dir")
+    parser.add_argument("--filter", default="")
+    parser.add_argument("--json", action="store_true")
+    parsed = parser.parse_args(run_args)
+
+    from skilllogboard.index.builder import build_project_index
+    from skilllogboard.query import filter_runs
+
+    index = build_project_index(parsed.project_dir)
+    rows = [run.to_dict() for run in index.runs]
+    filtered, parse_result = filter_runs(rows, parsed.filter)
+    if parse_result.errors:
+        print(json.dumps(parse_result.to_dict(), indent=2, sort_keys=True) if parsed.json else parse_result.errors[0].message, file=sys.stderr)
+        return 2
+    if parsed.json:
+        print(json.dumps({"count": len(filtered), "runs": filtered}, indent=2, sort_keys=True))
+    else:
+        print("run_id\tstatus\tgroup\ttags\tupdated_at")
+        for run in filtered:
+            print(
+                f"{run['run_id']}\t{run['status']}\t{run.get('group') or ''}\t"
+                f"{','.join(run.get('tags') or [])}\t{run.get('updated_at') or 0}"
+            )
+        print(f"Count: {len(filtered)}")
+    return 0
+
+
+def cmd_prune(args) -> int:
+    from skilllogboard.retention.planner import plan_prune
+    from skilllogboard.retention.policy import RetentionPolicy
+
+    policy = RetentionPolicy(
+        keep_best=args.keep_best,
+        keep_latest=args.keep_latest,
+        older_than_days=args.older_than_days,
+        exclude_tags=args.exclude_tag or [],
+        dry_run=not args.execute,
+        archive_before_delete=not args.no_archive,
+    )
+    plan = plan_prune(args.project_dir, policy)
+    if args.json:
+        print(json.dumps(plan, indent=2, sort_keys=True))
+    else:
+        mode = "DRY RUN" if plan["dry_run"] else "EXECUTION PLAN"
+        print(f"Prune {mode}: {args.project_dir}")
+        for action in plan["actions"]:
+            print(f"{action['action']}\t{action['run_id']}\t{action['reason']}")
+        if not plan["dry_run"]:
+            print("Destructive deletion is guarded; archive/delete must be performed by an explicit retention runner.")
+    return 0
+
+
+def cmd_rotate(args) -> int:
+    from skilllogboard.retention.jsonl import rotate_jsonl
+
+    run_dir = Path(args.run_dir)
+    path = run_dir if run_dir.suffix == ".jsonl" else run_dir / (args.file or "events.jsonl")
+    plan = rotate_jsonl(
+        path,
+        max_lines=args.max_lines,
+        max_bytes=args.max_bytes,
+        compressed=args.compressed,
+        dry_run=not args.execute,
+    )
+    data = plan.to_dict()
+    if args.json:
+        print(json.dumps(data, indent=2, sort_keys=True))
+    else:
+        print(f"Rotation {'preview' if plan.dry_run else 'result'}: {plan.path}")
+        print(f"Should rotate: {plan.should_rotate}")
+        print(f"Reason: {plan.reason}")
+        print(f"Rotated path: {plan.rotated_path}")
+    return 0
+
+
 def cmd_planned(args) -> int:
     print(f"`skilllog {args.command}` is planned for Week 5 / v0.4 and is not implemented yet.")
     return 2
@@ -777,6 +903,14 @@ def build_parser() -> ArgumentParser:
     p_agent = sub.add_parser("agent", help="Manage local agent research workflow files")
     p_agent.add_argument("agent_args", nargs=REMAINDER)
     p_agent.set_defaults(func=cmd_agent)
+
+    p_index = sub.add_parser("index", help="Build or inspect the derived project index")
+    p_index.add_argument("index_args", nargs=REMAINDER)
+    p_index.set_defaults(func=cmd_index)
+
+    p_runs = sub.add_parser("runs", help="List project runs with filters")
+    p_runs.add_argument("run_args", nargs=REMAINDER)
+    p_runs.set_defaults(func=cmd_runs)
 
     p_watch = sub.add_parser(
         "watch",
@@ -840,6 +974,29 @@ def build_parser() -> ArgumentParser:
     p_compare.add_argument("--mode", choices=["max", "min"], default="max")
     p_compare.add_argument("--output-dir")
     p_compare.set_defaults(func=cmd_compare)
+
+    p_prune = sub.add_parser("prune", help="Plan retention pruning; dry-run by default")
+    p_prune.add_argument("project_dir")
+    p_prune.add_argument("--keep-best", type=int, default=1)
+    p_prune.add_argument("--keep-latest", type=int, default=3)
+    p_prune.add_argument("--older-than-days", type=int)
+    p_prune.add_argument("--exclude-tag", action="append")
+    p_prune.add_argument("--no-archive", action="store_true")
+    p_prune.add_argument("--dry-run", action="store_true", help="Preview only; this is the default")
+    p_prune.add_argument("--execute", action="store_true")
+    p_prune.add_argument("--json", action="store_true")
+    p_prune.set_defaults(func=cmd_prune)
+
+    p_rotate = sub.add_parser("rotate", help="Rotate a run JSONL file; dry-run by default")
+    p_rotate.add_argument("run_dir")
+    p_rotate.add_argument("--file", default="events.jsonl")
+    p_rotate.add_argument("--max-lines", type=int)
+    p_rotate.add_argument("--max-bytes", type=int)
+    p_rotate.add_argument("--compressed", action="store_true")
+    p_rotate.add_argument("--dry-run", action="store_true", help="Preview only; this is the default")
+    p_rotate.add_argument("--execute", action="store_true")
+    p_rotate.add_argument("--json", action="store_true")
+    p_rotate.set_defaults(func=cmd_rotate)
 
     p_export = sub.add_parser("export-table", help="Export a compare/report table")
     p_export.add_argument("runs_dir")

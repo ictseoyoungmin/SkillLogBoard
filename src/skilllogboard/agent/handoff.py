@@ -73,7 +73,52 @@ def build_agent_handoff(
     out = Path(output_path) if output_path else Path(run_dir) / "agent" / "handoff.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(_render_handoff(evidence, actor=actor, task=task, next_steps=next_steps), encoding="utf-8")
+    json_path = out.with_name("handoff.json") if out.name == "handoff.md" else out.parent / "handoff.json"
+    write_agent_handoff_json(
+        json_path,
+        build_agent_handoff_payload(evidence, actor=actor, task=task, next_steps=next_steps),
+    )
     return out
+
+
+def build_agent_handoff_payload(
+    evidence: HandoffEvidence,
+    actor: str | None = None,
+    task: str | None = None,
+    next_steps: str | None = None,
+) -> dict[str, Any]:
+    actions = evidence.actions
+    return {
+        "schema_version": 1,
+        "summary": {
+            "actor": actor or "unknown",
+            "task": task or "",
+            "run_id": evidence.manifest.get("run_id", Path(evidence.run_dir).name),
+            "status": evidence.manifest.get("status", "unknown"),
+            "main_metric": (evidence.manifest.get("main_metric") or {}).get("name", ""),
+        },
+        "completed_tasks": [
+            str(action.get("action"))
+            for action in actions
+            if action.get("status") in {"completed", "success", "passed"} and action.get("action")
+        ],
+        "next_actions": [next_steps] if next_steps else [],
+        "blockers": list(evidence.warnings),
+        "verification_commands": [str(action.get("command")) for action in actions if action.get("command")],
+        "files_changed": _collect_files_changed(actions),
+        "evidence": evidence.to_dict(),
+    }
+
+
+def write_agent_handoff_json(path: str | Path, payload: dict[str, Any]) -> Path:
+    out = Path(path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return out
+
+
+def read_agent_handoff_json(path: str | Path) -> dict[str, Any]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def _render_handoff(

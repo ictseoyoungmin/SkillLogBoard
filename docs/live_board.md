@@ -90,12 +90,17 @@ folders and common non-run folders such as `.git`, `.venv`, `__pycache__`, `node
 `artifacts`, `report`, `_reports`, `build`, and `dist`. This keeps `skilllog watch ROOT --project`
 usable on larger local workspaces without adding a database or persistent index.
 
-`/api/compare` is project-mode only. It returns bounded run candidates and metric series for a
+`/api/series` and `/api/compare` are project-mode only. They return bounded run candidates and metric series for a
 single shared metric. The browser uses it for the run picker, overlay legend, and raw/normalized
 compare chart. Supported query parameters are `metric`, comma-separated `runs`, `max_runs`,
-`max_points`, `normalize`, and `align=step|relative`. The implementation reads local CSV files
-directly and deliberately avoids pandas, databases, background indexes, TensorBoard, W&B,
+`max_points`, `normalize`, `align=step|relative`, and filter expressions such as `tag:nightly`,
+`group:ablation`, and `status:completed`. Responses include downsampling metadata and baseline
+delta values when a baseline run is available. The implementation reads local CSV files directly
+for explicit series requests and deliberately avoids pandas, databases, TensorBoard, W&B,
 Prometheus, cloud sync, and authentication.
+
+For larger projects, rebuild the derived index with `skilllog index rebuild PROJECT_DIR`. Overview
+and Runs remain summary-first; full series are loaded lazily through explicit metric/run requests.
 
 The browser keeps refresh work bounded for perceived speed: it asks for state scoped to the active
 view, compare requests cap selected runs and points, project discovery is depth-limited, repeated

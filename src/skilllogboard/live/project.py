@@ -6,12 +6,16 @@ from pathlib import Path
 from typing import Any
 import os
 
+from skilllogboard.live.downsample import downsample_points
 from skilllogboard.live.readers import read_artifacts, read_manifest, read_metric_summary, read_metrics
 from skilllogboard.live.state import read_agent_workspace, read_report_artifacts
+from skilllogboard.query import filter_runs
 
 DEFAULT_MAX_DISCOVERY_DEPTH = 4
 DEFAULT_COMPARE_MAX_RUNS = 6
 DEFAULT_COMPARE_MAX_POINTS = 240
+COMPARE_MAX_RUNS_LIMIT = 25
+COMPARE_MAX_POINTS_LIMIT = 2000
 DEFAULT_PROJECT_RUN_LIMIT = 500
 DEFAULT_EXCLUDE_DIRS = {
     ".git",
@@ -124,37 +128,49 @@ def build_compare_state(
     normalize: bool = False,
     align: str = "step",
     latest: bool = False,
+    filters: str | None = None,
 ) -> dict[str, Any]:
     """Build a bounded project compare payload without pandas, databases, or caches."""
 
     root = Path(root_dir)
+    safe_max_runs = min(max(1, int(max_runs or DEFAULT_COMPARE_MAX_RUNS)), COMPARE_MAX_RUNS_LIMIT)
+    safe_max_points = min(max(1, int(max_points or DEFAULT_COMPARE_MAX_POINTS)), COMPARE_MAX_POINTS_LIMIT)
     manifests = find_run_dirs(root)
     run_dirs = [path.parent if path.name == "manifest.yaml" else path for path in manifests]
     if latest and run_dirs:
         run_dirs = [max(run_dirs, key=lambda p: p.stat().st_mtime)]
 
     run_records = [_read_compare_run(run_dir) for run_dir in run_dirs]
+    run_records, parsed_filters = filter_runs(run_records, filters)
     shared_metrics = _shared_metric_names(run_records)
     selected_metric = metric or (shared_metrics[0] if shared_metrics else None)
     candidates = _compare_candidates(run_records, selected_metric)
     selected_ids = [item for item in (selected_run_ids or []) if item]
-    ordered_ids = selected_ids or [run["run_id"] for run in candidates[:max_runs]]
-    selected_runs = [run for run in candidates if run["run_id"] in ordered_ids][: max(1, max_runs)]
+    ordered_ids = selected_ids or [run["run_id"] for run in candidates[:safe_max_runs]]
+    selected_runs = [run for run in candidates if run["run_id"] in ordered_ids][:safe_max_runs]
     safe_align = align if align in {"step", "relative"} else "step"
     warnings: list[str] = []
+    warnings.extend(error.message for error in parsed_filters.errors)
     if not selected_metric:
         warnings.append("no shared numeric metrics found for compare")
 
     series = []
+    baseline_value = _baseline_value(selected_runs, selected_metric)
     for run in selected_runs:
         rows = run["metric_rows"].get(selected_metric or "", [])
         if selected_metric and not rows:
             warnings.append(f"{run['run_id']}: missing metric {selected_metric}")
-        points = _compare_points(
+        points, downsampling = _compare_points(
             rows,
-            max_points=max_points,
+            max_points=safe_max_points,
             normalize=normalize,
             align=safe_align,
+        )
+        last_raw = points[-1].get("raw_value") if points else None
+        delta = (
+            float(last_raw) - baseline_value
+            if isinstance(last_raw, (int, float)) and isinstance(baseline_value, (int, float))
+            else None
         )
         series.append(
             {
@@ -167,6 +183,8 @@ def build_compare_state(
                 "visible": True,
                 "points": points,
                 "point_count": len(points),
+                "downsampling": downsampling,
+                "delta_from_baseline": delta,
             }
         )
 
@@ -174,11 +192,13 @@ def build_compare_state(
         "metric": selected_metric,
         "align": safe_align,
         "normalize": bool(normalize),
-        "bounds": {"max_runs": max_runs, "max_points": max_points},
+        "bounds": {"max_runs": safe_max_runs, "max_points": safe_max_points},
         "runs": [_public_compare_run(run) for run in candidates],
         "selected_run_ids": [run["run_id"] for run in selected_runs],
         "shared_metrics": shared_metrics,
         "series": series,
+        "filter": parsed_filters.to_dict(),
+        "baseline_value": baseline_value,
         "warnings": warnings,
     }
 
@@ -454,12 +474,16 @@ def _read_compare_run(run_dir: Path) -> dict[str, Any]:
     run_id = str(manifest.get("run_id") or run_dir.name)
     best_metric = manifest.get("best_metric")
     mtime = run_dir.stat().st_mtime if run_dir.exists() else 0
+    tags = [str(item) for item in manifest.get("tags") or []]
     return {
         "run_dir": str(run_dir),
         "run_id": run_id,
         "run_name": str(manifest.get("run_name") or run_id),
         "status": str(manifest.get("status") or "unknown"),
         "project": str(manifest.get("project") or ""),
+        "tags": tags,
+        "group": str(manifest.get("group") or ""),
+        "baseline": bool(manifest.get("baseline")),
         "metric_rows": grouped,
         "metric_names": set(grouped),
         "latest_metrics": latest_metrics,
@@ -524,7 +548,7 @@ def _best_run_for_metric(runs: list[dict[str, Any]], metric: str | None) -> dict
 def _baseline_run(runs: list[dict[str, Any]]) -> dict[str, Any] | None:
     for run in runs:
         text = f"{run['run_id']} {run['run_name']}".lower()
-        if "baseline" in text:
+        if run.get("baseline") or "baseline" in text:
             return run
     return sorted(runs, key=lambda run: (run["mtime"], run["run_id"]))[0] if runs else None
 
@@ -534,8 +558,8 @@ def _compare_points(
     max_points: int,
     normalize: bool,
     align: str,
-) -> list[dict[str, Any]]:
-    bounded = _bounded_rows(rows, max_points=max_points)
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    bounded, metadata = downsample_points(rows, max_points=max_points)
     values = [row["value"] for row in bounded if isinstance(row.get("value"), (int, float))]
     v_min = min(values) if values else 0
     v_max = max(values) if values else 1
@@ -551,7 +575,7 @@ def _compare_points(
         if align == "relative":
             x = index if step is None else step - (first_step or 0)
         points.append({"step": step, "x": x, "value": value, "raw_value": raw_value})
-    return points
+    return points, metadata
 
 
 def _bounded_rows(rows: list[dict[str, Any]], max_points: int) -> list[dict[str, Any]]:
@@ -571,8 +595,23 @@ def _public_compare_run(run: dict[str, Any]) -> dict[str, Any]:
         "run_name": run["run_name"],
         "status": run["status"],
         "project": run["project"],
+        "tags": run.get("tags") or [],
+        "group": run.get("group") or "",
+        "baseline": bool(run.get("baseline")),
         "role": run["role"],
         "roles": run["roles"],
         "metrics": sorted(run["metric_names"]),
         "mtime": run["mtime"],
     }
+
+
+def _baseline_value(runs: list[dict[str, Any]], metric: str | None) -> float | None:
+    baseline = _baseline_run(runs)
+    if baseline is None or not metric:
+        return None
+    rows = baseline["metric_rows"].get(metric, [])
+    for row in reversed(rows):
+        value = row.get("value")
+        if isinstance(value, (int, float)):
+            return float(value)
+    return None

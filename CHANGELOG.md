@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.5.0-dev performance, retention, and operational rules candidate
+
+- Added a derived `.skilllogboard/index.json` project index with metric summary cache records.
+- Added lazy series/downsampling metadata, filter-aware compare candidates, and baseline deltas.
+- Added run query filters and CLI previews through `skilllog runs list`.
+- Added dry-run retention planning, archive-before-delete helpers, checkpoint retention schema, and
+  JSONL rotation planning/execution.
+- Added artifact storage modes and agent safety, decision, feedback, and structured handoff JSON.
+- Documented operational rules and synchronized package/CLI version to `1.5.0.dev0`.
+
 ## 1.4.0-dev portable report maturity candidate
 
 - Added v1.4 portable report rendering modes: `minimal`, `portable_interactive`, and `package`.
