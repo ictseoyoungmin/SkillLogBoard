@@ -9,7 +9,7 @@ from typing import Any
 from skilllogboard.index.metrics import summarize_metrics_csv
 from skilllogboard.index.schema import DEFAULT_INDEX_PATH, ProjectIndex, ProjectIndexRun, write_project_index
 from skilllogboard.live.project import find_run_dirs
-from skilllogboard.live.readers import read_artifacts, read_manifest
+from skilllogboard.live.readers import read_artifact_count, read_manifest
 
 
 def build_project_index(root_dir: str | Path, latest: bool = False) -> ProjectIndex:
@@ -25,7 +25,7 @@ def build_project_index(root_dir: str | Path, latest: bool = False) -> ProjectIn
     warnings: list[str] = []
     for run_dir in run_dirs:
         manifest, manifest_warnings = read_manifest(run_dir)
-        artifacts, artifact_warnings = read_artifacts(run_dir, limit=100000)
+        artifact_count, artifact_warnings = read_artifact_count(run_dir)
         metric_modes = _metric_modes(manifest)
         metric_summaries = summarize_metrics_csv(run_dir / "metrics.csv", metric_modes)
         warning_count = len(manifest_warnings) + len(artifact_warnings)
@@ -44,7 +44,7 @@ def build_project_index(root_dir: str | Path, latest: bool = False) -> ProjectIn
                 tags=[str(item) for item in manifest.get("tags") or []],
                 group=str(manifest.get("group") or ""),
                 baseline=bool(manifest.get("baseline")),
-                artifact_count=len(artifacts),
+                artifact_count=artifact_count,
                 warning_count=warning_count,
                 fingerprint=_fingerprint(run_dir),
             )

@@ -14,6 +14,8 @@ state.
   metric selections. Requests are clamped by `max_runs` and `max_points`.
 - Downsampling is deterministic, preserves first and last points, and reports metadata describing
   the original and returned point counts.
+- Project index artifact counts use a lightweight counter (line/file count only). Full artifact
+  metadata is loaded on demand by the Live Board artifact browser, not during index rebuilds.
 
 ## Query And Compare
 
@@ -27,7 +29,13 @@ state.
 
 - Pruning is dry-run by default. `skilllog prune PROJECT_DIR` emits a plan with keep/archive/delete
   candidates and reasons.
+- `skilllog prune --execute` marks the plan as non-dry-run but does NOT delete or archive files in
+  v1.5. Execution of archive/delete operations requires an explicit external retention runner.
+- JSON prune output includes `destructive_actions_performed: false` so pipelines and agents can
+  confirm no destructive actions occurred.
 - Baseline, latest, best, and excluded-tag runs are protected by default.
+- `keep_best` respects `best_metric_mode: max` (default) or `best_metric_mode: min`. Set `min` for
+  loss, error-rate, or latency metrics to avoid protecting the worst-performing run.
 - Archive-before-delete is the default policy. The archive helper writes an `archive_manifest.json`
   into the zip before any external delete workflow is allowed.
 - Checkpoint retention policy fields are explicit: keep best checkpoint, keep latest checkpoint,

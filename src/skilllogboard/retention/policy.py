@@ -28,6 +28,8 @@ class RetentionPolicy:
     archive_before_delete: bool = True
     artifact_rules: dict[str, Any] = field(default_factory=dict)
     checkpoints: CheckpointRetentionPolicy = field(default_factory=CheckpointRetentionPolicy)
+    best_metric_name: str | None = None
+    best_metric_mode: str = "max"
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> "RetentionPolicy":
@@ -44,6 +46,8 @@ class RetentionPolicy:
             archive_before_delete=bool(data.get("archive_before_delete", True)),
             artifact_rules=dict(data.get("artifact_rules") or {}),
             checkpoints=CheckpointRetentionPolicy(**checkpoints) if isinstance(checkpoints, dict) else CheckpointRetentionPolicy(),
+            best_metric_name=data.get("best_metric_name") or None,
+            best_metric_mode=str(data.get("best_metric_mode") or "max"),
         )
 
     def to_dict(self) -> dict[str, Any]:

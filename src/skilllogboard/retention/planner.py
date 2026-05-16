@@ -43,6 +43,7 @@ def plan_prune(root_dir: str | Path, policy: RetentionPolicy | None = None) -> d
             actions.append(PruneAction(run.run_id, run.path, action, reason, False))
     return {
         "dry_run": active_policy.dry_run,
+        "destructive_actions_performed": False,
         "policy": active_policy.to_dict(),
         "run_count": len(index.runs),
         "actions": [action.to_dict() for action in actions],
@@ -56,9 +57,16 @@ def _protected_run_ids(runs: list[Any], policy: RetentionPolicy) -> set[str]:
     if policy.protect_baseline:
         protected.update(run.run_id for run in runs if run.baseline)
     scored = []
+    use_min = policy.best_metric_mode == "min"
     for run in runs:
-        numeric = [value for value in run.key_metrics.values() if isinstance(value, (int, float))]
-        if numeric:
-            scored.append((max(numeric), run.updated_at, run.run_id))
-    protected.update(run_id for _, _, run_id in sorted(scored, reverse=True)[: max(0, policy.keep_best)])
+        if policy.best_metric_name:
+            value = run.key_metrics.get(policy.best_metric_name)
+            if isinstance(value, (int, float)):
+                scored.append((value, run.updated_at, run.run_id))
+        else:
+            numeric = [v for v in run.key_metrics.values() if isinstance(v, (int, float))]
+            if numeric:
+                scored.append((max(numeric), run.updated_at, run.run_id))
+    sorted_scored = sorted(scored, key=lambda t: (t[0], t[1]), reverse=not use_min)
+    protected.update(run_id for _, _, run_id in sorted_scored[: max(0, policy.keep_best)])
     return protected

@@ -165,6 +165,37 @@ def read_artifacts(run_dir: str | Path, limit: int = 50) -> tuple[list[dict[str,
     return records, warnings
 
 
+def read_artifact_count(run_dir: str | Path, max_scan: int = 10000) -> tuple[int, list[str]]:
+    """Return artifact count without loading full artifact metadata."""
+    run = Path(run_dir)
+    path = run / "artifact_index.json"
+    warnings: list[str] = []
+    if path.exists():
+        try:
+            text = path.read_text(encoding="utf-8")
+            data = json.loads(text)
+            artifacts = data.get("artifacts", []) if isinstance(data, dict) else []
+            count = len([item for item in artifacts if isinstance(item, dict)])
+            return count, warnings
+        except Exception as exc:
+            warnings.append(f"could not read {path.name}: {exc}")
+            return 0, warnings
+    artifacts_dir = run / "artifacts"
+    if artifacts_dir.exists():
+        count = 0
+        truncated = False
+        for item in artifacts_dir.iterdir():
+            if item.is_file():
+                count += 1
+                if count >= max_scan:
+                    truncated = True
+                    break
+        if truncated:
+            warnings.append(f"artifact count truncated at {max_scan}")
+        return count, warnings
+    return 0, warnings
+
+
 def tail_log_file(path: str | Path | None, limit: int = 100, max_bytes: int = 65536) -> tuple[list[str], list[str]]:
     if not path:
         return [], []

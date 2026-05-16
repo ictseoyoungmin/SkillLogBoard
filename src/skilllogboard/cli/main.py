@@ -839,12 +839,13 @@ def cmd_prune(args) -> int:
     if args.json:
         print(json.dumps(plan, indent=2, sort_keys=True))
     else:
-        mode = "DRY RUN" if plan["dry_run"] else "EXECUTION PLAN"
+        mode = "DRY RUN" if plan["dry_run"] else "PLAN (no files deleted)"
         print(f"Prune {mode}: {args.project_dir}")
         for action in plan["actions"]:
             print(f"{action['action']}\t{action['run_id']}\t{action['reason']}")
+        print("NOTE: v1.5 prune produces a retention plan only. No files are deleted or archived automatically.")
         if not plan["dry_run"]:
-            print("Destructive deletion is guarded; archive/delete must be performed by an explicit retention runner.")
+            print("To execute deletions, pass the plan to an explicit external retention runner.")
     return 0
 
 
@@ -983,7 +984,7 @@ def build_parser() -> ArgumentParser:
     p_prune.add_argument("--exclude-tag", action="append")
     p_prune.add_argument("--no-archive", action="store_true")
     p_prune.add_argument("--dry-run", action="store_true", help="Preview only; this is the default")
-    p_prune.add_argument("--execute", action="store_true")
+    p_prune.add_argument("--execute", action="store_true", help="Mark plan as non-dry-run; does not delete files in v1.5")
     p_prune.add_argument("--json", action="store_true")
     p_prune.set_defaults(func=cmd_prune)
 
