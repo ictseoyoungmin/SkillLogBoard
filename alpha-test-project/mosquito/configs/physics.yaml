@@ -1,0 +1,14 @@
+experiment:
+  name: physics_cv_last1
+  seed: 20260517
+  tags: [physics, baseline]
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: physics
+  method: cv_last1
+submission:
+  threshold: 0.7000

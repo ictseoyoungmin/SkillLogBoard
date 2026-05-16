@@ -1,0 +1,29 @@
+experiment:
+  name: residual_extra_trees_cv_last1
+  seed: 20260517
+  tags:
+  - residual
+  - extra-trees
+  - candidate
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: residual
+  base_method: cv_last1
+  model_kind: extra_trees
+  params:
+    n_estimators: 600
+    max_features: 0.5
+    min_samples_leaf: 3
+submission:
+  threshold: 0.7
+__config_dir__: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs
+runtime_args:
+  config: alpha-test-project/mosquito/configs/residual_extra_trees.yaml
+  make_submission: false
+  refresh_cache: false
+  limit_train: null
+  limit_test: null

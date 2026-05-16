@@ -1,0 +1,31 @@
+# residual_extra_trees_cv_last1 / 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+
+## 가설
+- `residual:extra_trees:cv_last1` can improve +80ms position prediction under R-Hit@1cm.
+
+## 설계
+- 5-fold random validation, train-only fitting, test used only for final inference.
+
+## 결과
+- `runtime/sec`: 74.325695
+- `val/fold_min_r_hit`: 0.596500
+- `val/mean_dist`: 0.012241
+- `val/median_dist`: 0.007953
+- `val/p90_dist`: 0.025171
+- `val/p95_dist`: 0.040022
+- `val/r_hit@1cm`: 0.607500
+
+## artifact 인사이트
+- Inspect `predictions.npz`, fold metric tables, and distance quantiles before next run.
+
+## 다음 실험
+- Tune residual capacity, then enable ensemble only after a strong single model appears.
+
+## SkillLog 좋았던 점
+- TBD
+
+## 불편한 점
+- TBD
+
+## 개선점
+- TBD

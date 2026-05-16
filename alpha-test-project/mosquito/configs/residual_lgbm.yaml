@@ -1,0 +1,22 @@
+experiment:
+  name: residual_lgbm_cv_last1
+  seed: 20260517
+  tags: [residual, lightgbm, candidate]
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: residual_lgbm
+  base_method: cv_last1
+  model_kind: lightgbm
+  params:
+    n_estimators: 1400
+    learning_rate: 0.018
+    num_leaves: 31
+    subsample: 0.92
+    colsample_bytree: 0.92
+    reg_lambda: 0.35
+submission:
+  threshold: 0.7000

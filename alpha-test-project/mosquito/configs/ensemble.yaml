@@ -1,0 +1,15 @@
+experiment:
+  name: optional_weighted_ensemble
+  seed: 20260517
+  tags: [ensemble, optional]
+paths:
+  data_root: data
+  results_root: results
+model:
+  type: ensemble
+  candidate_paths: []
+  min_single_score: 0.6800
+  min_gain: 0.0030
+  trials: 4000
+submission:
+  threshold: 0.7000

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkillLogBoard Dashboard - residual_lgbm_cv_last1</title>
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --surface: #ffffff;
+      --text: #172033;
+      --muted: #5b667a;
+      --line: #d7e0ec;
+      --accent: #2457a6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header, section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    h1, h2 { margin: 0 0 12px; }
+    .meta, .warnings, .files { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 0; list-style: none; }
+    .meta li, .files li, .warnings li {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 8px;
+      background: #fbfdff;
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+    th { color: var(--accent); background: #eef5ff; }
+    a { color: var(--accent); }
+    code { background: #eef2f7; border-radius: 4px; padding: 1px 4px; }
+    .metric-card {
+      display: grid;
+      gap: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      max-width: 360px;
+      background: #fbfdff;
+    }
+    .empty { color: var(--muted); }
+    .chart-fallback {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>SkillLogBoard Dashboard</h1>
+      <h2>Run Summary</h2>
+      <ul class="meta">
+        <li>Project: <code>mosquito-contest</code></li>
+        <li>Run: <code>residual_lgbm_cv_last1</code></li>
+        <li>Run ID: <code>2026-05-17_01-37-02_residual_lgbm_cv_last1</code></li>
+        <li>Status: <code>running</code></li>
+        <li>Created: <code>2026-05-17T01:37:02.374685+09:00</code></li>
+        <li>Updated: <code>2026-05-17T01:39:41.382711+09:00</code></li>
+      </ul>
+      
+      <ul class="warnings">
+        
+        <li>Missing optional file: skill_trace.jsonl</li>
+        
+      </ul>
+      
+    </header>
+
+    <section id="main-metric">
+      <h2>Main Metric</h2>
+      <div class="metric-card"><strong>val/r_hit@1cm</strong><span>Mode: max</span><span>Best value: 0.5814</span><span>Best step: 0</span></div>
+    </section>
+
+    <section id="metrics">
+      <h2>Metrics</h2>
+      <table><thead><tr><th>Metric</th><th>Step</th><th>Value</th></tr></thead><tbody>
+<tr><td>runtime/sec</td><td>0</td><td>172.71166187600102</td></tr>
+<tr><td>val/fold_min_r_hit</td><td>0</td><td>0.566</td></tr>
+<tr><td>val/mean_dist</td><td>0</td><td>0.012724523589157955</td></tr>
+<tr><td>val/median_dist</td><td>0</td><td>0.008392567179344368</td></tr>
+<tr><td>val/p90_dist</td><td>0</td><td>0.02656780751733983</td></tr>
+<tr><td>val/p95_dist</td><td>0</td><td>0.039847839273924116</td></tr>
+<tr><td>val/r_hit@1cm</td><td>0</td><td>0.5814</td></tr>
+</tbody></table>
+<div class="chart-fallback" role="img" aria-label="Metric curve fallback">Metric curve data: runtime/sec, val/fold_min_r_hit, val/mean_dist, val/median_dist, val/p90_dist, val/p95_dist, val/r_hit@1cm</div>
+    </section>
+
+    <section id="config">
+      <h2>Config</h2>
+      <table><thead><tr><th>Key</th><th>Value</th></tr></thead><tbody>
+<tr><td>__config_dir__</td><td><code>/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs</code></td></tr>
+<tr><td>cv.n_splits</td><td><code>5</code></td></tr>
+<tr><td>experiment.name</td><td><code>residual_lgbm_cv_last1</code></td></tr>
+<tr><td>experiment.seed</td><td><code>20260517</code></td></tr>
+<tr><td>experiment.tags</td><td><code>[&quot;residual&quot;, &quot;lightgbm&quot;, &quot;candidate&quot;]</code></td></tr>
+<tr><td>model.base_method</td><td><code>cv_last1</code></td></tr>
+<tr><td>model.model_kind</td><td><code>lightgbm</code></td></tr>
+<tr><td>model.params.colsample_bytree</td><td><code>0.92</code></td></tr>
+<tr><td>model.params.learning_rate</td><td><code>0.018</code></td></tr>
+<tr><td>model.params.n_estimators</td><td><code>1400</code></td></tr>
+<tr><td>model.params.num_leaves</td><td><code>31</code></td></tr>
+<tr><td>model.params.reg_lambda</td><td><code>0.35</code></td></tr>
+<tr><td>model.params.subsample</td><td><code>0.92</code></td></tr>
+<tr><td>model.type</td><td><code>residual_lgbm</code></td></tr>
+<tr><td>paths.data_root</td><td><code>data</code></td></tr>
+<tr><td>paths.results_root</td><td><code>results</code></td></tr>
+<tr><td>runtime_args.config</td><td><code>alpha-test-project/mosquito/configs/residual_lgbm.yaml</code></td></tr>
+<tr><td>runtime_args.limit_test</td><td><code>None</code></td></tr>
+<tr><td>runtime_args.limit_train</td><td><code>None</code></td></tr>
+<tr><td>runtime_args.make_submission</td><td><code>False</code></td></tr>
+<tr><td>runtime_args.refresh_cache</td><td><code>False</code></td></tr>
+<tr><td>submission.threshold</td><td><code>0.7</code></td></tr>
+</tbody></table>
+    </section>
+
+    <section id="artifacts">
+      <h2>Artifacts</h2>
+      <table><thead><tr><th>Name</th><th>Type</th><th>Path</th><th>Mode</th><th>Size</th></tr></thead><tbody>
+<tr><td>oof_and_test_predictions</td><td>artifact</td><td>/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/predictions.npz</td><td>reference</td><td>272642</td></tr>
+<tr><td>fold_metrics</td><td>table</td><td><a href="tables/fold_metrics.csv">tables/fold_metrics.csv</a></td><td>copy</td><td>529</td></tr>
+<tr><td>experiment_backlog</td><td>artifact</td><td><a href="artifacts/20260517_013942_2026-05-17_01-37-02_residual_lgbm_cv_last1_experiment.md">artifacts/20260517_013942_2026-05-17_01-37-02_residual_lgbm_cv_last1_experiment.md</a></td><td>copy</td><td>773</td></tr>
+</tbody></table>
+    </section>
+
+    <section id="rule-audit">
+      <h2>Rule Audit</h2>
+      <p class="empty">No skill_trace.jsonl rule results are available.</p>
+    </section>
+
+    <section id="files">
+      <h2>Files</h2>
+      
+      <ul class="files">
+        
+        <li><a href="manifest.yaml">manifest.yaml</a></li>
+        
+        <li><a href="config.yaml">config.yaml</a></li>
+        
+        <li><a href="metrics.csv">metrics.csv</a></li>
+        
+        <li><a href="events.jsonl">events.jsonl</a></li>
+        
+        <li><a href="artifact_index.json">artifact_index.json</a></li>
+        
+        <li><a href="summary.md">summary.md</a></li>
+        
+      </ul>
+      
+    </section>
+  </main>
+</body>
+</html>

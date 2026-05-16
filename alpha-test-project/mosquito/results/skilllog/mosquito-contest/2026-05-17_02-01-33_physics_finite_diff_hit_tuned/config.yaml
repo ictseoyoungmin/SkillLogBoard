@@ -1,0 +1,31 @@
+experiment:
+  name: physics_finite_diff_hit_tuned
+  seed: 20260517
+  tags:
+  - physics
+  - finite-difference
+  - hit-tuned
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: physics
+  method: finite_diff
+  params:
+    coefficients:
+    - 2.4906
+    - -0.4332
+    - -0.0291
+    - -0.0548
+    - 0.017
+submission:
+  threshold: 0.7
+__config_dir__: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs
+runtime_args:
+  config: alpha-test-project/mosquito/configs/physics_finite_diff.yaml
+  make_submission: false
+  refresh_cache: false
+  limit_train: null
+  limit_test: null

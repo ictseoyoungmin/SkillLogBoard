@@ -1,0 +1,36 @@
+project: mosquito-contest
+run_name: physics_finite_diff_hit_tuned
+run_id: 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+created_at: '2026-05-17T02:01:33.736028+09:00'
+updated_at: '2026-05-17T02:01:35.908778+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.6026
+  best_step: 0
+  timestamp: '2026-05-17T02:01:34.721874+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- physics
+- finite-difference
+- hit-tuned
+error_summary: null

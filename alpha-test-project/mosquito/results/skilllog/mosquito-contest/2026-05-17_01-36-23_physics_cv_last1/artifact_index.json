@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    {
+      "name": "oof_and_test_predictions",
+      "type": "artifact",
+      "source": "/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/predictions.npz",
+      "path": null,
+      "copy": false,
+      "size": 272673,
+      "timestamp": "2026-05-17T01:36:24.759017+09:00"
+    },
+    {
+      "name": "fold_metrics",
+      "type": "table",
+      "source": null,
+      "path": "tables/fold_metrics.csv",
+      "copy": true,
+      "size": 166,
+      "timestamp": "2026-05-17T01:36:25.157855+09:00",
+      "metadata": {}
+    },
+    {
+      "name": "experiment_backlog",
+      "type": "artifact",
+      "source": "/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/backlog/20260517_013625_2026-05-17_01-36-23_physics_cv_last1_experiment.md",
+      "path": "artifacts/20260517_013625_2026-05-17_01-36-23_physics_cv_last1_experiment.md",
+      "copy": true,
+      "size": 718,
+      "timestamp": "2026-05-17T01:36:25.345087+09:00"
+    }
+  ]
+}

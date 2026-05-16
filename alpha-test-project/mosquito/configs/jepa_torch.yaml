@@ -1,0 +1,22 @@
+experiment:
+  name: jepa_torch_residual
+  seed: 20260517
+  tags: [jepa, torch, residual]
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: jepa_torch
+  base_method: cv_last1
+  params:
+    hidden: 96
+    batch_size: 256
+    pretrain_epochs: 35
+    epochs: 100
+    lr: 0.001
+    weight_decay: 0.0001
+    mask_prob: 0.35
+submission:
+  threshold: 0.7000
