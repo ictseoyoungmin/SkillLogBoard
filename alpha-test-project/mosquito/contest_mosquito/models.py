@@ -8,8 +8,12 @@ from typing import Any
 import numpy as np
 from sklearn.base import clone
 from sklearn.ensemble import HistGradientBoostingRegressor, ExtraTreesRegressor
+from sklearn.linear_model import Ridge
 from sklearn.model_selection import KFold
 from sklearn.multioutput import MultiOutputRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from contest_mosquito.features import make_features
 from contest_mosquito.metrics import metric_summary
@@ -115,6 +119,14 @@ def _make_estimator(model_kind: str, params: dict[str, Any], seed: int):
         defaults = {"n_estimators": 500, "random_state": seed, "n_jobs": -1, "min_samples_leaf": 2}
         defaults.update(params)
         return ExtraTreesRegressor(**defaults)
+    if model_kind == "knn":
+        defaults = {"n_neighbors": 80, "weights": "distance", "p": 2, "n_jobs": -1}
+        defaults.update(params)
+        return make_pipeline(StandardScaler(), KNeighborsRegressor(**defaults))
+    if model_kind == "ridge":
+        defaults = {"alpha": 0.0001}
+        defaults.update(params)
+        return make_pipeline(StandardScaler(), Ridge(**defaults))
     defaults = {
         "max_iter": 500,
         "learning_rate": 0.035,

@@ -1,0 +1,32 @@
+{
+  "artifacts": [
+    {
+      "name": "oof_and_test_predictions",
+      "type": "artifact",
+      "source": "/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/predictions.npz",
+      "path": null,
+      "copy": false,
+      "size": 272656,
+      "timestamp": "2026-05-17T20:28:14.558127+09:00"
+    },
+    {
+      "name": "fold_metrics",
+      "type": "table",
+      "source": null,
+      "path": "tables/fold_metrics.csv",
+      "copy": true,
+      "size": 526,
+      "timestamp": "2026-05-17T20:28:14.723482+09:00",
+      "metadata": {}
+    },
+    {
+      "name": "experiment_backlog",
+      "type": "artifact",
+      "source": "/mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/backlog/20260517_202814_2026-05-17_20-28-06_residual_ridge_cv_last1_experiment.md",
+      "path": "artifacts/20260517_202814_2026-05-17_20-28-06_residual_ridge_cv_last1_experiment.md",
+      "copy": true,
+      "size": 770,
+      "timestamp": "2026-05-17T20:28:14.930546+09:00"
+    }
+  ]
+}

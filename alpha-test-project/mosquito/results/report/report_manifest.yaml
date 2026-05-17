@@ -1,0 +1,416 @@
+report_id: report
+schema_version: '2.0'
+source:
+  root_dir: alpha-test-project/mosquito/results/skilllog/mosquito-contest
+  run_count: 7
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+outputs:
+- id: leaderboard
+  type: table
+  path: tables/leaderboard.md
+  kind: leaderboard
+  title: leaderboard
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+  metadata:
+    metric: val/r_hit@1cm
+    mode: max
+  provenance:
+    files:
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+    metrics:
+    - val/r_hit@1cm
+    columns:
+    - rank
+    - run_id
+    - run_name
+    - metric_value
+    - best_step
+    - warning_count
+    - error_count
+    step_range:
+      min: 0
+      max: 0
+    run_ids:
+    - 2026-05-17_01-36-23_physics_cv_last1
+    - 2026-05-17_01-37-02_residual_lgbm_cv_last1
+    - 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+    - 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+    - 2026-05-17_20-22-05_jepa_torch_residual
+    - 2026-05-17_20-28-06_residual_knn_cv_last1
+    - 2026-05-17_20-28-06_residual_ridge_cv_last1
+    row_count: 7
+- id: seed-summary
+  type: table
+  path: tables/seed-summary.md
+  kind: seed-summary
+  title: seed-summary
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+  metadata:
+    metric: val/r_hit@1cm
+    mode: max
+    group_by: []
+  provenance:
+    files:
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+    metrics:
+    - val/r_hit@1cm
+    columns:
+    - group_key
+    - count
+    - mean
+    - std
+    - median
+    - best
+    - best_run_id
+    step_range:
+      min: 0
+      max: 0
+    run_ids:
+    - 2026-05-17_01-36-23_physics_cv_last1
+    - 2026-05-17_01-37-02_residual_lgbm_cv_last1
+    - 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+    - 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+    - 2026-05-17_20-22-05_jepa_torch_residual
+    - 2026-05-17_20-28-06_residual_knn_cv_last1
+    - 2026-05-17_20-28-06_residual_ridge_cv_last1
+    row_count: 7
+- id: ablation-summary
+  type: table
+  path: tables/ablation-summary.md
+  kind: ablation-summary
+  title: ablation-summary
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+  metadata:
+    metric: val/r_hit@1cm
+    mode: max
+    axes:
+    - __config_dir__
+    - cv.n_splits
+    - experiment.name
+    - experiment.seed
+    - experiment.tags
+    - model.base_method
+    - model.method
+    - model.model_kind
+    - model.params.alpha
+    - model.params.batch_size
+    - model.params.coefficients
+    - model.params.colsample_bytree
+    - model.params.epochs
+    - model.params.hidden
+    - model.params.learning_rate
+    - model.params.lr
+    - model.params.mask_prob
+    - model.params.max_features
+    - model.params.min_samples_leaf
+    - model.params.n_estimators
+    - model.params.n_neighbors
+    - model.params.num_leaves
+    - model.params.p
+    - model.params.pretrain_epochs
+    - model.params.reg_lambda
+    - model.params.subsample
+    - model.params.weight_decay
+    - model.params.weights
+    - model.type
+    - paths.data_root
+    - paths.results_root
+    - runtime_args.config
+    - runtime_args.limit_test
+    - runtime_args.limit_train
+    - runtime_args.make_submission
+    - runtime_args.refresh_cache
+    - submission.threshold
+  provenance:
+    files:
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+    metrics:
+    - val/r_hit@1cm
+    columns:
+    - axis
+    - value
+    - count
+    - best
+    - mean
+    step_range:
+      min: 0
+      max: 0
+    run_ids:
+    - 2026-05-17_01-36-23_physics_cv_last1
+    - 2026-05-17_01-37-02_residual_lgbm_cv_last1
+    - 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+    - 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+    - 2026-05-17_20-22-05_jepa_torch_residual
+    - 2026-05-17_20-28-06_residual_knn_cv_last1
+    - 2026-05-17_20-28-06_residual_ridge_cv_last1
+    row_count: 63
+- id: rule-audit
+  type: table
+  path: tables/rule-audit.md
+  kind: rule-audit
+  title: rule-audit
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+  metadata: {}
+  provenance:
+    files:
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+    metrics: []
+    columns:
+    - rule_id
+    - outcome
+    - severity
+    - message
+    - run_id
+    step_range: null
+    run_ids:
+    - 2026-05-17_01-36-23_physics_cv_last1
+    - 2026-05-17_01-37-02_residual_lgbm_cv_last1
+    - 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+    - 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+    - 2026-05-17_20-22-05_jepa_torch_residual
+    - 2026-05-17_20-28-06_residual_knn_cv_last1
+    - 2026-05-17_20-28-06_residual_ridge_cv_last1
+    row_count: 0
+- id: metric-curve-overlay
+  type: figure
+  path: figures/metric-curve-overlay.png
+  kind: metric-curve-overlay
+  title: Metric Curve Overlay
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+  metadata:
+    mode: max
+    status: generated
+  provenance:
+    files:
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+    - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+    metrics:
+    - val/r_hit@1cm
+    columns: []
+    step_range: null
+- id: report-md
+  type: report
+  path: report.md
+  kind: markdown
+  title: Markdown Report
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest
+  metadata: {}
+  provenance: {}
+- id: report-html
+  type: report
+  path: report.html
+  kind: html
+  title: HTML Report
+  source_files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest
+  metadata:
+    render_mode: package
+  provenance: {}
+- id: report
+  type: asset
+  path: assets/report.css
+  kind: css
+  title: report.css
+  source_files: []
+  metadata:
+    render_mode: package
+  provenance: {}
+- id: report
+  type: asset
+  path: assets/report.js
+  kind: js
+  title: report.js
+  source_files: []
+  metadata:
+    render_mode: package
+  provenance: {}
+- id: metric-curve-overlay.chart
+  type: chart-spec
+  path: figures/metric-curve-overlay.chart.json
+  kind: json
+  title: metric-curve-overlay.chart.json
+  source_files: []
+  metadata:
+    format: chart-spec
+  provenance: {}
+parameters:
+  metric: val/r_hit@1cm
+  mode: max
+  group_by: null
+  spec_path: ''
+  render_mode: package
+warnings: []
+provenance:
+  files:
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/manifest.yaml
+  - alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv
+  metrics:
+  - val/r_hit@1cm
+  columns:
+    leaderboard:
+    - rank
+    - run_id
+    - run_name
+    - metric_value
+    - best_step
+    - warning_count
+    - error_count
+    seed-summary:
+    - group_key
+    - count
+    - mean
+    - std
+    - median
+    - best
+    - best_run_id
+    ablation-summary:
+    - axis
+    - value
+    - count
+    - best
+    - mean
+    rule-audit:
+    - rule_id
+    - outcome
+    - severity
+    - message
+    - run_id
+  step_range:
+    min: 0
+    max: 0
+  run_ids:
+  - 2026-05-17_01-36-23_physics_cv_last1
+  - 2026-05-17_01-37-02_residual_lgbm_cv_last1
+  - 2026-05-17_02-01-33_physics_finite_diff_hit_tuned
+  - 2026-05-17_02-02-01_residual_extra_trees_cv_last1
+  - 2026-05-17_20-22-05_jepa_torch_residual
+  - 2026-05-17_20-28-06_residual_knn_cv_last1
+  - 2026-05-17_20-28-06_residual_ridge_cv_last1
+created_at: '2026-05-17T20:28:38.898455+09:00'

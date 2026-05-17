@@ -1,0 +1,24 @@
+{
+  "chart_id": "metric-curve-overlay",
+  "chart_type": "metric-curve-overlay",
+  "encoding": {
+    "series": "run_id",
+    "x": "step",
+    "y": "val/r_hit@1cm"
+  },
+  "metadata": {
+    "figure_path": "figures/metric-curve-overlay.png",
+    "mode": "max",
+    "status": "generated"
+  },
+  "metric": "val/r_hit@1cm",
+  "source_files": [
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv"
+  ]
+}

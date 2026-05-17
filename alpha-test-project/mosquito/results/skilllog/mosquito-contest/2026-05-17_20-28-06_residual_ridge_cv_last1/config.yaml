@@ -1,0 +1,27 @@
+experiment:
+  name: residual_ridge_cv_last1
+  seed: 20260517
+  tags:
+  - residual
+  - ridge
+  - non-tree
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: residual
+  base_method: cv_last1
+  model_kind: ridge
+  params:
+    alpha: 0.0001
+submission:
+  threshold: 0.7
+__config_dir__: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs
+runtime_args:
+  config: alpha-test-project/mosquito/configs/residual_ridge.yaml
+  make_submission: false
+  refresh_cache: false
+  limit_train: null
+  limit_test: null

@@ -1,0 +1,884 @@
+{
+  "generated_at": "2026-05-17T11:28:34.741481+00:00",
+  "root_dir": "alpha-test-project/mosquito/results/skilllog/mosquito-contest",
+  "run_count": 7,
+  "runs": [
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779017298.0,
+          "size": 1084
+        },
+        "manifest.yaml": {
+          "mtime": 1779017300.0,
+          "size": 947
+        },
+        "metrics.csv": {
+          "mtime": 1779017298.0,
+          "size": 567
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.5486
+      },
+      "metric_summaries": [
+        {
+          "best": 7.250735584999347,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 7.250735584999347,
+          "max": 7.250735584999347,
+          "min": 7.250735584999347,
+          "name": "runtime/sec",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.5295,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5295,
+          "max": 0.5295,
+          "min": 0.5295,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.013284734215429035,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.013284734215429035,
+          "max": 0.013284734215429035,
+          "min": 0.013284734215429035,
+          "name": "val/mean_dist",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.009174173774772388,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.009174173774772388,
+          "max": 0.009174173774772388,
+          "min": 0.009174173774772388,
+          "name": "val/median_dist",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.02596412237118346,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.02596412237118346,
+          "max": 0.02596412237118346,
+          "min": 0.02596412237118346,
+          "name": "val/p90_dist",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.04020658528861261,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04020658528861261,
+          "max": 0.04020658528861261,
+          "min": 0.04020658528861261,
+          "name": "val/p95_dist",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.5486,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5486,
+          "max": 0.5486,
+          "min": 0.5486,
+          "name": "val/r_hit@1cm",
+          "source_hash": "6a2d84b1a46aeb2c82c2e57a48547f77eb466c53be2580c27579f4326c9ac60f",
+          "source_mtime": 1779017298.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1",
+      "run_id": "2026-05-17_20-28-06_residual_ridge_cv_last1",
+      "started_at": "2026-05-17T20:28:07.184043+09:00",
+      "status": "completed",
+      "tags": [
+        "residual",
+        "ridge",
+        "non-tree"
+      ],
+      "updated_at": 1779017290.46,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779017298.0,
+          "size": 1078
+        },
+        "manifest.yaml": {
+          "mtime": 1779017300.0,
+          "size": 939
+        },
+        "metrics.csv": {
+          "mtime": 1779017298.0,
+          "size": 565
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.5984
+      },
+      "metric_summaries": [
+        {
+          "best": 6.30415882699981,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 6.30415882699981,
+          "max": 6.30415882699981,
+          "min": 6.30415882699981,
+          "name": "runtime/sec",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.582,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.582,
+          "max": 0.582,
+          "min": 0.582,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.012615169050485013,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012615169050485013,
+          "max": 0.012615169050485013,
+          "min": 0.012615169050485013,
+          "name": "val/mean_dist",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.008224404961898732,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.008224404961898732,
+          "max": 0.008224404961898732,
+          "min": 0.008224404961898732,
+          "name": "val/median_dist",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.02570881552931789,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.02570881552931789,
+          "max": 0.02570881552931789,
+          "min": 0.02570881552931789,
+          "name": "val/p90_dist",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.04242897290275999,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04242897290275999,
+          "max": 0.04242897290275999,
+          "min": 0.04242897290275999,
+          "name": "val/p95_dist",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        },
+        {
+          "best": 0.5984,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5984,
+          "max": 0.5984,
+          "min": 0.5984,
+          "name": "val/r_hit@1cm",
+          "source_hash": "9267c7aae8892d3daa3144724d98585e74a29aa532152b451321779e369e4f01",
+          "source_mtime": 1779017298.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1",
+      "run_id": "2026-05-17_20-28-06_residual_knn_cv_last1",
+      "started_at": "2026-05-17T20:28:07.096385+09:00",
+      "status": "completed",
+      "tags": [
+        "residual",
+        "knn",
+        "non-tree"
+      ],
+      "updated_at": 1779017290.38,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779017154.0,
+          "size": 1072
+        },
+        "manifest.yaml": {
+          "mtime": 1779017156.0,
+          "size": 931
+        },
+        "metrics.csv": {
+          "mtime": 1779017154.0,
+          "size": 641
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.4847
+      },
+      "metric_summaries": [
+        {
+          "best": 1.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "env",
+          "last_step": 0,
+          "last_value": 1.0,
+          "max": 1.0,
+          "min": 1.0,
+          "name": "env/torch_cuda_available",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 243.87209815699998,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 243.87209815699998,
+          "max": 243.87209815699998,
+          "min": 243.87209815699998,
+          "name": "runtime/sec",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.4335,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.4335,
+          "max": 0.4335,
+          "min": 0.4335,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.014607698356557368,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.014607698356557368,
+          "max": 0.014607698356557368,
+          "min": 0.014607698356557368,
+          "name": "val/mean_dist",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.010226068052170027,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.010226068052170027,
+          "max": 0.010226068052170027,
+          "min": 0.010226068052170027,
+          "name": "val/median_dist",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.026347744038846207,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.026347744038846207,
+          "max": 0.026347744038846207,
+          "min": 0.026347744038846207,
+          "name": "val/p90_dist",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.04350335686429072,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04350335686429072,
+          "max": 0.04350335686429072,
+          "min": 0.04350335686429072,
+          "name": "val/p95_dist",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        },
+        {
+          "best": 0.4847,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.4847,
+          "max": 0.4847,
+          "min": 0.4847,
+          "name": "val/r_hit@1cm",
+          "source_hash": "373c66be9dd62b267f7439ef145e4d83a560216e41085e07597f36c2dc9a5cde",
+          "source_mtime": 1779017154.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual",
+      "run_id": "2026-05-17_20-22-05_jepa_torch_residual",
+      "started_at": "2026-05-17T20:22:05.950928+09:00",
+      "status": "completed",
+      "tags": [
+        "jepa",
+        "torch",
+        "residual"
+      ],
+      "updated_at": 1779016927.26,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1778950994.0,
+          "size": 1102
+        },
+        "manifest.yaml": {
+          "mtime": 1778950994.0,
+          "size": 972
+        },
+        "metrics.csv": {
+          "mtime": 1778950994.0,
+          "size": 568
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6075
+      },
+      "metric_summaries": [
+        {
+          "best": 74.32569527099986,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 74.32569527099986,
+          "max": 74.32569527099986,
+          "min": 74.32569527099986,
+          "name": "runtime/sec",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.5965,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5965,
+          "max": 0.5965,
+          "min": 0.5965,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.012241444451748629,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012241444451748629,
+          "max": 0.012241444451748629,
+          "min": 0.012241444451748629,
+          "name": "val/mean_dist",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.007952689682417805,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.007952689682417805,
+          "max": 0.007952689682417805,
+          "min": 0.007952689682417805,
+          "name": "val/median_dist",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.02517136540598614,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.02517136540598614,
+          "max": 0.02517136540598614,
+          "min": 0.02517136540598614,
+          "name": "val/p90_dist",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.040022209436527574,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.040022209436527574,
+          "max": 0.040022209436527574,
+          "min": 0.040022209436527574,
+          "name": "val/p95_dist",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        },
+        {
+          "best": 0.6075,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6075,
+          "max": 0.6075,
+          "min": 0.6075,
+          "name": "val/r_hit@1cm",
+          "source_hash": "b1a4ee0c31e5257b3c51e9736ec3be078281363e35e3e146481677308fdfe09d",
+          "source_mtime": 1778950994.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1",
+      "run_id": "2026-05-17_02-02-01_residual_extra_trees_cv_last1",
+      "started_at": "2026-05-17T02:02:01.911672+09:00",
+      "status": "completed",
+      "tags": [
+        "residual",
+        "extra-trees",
+        "candidate"
+      ],
+      "updated_at": 1778950923.53,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1778950898.0,
+          "size": 1102
+        },
+        "manifest.yaml": {
+          "mtime": 1778950898.0,
+          "size": 977
+        },
+        "metrics.csv": {
+          "mtime": 1778950898.0,
+          "size": 497
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6026
+      },
+      "metric_summaries": [
+        {
+          "best": 0.9091158039991569,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 0.9091158039991569,
+          "max": 0.9091158039991569,
+          "min": 0.9091158039991569,
+          "name": "runtime/sec",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        },
+        {
+          "best": 0.0129333321525475,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.0129333321525475,
+          "max": 0.0129333321525475,
+          "min": 0.0129333321525475,
+          "name": "val/mean_dist",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        },
+        {
+          "best": 0.008168408483851534,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.008168408483851534,
+          "max": 0.008168408483851534,
+          "min": 0.008168408483851534,
+          "name": "val/median_dist",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        },
+        {
+          "best": 0.02708003854735572,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.02708003854735572,
+          "max": 0.02708003854735572,
+          "min": 0.02708003854735572,
+          "name": "val/p90_dist",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        },
+        {
+          "best": 0.04500615333735512,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04500615333735512,
+          "max": 0.04500615333735512,
+          "min": 0.04500615333735512,
+          "name": "val/p95_dist",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        },
+        {
+          "best": 0.6026,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6026,
+          "max": 0.6026,
+          "min": 0.6026,
+          "name": "val/r_hit@1cm",
+          "source_hash": "4001798bcd36a8069ba72944b41ccb0d3ae5027672e6c1e3b7b8e5898bdde506",
+          "source_mtime": 1778950898.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-01-33_physics_finite_diff_hit_tuned",
+      "run_id": "2026-05-17_02-01-33_physics_finite_diff_hit_tuned",
+      "started_at": "2026-05-17T02:01:33.736028+09:00",
+      "status": "completed",
+      "tags": [
+        "physics",
+        "finite-difference",
+        "hit-tuned"
+      ],
+      "updated_at": 1778950895.72,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1778949586.0,
+          "size": 1081
+        },
+        "manifest.yaml": {
+          "mtime": 1778949586.0,
+          "size": 948
+        },
+        "metrics.csv": {
+          "mtime": 1778949586.0,
+          "size": 568
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.5814
+      },
+      "metric_summaries": [
+        {
+          "best": 172.71166187600102,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 172.71166187600102,
+          "max": 172.71166187600102,
+          "min": 172.71166187600102,
+          "name": "runtime/sec",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.566,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.566,
+          "max": 0.566,
+          "min": 0.566,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.012724523589157955,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012724523589157955,
+          "max": 0.012724523589157955,
+          "min": 0.012724523589157955,
+          "name": "val/mean_dist",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.008392567179344368,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.008392567179344368,
+          "max": 0.008392567179344368,
+          "min": 0.008392567179344368,
+          "name": "val/median_dist",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.02656780751733983,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.02656780751733983,
+          "max": 0.02656780751733983,
+          "min": 0.02656780751733983,
+          "name": "val/p90_dist",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.039847839273924116,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.039847839273924116,
+          "max": 0.039847839273924116,
+          "min": 0.039847839273924116,
+          "name": "val/p95_dist",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        },
+        {
+          "best": 0.5814,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5814,
+          "max": 0.5814,
+          "min": 0.5814,
+          "name": "val/r_hit@1cm",
+          "source_hash": "e26ea7dd6cdaf5b02be4a0ef6f9eaa35d8a6ece44758d91bdf276f0ce64164ae",
+          "source_mtime": 1778949586.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-37-02_residual_lgbm_cv_last1",
+      "run_id": "2026-05-17_01-37-02_residual_lgbm_cv_last1",
+      "started_at": "2026-05-17T01:37:02.374685+09:00",
+      "status": "completed",
+      "tags": [
+        "residual",
+        "lightgbm",
+        "candidate"
+      ],
+      "updated_at": 1778949424.64,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1778949388.0,
+          "size": 1063
+        },
+        "manifest.yaml": {
+          "mtime": 1778949388.0,
+          "size": 917
+        },
+        "metrics.csv": {
+          "mtime": 1778949386.0,
+          "size": 496
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.5787
+      },
+      "metric_summaries": [
+        {
+          "best": 341.585513490998,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 341.585513490998,
+          "max": 341.585513490998,
+          "min": 341.585513490998,
+          "name": "runtime/sec",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        },
+        {
+          "best": 0.01294061179654496,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.01294061179654496,
+          "max": 0.01294061179654496,
+          "min": 0.01294061179654496,
+          "name": "val/mean_dist",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        },
+        {
+          "best": 0.008324827884067031,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.008324827884067031,
+          "max": 0.008324827884067031,
+          "min": 0.008324827884067031,
+          "name": "val/median_dist",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        },
+        {
+          "best": 0.026507446298282156,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.026507446298282156,
+          "max": 0.026507446298282156,
+          "min": 0.026507446298282156,
+          "name": "val/p90_dist",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        },
+        {
+          "best": 0.0447998487086262,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.0447998487086262,
+          "max": 0.0447998487086262,
+          "min": 0.0447998487086262,
+          "name": "val/p95_dist",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        },
+        {
+          "best": 0.5787,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5787,
+          "max": 0.5787,
+          "min": 0.5787,
+          "name": "val/r_hit@1cm",
+          "source_hash": "270828ccae3e8ff8dedaeb4b469356e9f5e853f49397a5168d060cb56bc58fe6",
+          "source_mtime": 1778949386.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_01-36-23_physics_cv_last1",
+      "run_id": "2026-05-17_01-36-23_physics_cv_last1",
+      "started_at": "2026-05-17T01:36:23.619886+09:00",
+      "status": "completed",
+      "tags": [
+        "physics",
+        "baseline"
+      ],
+      "updated_at": 1778949384.54,
+      "warning_count": 0
+    }
+  ],
+  "schema_version": 1,
+  "warnings": []
+}

@@ -1,0 +1,36 @@
+project: mosquito-contest
+run_name: jepa_torch_residual
+run_id: 2026-05-17_20-22-05_jepa_torch_residual
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual
+created_at: '2026-05-17T20:22:05.950928+09:00'
+updated_at: '2026-05-17T20:25:51.106903+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.4847
+  best_step: 0
+  timestamp: '2026-05-17T20:25:49.048266+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- jepa
+- torch
+- residual
+error_summary: null

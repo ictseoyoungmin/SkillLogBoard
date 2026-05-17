@@ -22,3 +22,21 @@
 - 불편한 점: contest 전용 submission gate와 OOF artifact convention은 사용자가 직접 구현해야 함.
 - 개선점: threshold-gated submission writer와 fold-aware experiment template을 SkillLog template로 제공하면 좋음.
 - 대표 점수: `0.607500`
+
+## 2026-05-17T20:25:49 / 2026-05-17_20-22-05_jepa_torch_residual
+- 좋았던 점: RunLogger로 config/metric/artifact/backlog 연결 지점을 한 곳에 묶기 좋음.
+- 불편한 점: contest 전용 submission gate와 OOF artifact convention은 사용자가 직접 구현해야 함.
+- 개선점: threshold-gated submission writer와 fold-aware experiment template을 SkillLog template로 제공하면 좋음.
+- 대표 점수: `0.484700`
+
+## 2026-05-17T20:28:14 / 2026-05-17_20-28-06_residual_knn_cv_last1
+- 좋았던 점: RunLogger로 config/metric/artifact/backlog 연결 지점을 한 곳에 묶기 좋음.
+- 불편한 점: contest 전용 submission gate와 OOF artifact convention은 사용자가 직접 구현해야 함.
+- 개선점: threshold-gated submission writer와 fold-aware experiment template을 SkillLog template로 제공하면 좋음.
+- 대표 점수: `0.598400`
+
+## 2026-05-17T20:28:14 / 2026-05-17_20-28-06_residual_ridge_cv_last1
+- 좋았던 점: RunLogger로 config/metric/artifact/backlog 연결 지점을 한 곳에 묶기 좋음.
+- 불편한 점: contest 전용 submission gate와 OOF artifact convention은 사용자가 직접 구현해야 함.
+- 개선점: threshold-gated submission writer와 fold-aware experiment template을 SkillLog template로 제공하면 좋음.
+- 대표 점수: `0.548600`

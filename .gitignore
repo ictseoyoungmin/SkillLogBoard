@@ -17,3 +17,5 @@ frontend/live-board/node_modules/
 .claude/
 alpha-test-project/mosquito/data/
 alpha-test-project/mosquito/doc/
+alpha-test-project/mosquito/results/cache/
+*.npz

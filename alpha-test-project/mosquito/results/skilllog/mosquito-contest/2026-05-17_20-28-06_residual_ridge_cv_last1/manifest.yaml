@@ -1,0 +1,36 @@
+project: mosquito-contest
+run_name: residual_ridge_cv_last1
+run_id: 2026-05-17_20-28-06_residual_ridge_cv_last1
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1
+created_at: '2026-05-17T20:28:07.184043+09:00'
+updated_at: '2026-05-17T20:28:15.753579+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.5486
+  best_step: 0
+  timestamp: '2026-05-17T20:28:14.421119+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- residual
+- ridge
+- non-tree
+error_summary: null
