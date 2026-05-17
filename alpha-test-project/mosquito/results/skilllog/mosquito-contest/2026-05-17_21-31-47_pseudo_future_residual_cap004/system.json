@@ -1,0 +1,6 @@
+{
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python_version": "3.10.12",
+  "machine": "x86_64",
+  "processor": "x86_64"
+}

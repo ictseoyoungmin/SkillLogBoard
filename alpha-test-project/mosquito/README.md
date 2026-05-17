@@ -5,8 +5,8 @@ mosquito trajectory contest.
 
 ## Current Best
 
-- `residual_extra_trees_cv_last1`
-- Validation: `R-Hit@1cm = 0.6075`
+- `pseudo_future_residual_cap006`
+- Validation: `R-Hit@1cm = 0.6513`
 - Submission gate: no file is saved until validation reaches `0.7000`.
 
 ## Run Commands
@@ -18,6 +18,12 @@ PYTHONPATH=alpha-test-project/mosquito .venv/bin/python -m contest_mosquito.runn
 PYTHONPATH=alpha-test-project/mosquito .venv/bin/python -m contest_mosquito.runner --config alpha-test-project/mosquito/configs/physics_finite_diff.yaml
 PYTHONPATH=alpha-test-project/mosquito .venv/bin/python -m contest_mosquito.runner --config alpha-test-project/mosquito/configs/residual_extra_trees.yaml
 PYTHONPATH=alpha-test-project/mosquito .venv/bin/python -m contest_mosquito.runner --config alpha-test-project/mosquito/configs/jepa_torch.yaml
+```
+
+For CUDA torch runs in this WSL setup, import `torch` before inserting the project path:
+
+```bash
+.venv/bin/python -c "import torch, sys; print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'cpu'); sys.path.insert(0, 'alpha-test-project/mosquito'); from contest_mosquito.runner import main; raise SystemExit(main(['--config', 'alpha-test-project/mosquito/configs/pseudo_future_residual_cap006.yaml']))"
 ```
 
 Watch the SkillLogBoard project:

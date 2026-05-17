@@ -1,0 +1,38 @@
+project: mosquito-contest
+run_name: pseudo_future_residual_cap006_noharm055
+run_id: 2026-05-17_21-50-23_pseudo_future_residual_cap006_noharm055
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-50-23_pseudo_future_residual_cap006_noharm055
+created_at: '2026-05-17T21:50:24.209318+09:00'
+updated_at: '2026-05-17T21:53:54.901454+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.6504
+  best_step: 0
+  timestamp: '2026-05-17T21:53:53.116581+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- torch
+- pseudo-future
+- residual
+- non-tree
+- noharm-sweep
+error_summary: null

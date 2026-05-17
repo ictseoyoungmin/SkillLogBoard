@@ -1,0 +1,31 @@
+experiment:
+  name: pseudo_future_residual_cap006
+  seed: 20260517
+  tags: [torch, pseudo-future, residual, non-tree, cap-sweep]
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: pseudo_future_residual
+  params:
+    base_anchor: ca_last_beta_0.25
+    current_indices: [6, 7, 8]
+    horizon_steps: 2.0
+    residual_cap: 0.006
+    noharm_weight: 0.35
+    hidden_dim: 256
+    dropout: 0.08
+    batch_size: 512
+    pretrain_epochs: 35
+    finetune_epochs: 100
+    patience: 35
+    pretrain_lr: 0.001
+    lr: 0.0008
+    weight_decay: 0.0002
+    num_workers: 0
+    device: auto
+    fit_full_model: true
+submission:
+  threshold: 0.7000

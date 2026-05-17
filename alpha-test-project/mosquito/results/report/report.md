@@ -2,7 +2,7 @@
 
 ## Summary
 
-- Source runs: `8`
+- Source runs: `12`
 - Metric: `val/r_hit@1cm`
 - Mode: `max`
 
@@ -22,6 +22,10 @@
 | `2026-05-17_20-28-06_residual_knn_cv_last1` | `residual_knn_cv_last1` | `completed` |
 | `2026-05-17_20-28-06_residual_ridge_cv_last1` | `residual_ridge_cv_last1` | `completed` |
 | `2026-05-17_20-54-48_physics_bucketed_finite_diff` | `physics_bucketed_finite_diff` | `completed` |
+| `2026-05-17_21-31-47_pseudo_future_residual_cap004` | `pseudo_future_residual_cap004` | `completed` |
+| `2026-05-17_21-39-34_pseudo_future_residual_cap006` | `pseudo_future_residual_cap006` | `completed` |
+| `2026-05-17_21-45-18_pseudo_future_residual_cap008` | `pseudo_future_residual_cap008` | `completed` |
+| `2026-05-17_21-50-23_pseudo_future_residual_cap006_noharm055` | `pseudo_future_residual_cap006_noharm055` | `completed` |
 
 ## Leaderboard
 

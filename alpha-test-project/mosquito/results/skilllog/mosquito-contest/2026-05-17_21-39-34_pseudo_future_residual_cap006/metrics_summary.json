@@ -1,0 +1,12 @@
+{
+  "val/r_hit@1cm": 0.6513,
+  "val/mean_dist": 0.012028083370537505,
+  "val/median_dist": 0.007285416506733127,
+  "val/p90_dist": 0.025086911908026796,
+  "val/p95_dist": 0.04215941375909202,
+  "val/fold_min_r_hit": 0.6395,
+  "env/torch_cuda_available": 1.0,
+  "model/residual_cap": 0.006,
+  "model/pseudo_windows_per_sample": 3.0,
+  "model/median_best_epoch": 6.0
+}

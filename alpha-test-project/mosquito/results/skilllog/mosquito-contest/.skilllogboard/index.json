@@ -1,8 +1,732 @@
 {
-  "generated_at": "2026-05-17T11:57:06.604070+00:00",
+  "generated_at": "2026-05-17T12:54:39.557250+00:00",
   "root_dir": "alpha-test-project/mosquito/results/skilllog/mosquito-contest",
-  "run_count": 8,
+  "run_count": 12,
   "runs": [
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779022436.0,
+          "size": 1134
+        },
+        "manifest.yaml": {
+          "mtime": 1779022438.0,
+          "size": 1026
+        },
+        "metrics.csv": {
+          "mtime": 1779022436.0,
+          "size": 862
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6504
+      },
+      "metric_summaries": [
+        {
+          "best": 1.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "env",
+          "last_step": 0,
+          "last_value": 1.0,
+          "max": 1.0,
+          "min": 1.0,
+          "name": "env/torch_cuda_available",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 6.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 6.0,
+          "max": 6.0,
+          "min": 6.0,
+          "name": "model/median_best_epoch",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 3.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 3.0,
+          "max": 3.0,
+          "min": 3.0,
+          "name": "model/pseudo_windows_per_sample",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.006,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 0.006,
+          "max": 0.006,
+          "min": 0.006,
+          "name": "model/residual_cap",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 225.2317219100005,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 225.2317219100005,
+          "max": 225.2317219100005,
+          "min": 225.2317219100005,
+          "name": "runtime/sec",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.64,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.64,
+          "max": 0.64,
+          "min": 0.64,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.012034072957892432,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012034072957892432,
+          "max": 0.012034072957892432,
+          "min": 0.012034072957892432,
+          "name": "val/mean_dist",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.007288121170517926,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.007288121170517926,
+          "max": 0.007288121170517926,
+          "min": 0.007288121170517926,
+          "name": "val/median_dist",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.025097946630017142,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.025097946630017142,
+          "max": 0.025097946630017142,
+          "min": 0.025097946630017142,
+          "name": "val/p90_dist",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.04241079808294197,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04241079808294197,
+          "max": 0.04241079808294197,
+          "min": 0.04241079808294197,
+          "name": "val/p95_dist",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        },
+        {
+          "best": 0.6504,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6504,
+          "max": 0.6504,
+          "min": 0.6504,
+          "name": "val/r_hit@1cm",
+          "source_hash": "ff7e492d499149bfecab1f684c4c013f2b9efbb2cac7922820e09d6c5d1a2a8f",
+          "source_mtime": 1779022436.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-50-23_pseudo_future_residual_cap006_noharm055",
+      "run_id": "2026-05-17_21-50-23_pseudo_future_residual_cap006_noharm055",
+      "started_at": "2026-05-17T21:50:24.209318+09:00",
+      "status": "completed",
+      "tags": [
+        "torch",
+        "pseudo-future",
+        "residual",
+        "non-tree",
+        "noharm-sweep"
+      ],
+      "updated_at": 1779022226.42,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779022144.0,
+          "size": 1103
+        },
+        "manifest.yaml": {
+          "mtime": 1779022144.0,
+          "size": 993
+        },
+        "metrics.csv": {
+          "mtime": 1779022142.0,
+          "size": 864
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6497
+      },
+      "metric_summaries": [
+        {
+          "best": 1.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "env",
+          "last_step": 0,
+          "last_value": 1.0,
+          "max": 1.0,
+          "min": 1.0,
+          "name": "env/torch_cuda_available",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 6.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 6.0,
+          "max": 6.0,
+          "min": 6.0,
+          "name": "model/median_best_epoch",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 3.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 3.0,
+          "max": 3.0,
+          "min": 3.0,
+          "name": "model/pseudo_windows_per_sample",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.008,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 0.008,
+          "max": 0.008,
+          "min": 0.008,
+          "name": "model/residual_cap",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 238.01321836499847,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 238.01321836499847,
+          "max": 238.01321836499847,
+          "min": 238.01321836499847,
+          "name": "runtime/sec",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.637,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.637,
+          "max": 0.637,
+          "min": 0.637,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.011963674172288174,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.011963674172288174,
+          "max": 0.011963674172288174,
+          "min": 0.011963674172288174,
+          "name": "val/mean_dist",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.007300985055070302,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.007300985055070302,
+          "max": 0.007300985055070302,
+          "min": 0.007300985055070302,
+          "name": "val/median_dist",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.024686447973499868,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.024686447973499868,
+          "max": 0.024686447973499868,
+          "min": 0.024686447973499868,
+          "name": "val/p90_dist",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.04223158926078131,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04223158926078131,
+          "max": 0.04223158926078131,
+          "min": 0.04223158926078131,
+          "name": "val/p95_dist",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        },
+        {
+          "best": 0.6497,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6497,
+          "max": 0.6497,
+          "min": 0.6497,
+          "name": "val/r_hit@1cm",
+          "source_hash": "9862fb7deb447446a90dad64c674278439a711acc18b7f511ac2287e3c6f88bc",
+          "source_mtime": 1779022142.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-45-18_pseudo_future_residual_cap008",
+      "run_id": "2026-05-17_21-45-18_pseudo_future_residual_cap008",
+      "started_at": "2026-05-17T21:45:19.259709+09:00",
+      "status": "completed",
+      "tags": [
+        "torch",
+        "pseudo-future",
+        "residual",
+        "non-tree",
+        "cap-sweep"
+      ],
+      "updated_at": 1779021921.51,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779021804.0,
+          "size": 1103
+        },
+        "manifest.yaml": {
+          "mtime": 1779021804.0,
+          "size": 993
+        },
+        "metrics.csv": {
+          "mtime": 1779021802.0,
+          "size": 865
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6513
+      },
+      "metric_summaries": [
+        {
+          "best": 1.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "env",
+          "last_step": 0,
+          "last_value": 1.0,
+          "max": 1.0,
+          "min": 1.0,
+          "name": "env/torch_cuda_available",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 6.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 6.0,
+          "max": 6.0,
+          "min": 6.0,
+          "name": "model/median_best_epoch",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 3.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 3.0,
+          "max": 3.0,
+          "min": 3.0,
+          "name": "model/pseudo_windows_per_sample",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.006,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 0.006,
+          "max": 0.006,
+          "min": 0.006,
+          "name": "model/residual_cap",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 242.80143643299925,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 242.80143643299925,
+          "max": 242.80143643299925,
+          "min": 242.80143643299925,
+          "name": "runtime/sec",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.6395,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6395,
+          "max": 0.6395,
+          "min": 0.6395,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.012028083370537505,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012028083370537505,
+          "max": 0.012028083370537505,
+          "min": 0.012028083370537505,
+          "name": "val/mean_dist",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.007285416506733127,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.007285416506733127,
+          "max": 0.007285416506733127,
+          "min": 0.007285416506733127,
+          "name": "val/median_dist",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.025086911908026796,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.025086911908026796,
+          "max": 0.025086911908026796,
+          "min": 0.025086911908026796,
+          "name": "val/p90_dist",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.04215941375909202,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04215941375909202,
+          "max": 0.04215941375909202,
+          "min": 0.04215941375909202,
+          "name": "val/p95_dist",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        },
+        {
+          "best": 0.6513,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6513,
+          "max": 0.6513,
+          "min": 0.6513,
+          "name": "val/r_hit@1cm",
+          "source_hash": "b937448b6b98ff8ad68b4e4cf1a76ce575331c0861adec21215b1d132c4d46ef",
+          "source_mtime": 1779021802.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-39-34_pseudo_future_residual_cap006",
+      "run_id": "2026-05-17_21-39-34_pseudo_future_residual_cap006",
+      "started_at": "2026-05-17T21:39:35.167991+09:00",
+      "status": "completed",
+      "tags": [
+        "torch",
+        "pseudo-future",
+        "residual",
+        "non-tree",
+        "cap-sweep"
+      ],
+      "updated_at": 1779021576.24,
+      "warning_count": 0
+    },
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779021340.0,
+          "size": 1103
+        },
+        "manifest.yaml": {
+          "mtime": 1779021342.0,
+          "size": 1002
+        },
+        "metrics.csv": {
+          "mtime": 1779021340.0,
+          "size": 864
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6506
+      },
+      "metric_summaries": [
+        {
+          "best": 1.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "env",
+          "last_step": 0,
+          "last_value": 1.0,
+          "max": 1.0,
+          "min": 1.0,
+          "name": "env/torch_cuda_available",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 7.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 7.0,
+          "max": 7.0,
+          "min": 7.0,
+          "name": "model/median_best_epoch",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 3.0,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 3.0,
+          "max": 3.0,
+          "min": 3.0,
+          "name": "model/pseudo_windows_per_sample",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.004,
+          "count": 1,
+          "first_step": 0,
+          "group": "model",
+          "last_step": 0,
+          "last_value": 0.004,
+          "max": 0.004,
+          "min": 0.004,
+          "name": "model/residual_cap",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 246.85246445700068,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 246.85246445700068,
+          "max": 246.85246445700068,
+          "min": 246.85246445700068,
+          "name": "runtime/sec",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.635,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.635,
+          "max": 0.635,
+          "min": 0.635,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.012147714458219851,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.012147714458219851,
+          "max": 0.012147714458219851,
+          "min": 0.012147714458219851,
+          "name": "val/mean_dist",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.00732597893678622,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.00732597893678622,
+          "max": 0.00732597893678622,
+          "min": 0.00732597893678622,
+          "name": "val/median_dist",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.025526836587893814,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.025526836587893814,
+          "max": 0.025526836587893814,
+          "min": 0.025526836587893814,
+          "name": "val/p90_dist",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.042799383518918065,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.042799383518918065,
+          "max": 0.042799383518918065,
+          "min": 0.042799383518918065,
+          "name": "val/p95_dist",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        },
+        {
+          "best": 0.6506,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6506,
+          "max": 0.6506,
+          "min": 0.6506,
+          "name": "val/r_hit@1cm",
+          "source_hash": "e31015732e74af303b1369dacb122cf7351b52931e4c569b62a1d9c965e73b7a",
+          "source_mtime": 1779021340.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-31-47_pseudo_future_residual_cap004",
+      "run_id": "2026-05-17_21-31-47_pseudo_future_residual_cap004",
+      "started_at": "2026-05-17T21:31:47.474878+09:00",
+      "status": "completed",
+      "tags": [
+        "torch",
+        "pseudo-future",
+        "residual",
+        "non-tree",
+        "reference-inspired"
+      ],
+      "updated_at": 1779021110.74,
+      "warning_count": 0
+    },
     {
       "artifact_count": 3,
       "baseline": false,

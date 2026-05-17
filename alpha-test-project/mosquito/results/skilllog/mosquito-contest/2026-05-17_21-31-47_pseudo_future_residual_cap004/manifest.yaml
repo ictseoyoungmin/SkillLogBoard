@@ -1,0 +1,38 @@
+project: mosquito-contest
+run_name: pseudo_future_residual_cap004
+run_id: 2026-05-17_21-31-47_pseudo_future_residual_cap004
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_21-31-47_pseudo_future_residual_cap004
+created_at: '2026-05-17T21:31:47.474878+09:00'
+updated_at: '2026-05-17T21:35:38.437877+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.6506
+  best_step: 0
+  timestamp: '2026-05-17T21:35:35.871230+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- torch
+- pseudo-future
+- residual
+- non-tree
+- reference-inspired
+error_summary: null
