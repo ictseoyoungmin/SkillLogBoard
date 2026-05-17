@@ -1,55 +1,516 @@
-# SkillLogBoard Alpha Test Feedback Guide
+# SkillLogBoard Feedback Policy
 
-## Purpose
+## 0. Purpose
 
-이 문서는 SkillLogBoard를 실제 연구/대회/에이전트 워크플로우에 적용한 뒤, 제품 개선에 직접 연결될 수 있는 피드백을 수집하기 위한 표준 양식입니다.
+This document defines the policy for collecting, structuring, reviewing, and converting SkillLogBoard alpha/beta feedback into product decisions and development backlog items.
 
-단순히 “좋았다 / 불편했다”를 기록하는 것이 아니라, 다음 질문에 답할 수 있도록 피드백을 구조화합니다.
+SkillLogBoard feedback must not remain a free-form opinion log. It should become a reproducible product-learning loop:
 
 ```text
-1. 어떤 workflow에서 SkillLogBoard가 실제로 도움이 되었는가?
-2. 어떤 부분은 사용자가 반복 구현해야 했는가?
-3. 어떤 정보가 dashboard / report / artifact / agent handoff에 부족했는가?
-4. 어떤 기능이 template, helper, CLI, report, Live Board로 승격되어야 하는가?
-5. 다음 개발 backlog로 바로 옮길 수 있는 개선 항목은 무엇인가?
+real workflow usage
+→ observed friction
+→ evidence path
+→ product interpretation
+→ deduplicated backlog
+→ implementation slice
+→ verification result
+```
+
+The policy is designed for:
+
+- human maintainers
+- coding agents
+- future contributors
+- release planning
+- regression testing
+- product positioning
+
+---
+
+## 1. Feedback Scope
+
+SkillLogBoard feedback should be categorized by product surface.
+
+| Product Area | Feedback Target |
+|---|---|
+| Core Logging | `RunLogger`, metrics, configs, notes, artifacts |
+| Artifact Semantics | artifact roles, provenance, storage, prediction bundles |
+| Report Artifact Layer | `report.html`, `report.md`, manifest, figures, tables, findings |
+| Static Dashboard | `dashboard.html`, portable evidence, offline rendering |
+| Live Board | Overview, Runs, Compare, Metric Lab, Artifacts, Reports, Agent, Settings |
+| CLI | `index`, `runs list`, `compare`, `report`, `prune`, `rotate`, `feedback` |
+| Template Forge | scaffold generation, harness, validation, examples |
+| Agent Research Layer | handoff, safety gate, feedback JSON, validation feedback |
+| Operational Rules | retention, pruning, status consistency, large-project behavior |
+| Documentation | README, quickstart, examples, troubleshooting |
+
+Feedback outside these areas should be recorded as general product ideas, not immediate implementation backlog.
+
+---
+
+## 2. Feedback Quality Standard
+
+### 2.1 Required Qualities
+
+Good feedback must be:
+
+| Quality | Meaning |
+|---|---|
+| Reproducible | It names the command, run, file, config, or workflow where the issue appeared. |
+| Evidence-backed | It points to a file path, artifact, log, report, dashboard screen, or command output. |
+| Actionable | It can be converted into a bug, helper, template, CLI change, report block, UI change, or documentation task. |
+| Specific | It avoids vague statements like “the UI is bad” or “automation is needed.” |
+| Prioritized | It proposes or supports a P0/P1/P2/P3 priority. |
+| Product-area tagged | It indicates whether the issue belongs to core, report, live, CLI, agent, template, or docs. |
+| Human- and agent-readable | It has a Markdown explanation and, where possible, a JSONL event. |
+
+### 2.2 Bad Feedback Examples
+
+```text
+- UI is bad.
+- It is inconvenient.
+- More automation is needed.
+- The report should be better.
+- It would be nice if this worked.
+```
+
+### 2.3 Good Feedback Examples
+
+```text
+- `skilllog compare` prints the full leaderboard before the concise result, which makes agent logs too long. Add `--quiet` and `--top-k`.
+- `summary.md` shows `running` while `manifest.yaml` shows `completed`. Static evidence becomes inconsistent.
+- `predictions.npz` contains `oof_pred` and `test_pred`, but their roles are only understandable from runner code. Add artifact role metadata.
+- Submission folder is empty when validation score is below threshold, but report does not say whether this is expected or a failure. Add submission gate evidence.
 ```
 
 ---
 
-## Feedback Principles
+## 3. Feedback File Policy
 
-좋은 피드백은 다음 조건을 만족해야 합니다.
+Each alpha/beta project should keep feedback in a predictable structure.
 
 ```text
-- 재현 가능해야 한다.
-- 어떤 run / command / config에서 발생했는지 알 수 있어야 한다.
-- 단순 감상이 아니라 개선 방향으로 변환 가능해야 한다.
-- 기능 요청과 버그를 구분해야 한다.
-- 사람과 agent가 모두 읽을 수 있어야 한다.
+alpha-test-project/<project_name>/
+  Feedback.md                         # optional project-local copy of this policy/template
+  results/
+    backlog/
+      skilllog_alpha_feedback.md      # chronological raw run feedback
+      skilllog_feature_feedback.md    # feature-area analysis
+      skilllog_product_backlog.md     # deduplicated backlog items
+      agent_feedback.jsonl            # machine-readable feedback events
 ```
 
-피해야 할 피드백:
+### 3.1 `skilllog_alpha_feedback.md`
 
-```text
-- “UI가 별로다”
-- “뭔가 불편하다”
-- “자동화가 더 필요하다”
-- “좋다”
+Purpose:
+
+- chronological run-level feedback
+- raw observations
+- low friction
+- duplicates allowed, but discouraged when no new signal is added
+
+Rules:
+
+- Keep entries short.
+- Record only what was newly observed in that run.
+- Do not repeat the same generic “good / bad / improvement” text for every run.
+- Include score, delta, gate status, and newly observed SkillLogBoard issue when relevant.
+
+Recommended format:
+
+```markdown
+## 2026-05-17T21:43:21 / pseudo_future_residual_cap006
+
+- score: 0.6513
+- delta_vs_previous_best: +0.0438
+- model_family: pseudo_future_residual
+- gate_status: failed / threshold=0.7000
+- newly_observed_skilllog_issue:
+  - report Key Findings remained TODO even though leaderboard delta existed
+  - submission gate result was not visible in report
+- repeated_user_code:
+  - prediction bundle convention
+  - submission gate logic
+- proposed_backlog:
+  - [P1][report] auto findings draft
+  - [P1][helper] log_submission_gate
 ```
 
-좋은 피드백:
+### 3.2 `skilllog_feature_feedback.md`
 
-```text
-- “submission threshold 미달로 파일이 저장되지 않았는데, dashboard/report에서 gate 결과가 명확히 보이지 않았다.”
-- “CV 기반 contest 실험마다 OOF prediction, test prediction, fold_metrics artifact를 수동으로 같은 convention으로 저장했다.”
-- “manifest.yaml은 completed인데 summary.md에는 running으로 남아 evidence 신뢰성이 떨어졌다.”
+Purpose:
+
+- feature-area feedback
+- grouped by product surface
+- richer analysis than raw run feedback
+
+Required sections:
+
+```markdown
+## RunLogger
+## Project Index
+## Runs List
+## Compare
+## Export Table
+## Report Build and Validate
+## Live Board
+## Agent Workflow
+## Template / Helper Candidates
+## Reference-Guided Research Sweep <date>
+```
+
+Each section should use this structure:
+
+```markdown
+## Compare
+
+### What worked
+- ...
+
+### Pain point
+- ...
+
+### Product interpretation
+- ...
+
+### Proposed backlog
+- [P1][CLI] compare --quiet --top-k --filter
+
+### Acceptance criteria
+- `skilllog compare --top-k 5 --quiet` prints only a concise top-k summary.
+- Full CSV/MD/HTML exports remain available.
+```
+
+### 3.3 `skilllog_product_backlog.md`
+
+Purpose:
+
+- deduplicated backlog
+- ready for development slicing
+- no repeated run-level boilerplate
+
+Required backlog item format:
+
+```markdown
+## [P1][helper] Threshold-gated submission writer
+
+### Problem
+Contest-style workflows often require saving submission files only when validation score passes a threshold. Currently users implement this manually.
+
+### Evidence
+- alpha-test-project/mosquito
+- repeated manual submission gate logic in runner
+- feedback: submission folder can be empty without report-level explanation
+
+### Proposed solution
+Add `RunLogger.log_submission_gate(...)`.
+
+### API sketch
+```python
+logger.log_submission_gate(
+    metric="val/r_hit@1cm",
+    value=0.6513,
+    threshold=0.7000,
+    mode="gte",
+    path=None,
+)
+```
+
+### Acceptance criteria
+- Below threshold: no submission file is copied, but gate result is recorded.
+- Above threshold: submission artifact is saved and indexed.
+- Report shows pass/fail gate status.
+- Live Board exposes gate status in run metadata.
+```
+
+### 3.4 `agent_feedback.jsonl`
+
+Purpose:
+
+- machine-readable feedback
+- agent continuation
+- automatic backlog compilation
+
+Each line must be a valid JSON object.
+
+Required schema:
+
+```json
+{
+  "schema_version": "1.0",
+  "source": "mosquito-alpha-test",
+  "timestamp": "2026-05-17T21:43:21",
+  "run_id": "2026-05-17_21-39-34_pseudo_future_residual_cap006",
+  "product_area": "report",
+  "type": "feature_request",
+  "priority": "P1",
+  "title": "Auto-generate report Key Findings from leaderboard and gate status",
+  "evidence": "report Key Findings remained TODO while leaderboard delta existed",
+  "evidence_paths": [
+    "results/skilllog/.../report/report.html",
+    "results/backlog/skilllog_feature_feedback.md"
+  ],
+  "suggested_solution": "Generate best/second/delta/submission gate findings draft",
+  "acceptance": [
+    "Report includes best run and delta",
+    "Report states submission gate pass/fail",
+    "No TODO remains when leaderboard data exists"
+  ],
+  "status": "proposed"
+}
 ```
 
 ---
 
-# 1. Quick Feedback Summary
+## 4. Priority Policy
 
-## Test Context
+Feedback must be converted into priority levels using the following rules.
+
+| Priority | Definition | Examples |
+|---|---|---|
+| P0 | Trust, correctness, data loss, evidence inconsistency, run-breaking issue | status mismatch, wrong metric mode, broken artifact path |
+| P1 | Repeated workflow boilerplate or high-impact usability problem | submission gate helper, prediction bundle, compact compare |
+| P2 | Useful product polish or workflow-specific convenience | report layout, extra table columns, doctor snapshot |
+| P3 | Nice-to-have or long-term exploration | advanced UI animation, optional ecosystem integrations |
+
+### 4.1 P0 Criteria
+
+Use P0 only when at least one is true:
+
+```text
+- Generated evidence is wrong or inconsistent.
+- A run can be misinterpreted because core metadata is stale.
+- Important files are missing, overwritten, or incorrectly referenced.
+- A command fails in normal documented usage.
+- A safety policy can be misunderstood as destructive or safe when it is not.
+```
+
+Example:
+
+```text
+[P0][bug] summary.md shows running while manifest.yaml shows completed.
+```
+
+### 4.2 P1 Criteria
+
+Use P1 when:
+
+```text
+- The same workaround appears in multiple real workflows.
+- The feature would significantly reduce repeated user code.
+- It improves agent continuation or report usefulness.
+- It affects core research/contest workflows.
+```
+
+Example:
+
+```text
+[P1][helper] Add log_submission_gate for threshold-gated contest submissions.
+```
+
+---
+
+## 5. Feedback Type Policy
+
+Every backlog item should have exactly one primary type.
+
+| Type | Meaning |
+|---|---|
+| bug | Incorrect behavior or evidence inconsistency |
+| helper | Small API that removes repeated boilerplate |
+| template | Reusable project scaffold or experiment harness |
+| CLI | Command-line behavior, flags, output, filters |
+| report | Static report/dashboard artifact improvement |
+| live | Live Board UI/UX improvement |
+| artifact | Artifact schema, role, storage, provenance |
+| agent | Handoff, feedback JSON, safety gate, agent-readable output |
+| docs | README, quickstart, examples, troubleshooting |
+| ops | Retention, pruning, rotation, indexing, large-project behavior |
+
+Examples:
+
+```text
+[P0][bug] summary status mismatch
+[P1][helper] threshold-gated submission writer
+[P1][artifact] OOF/test prediction role metadata
+[P1][CLI] compare --quiet --top-k --filter
+[P2][report] environment doctor snapshot block
+```
+
+---
+
+## 6. Evidence Policy
+
+Every P0/P1 item must include at least one evidence reference.
+
+Evidence can be:
+
+```text
+- run directory path
+- manifest.yaml
+- summary.md
+- report.html
+- report_manifest.yaml
+- artifact_index.json
+- CLI command and output
+- screenshot
+- traceback
+- feedback file path
+- agent handoff file
+```
+
+Recommended evidence format:
+
+```markdown
+### Evidence
+- Run: `results/skilllog/mosquito-contest/2026-05-17_21-39-34_pseudo_future_residual_cap006`
+- File: `summary.md`
+- File: `manifest.yaml`
+- Feedback: `results/backlog/skilllog_feature_feedback.md`
+- Command: `skilllog compare ... --metric val/r_hit@1cm`
+```
+
+If no evidence path exists, the item should be marked as P2/P3 until reproduced.
+
+---
+
+## 7. Product Interpretation Policy
+
+Raw feedback must be translated into product language before becoming a backlog item.
+
+Example:
+
+Raw feedback:
+
+```text
+index rebuild --json output is too long.
+```
+
+Product interpretation:
+
+```text
+Agent loops need a compact run discovery mode that returns only run_id, status, selected metric, tags, and group.
+```
+
+Backlog:
+
+```text
+[P1][CLI] Add compact output mode for index/runs list.
+```
+
+Acceptance:
+
+```text
+- `skilllog runs list --compact --metric val/r_hit@1cm` prints concise rows.
+- `--json --compact` returns reduced fields.
+- Full JSON remains available by default.
+```
+
+---
+
+## 8. Status Policy for Feedback Items
+
+Each product backlog item should have one status.
+
+| Status | Meaning |
+|---|---|
+| proposed | Observed, not yet accepted |
+| accepted | Product owner/maintainer agrees it should be implemented |
+| planned | Assigned to a milestone or dev slice |
+| in_progress | Agent/human is implementing |
+| implemented | Code/docs/tests merged |
+| verified | Verified through alpha/beta workflow |
+| deferred | Valid but intentionally postponed |
+| rejected | Not aligned with product direction |
+
+Example:
+
+```json
+{
+  "title": "Add compact compare output",
+  "status": "planned",
+  "milestone": "v1.6"
+}
+```
+
+---
+
+## 9. Feedback Review Workflow
+
+Feedback should be reviewed in this order.
+
+```text
+1. Read new `skilllog_alpha_feedback.md` entries.
+2. Extract new, non-duplicate observations.
+3. Update `skilllog_feature_feedback.md` by product area.
+4. Add machine-readable entries to `agent_feedback.jsonl`.
+5. Deduplicate into `skilllog_product_backlog.md`.
+6. Assign priority and type.
+7. Convert accepted items into `.devmd` slices.
+8. Implement and verify.
+9. Mark backlog items as implemented/verified.
+```
+
+For agent use:
+
+```text
+Before starting implementation:
+- read skilllog_product_backlog.md
+- read agent_feedback.jsonl
+- read relevant evidence files
+- update status to in_progress
+
+After implementation:
+- add verification commands
+- update backlog status to implemented
+- add follow-up feedback if behavior is still insufficient
+```
+
+---
+
+## 10. Minimum Feedback Template
+
+Use this when time is limited.
+
+```markdown
+## <timestamp> / <run_id or command>
+
+- product_area:
+- type:
+- priority:
+- observed:
+- expected:
+- evidence:
+- suggested_solution:
+- acceptance:
+```
+
+Example:
+
+```markdown
+## 2026-05-17T21:43:21 / pseudo_future_residual_cap006
+
+- product_area: report
+- type: feature_request
+- priority: P1
+- observed: Report Key Findings remained TODO although leaderboard delta existed.
+- expected: Report should draft best run, second best, delta, and gate status.
+- evidence: results/skilllog/.../report/report.html
+- suggested_solution: Add deterministic report auto-findings generator.
+- acceptance:
+  - best run is named
+  - delta is shown
+  - submission gate pass/fail is shown
+  - no TODO remains when leaderboard data exists
+```
+
+---
+
+## 11. Full Feedback Template
+
+Use this for major alpha/beta test rounds.
+
+### 11.1 Test Context
 
 | Field | Value |
 |---|---|
@@ -63,558 +524,366 @@
 | Test type | example / contest / research / agent workflow / report workflow / live board |
 | Dataset or task |  |
 
-## Overall Verdict
-
-| Category | Rating | Notes |
-|---|---:|---|
-| Setup / install | 1-5 |  |
-| Logging API usability | 1-5 |  |
-| Metric tracking | 1-5 |  |
-| Artifact tracking | 1-5 |  |
-| Report generation | 1-5 |  |
-| Live Board usability | 1-5 |  |
-| Agent handoff usefulness | 1-5 |  |
-| Template/helper coverage | 1-5 |  |
-| Documentation clarity | 1-5 |  |
-
-## One-line Summary
+### 11.2 Workflow Summary
 
 ```text
-예: Core logging은 실제 contest workflow에 잘 붙었지만, submission gate / OOF artifact / fold-aware template은 사용자가 반복 구현해야 했다.
+Describe the actual workflow: data, training/evaluation loop, artifacts, report/dashboard usage, agent involvement.
 ```
 
----
+### 11.3 What Worked
 
-# 2. Run-level Feedback
-
-하나의 실험 run마다 아래 항목을 작성합니다.
-
-## Run Metadata
-
-| Field | Value |
-|---|---|
-| Run ID |  |
-| Run name |  |
-| Config path |  |
-| Command |  |
-| Status | completed / failed / running / skipped |
-| Main metric |  |
-| Best metric value |  |
-| Runtime |  |
-| Tags |  |
-
-## What Worked Well
-
-```text
-예:
-- RunLogger로 config, metrics, artifacts, report를 한 run folder에 묶을 수 있었다.
-- main_metric mode=max를 manifest에 남길 수 있어 나중에 best run 비교가 쉬웠다.
-- fold_metrics.csv를 table artifact로 남길 수 있었다.
-```
-
-## What Was Painful
-
-```text
-예:
-- contest submission threshold gate를 직접 구현해야 했다.
-- OOF/test prediction artifact naming convention을 직접 정해야 했다.
-- report에서 submission gate 통과/실패 여부가 바로 보이지 않았다.
-```
-
-## Missing Evidence
-
-이 run을 나중에 다시 봤을 때 부족했던 evidence를 적습니다.
-
-| Missing item | Why it matters | Suggested location |
+| Product area | What worked | Evidence |
 |---|---|---|
-|  |  | manifest / summary / report / dashboard / artifact / agent handoff |
+| Core Logging |  |  |
+| Artifacts |  |  |
+| Report |  |  |
+| Live Board |  |  |
+| CLI |  |  |
+| Agent |  |  |
 
-예:
+### 11.4 Pain Points
 
-| Missing item | Why it matters | Suggested location |
-|---|---|---|
-| submission_gate_result | submission 파일이 왜 없는지 바로 알기 어려움 | report + manifest metadata |
-| oof_artifact_role | prediction artifact가 OOF인지 test인지 convention이 불명확 | artifact_index metadata |
-| validation_split_policy | CV 방식이 report에서 바로 보이지 않음 | report manifest / config table |
-
-## Bug Candidates
-
-| Symptom | Expected | Actual | Severity | Evidence path |
-|---|---|---|---|---|
-|  |  |  | P0/P1/P2 |  |
-
-예:
-
-| Symptom | Expected | Actual | Severity | Evidence path |
-|---|---|---|---|---|
-| summary status mismatch | summary.md status should match manifest.yaml | manifest completed, summary running | P0 | run_dir/summary.md |
-
-## Improvement Candidate
-
-| Proposed improvement | Type | Priority | Product area |
-|---|---|---:|---|
-|  | bug / helper / template / CLI / UI / report / agent | P0/P1/P2 | core / report / live / template / agent |
-
----
-
-# 3. Workflow-level Feedback
-
-개별 run이 아니라 전체 workflow 관점에서 작성합니다.
-
-## Workflow Description
-
-```text
-예:
-Mosquito trajectory contest에서 train.csv 기반 5-fold validation을 수행하고,
-OOF prediction과 test prediction을 artifact로 저장한 뒤,
-validation score가 threshold 이상일 때만 submission.csv를 생성한다.
-```
-
-## Repeated User Code
-
-SkillLogBoard가 아직 제공하지 않아 사용자가 반복 구현한 코드를 기록합니다.
-
-| Repeated code or convention | Frequency | Should become |
-|---|---:|---|
-| submission threshold gate | every contest run | helper / template |
-| OOF/test prediction artifact convention | every CV run | artifact convention helper |
-| fold_metrics table logging | every CV run | fold-aware template |
-| experiment backlog markdown | every run | report/agent template |
-
-## Workflow Friction
-
-| Friction | Impact | Current workaround | Suggested SkillLogBoard feature |
+| Product area | Pain point | Impact | Evidence |
 |---|---|---|---|
 |  |  |  |  |
 
-예:
+### 11.5 Missing Semantics
 
-| Friction | Impact | Current workaround | Suggested SkillLogBoard feature |
-|---|---|---|---|
-| Submission not saved when score < threshold, but report does not highlight why | Reviewer may think submission failed | logger.log_note manually | submission gate artifact/report block |
-| CV fold metrics need manual table construction | Repeated boilerplate | logger.log_table manually | fold-aware experiment template |
+| Missing semantic | Why it matters | Suggested product surface |
+|---|---|---|
+| submission gate | Explains why submission file is absent | helper + manifest + report |
+| OOF prediction role | Agents cannot infer validation artifact safely | artifact metadata |
+| fold metrics role | Fold-level weakness is hidden | table artifact + report |
+| rule audit | Contest policy cannot be checked | rules/audit.json + report |
 
-## Workflow-specific Helper Candidates
+### 11.6 Backlog Candidates
 
-| Helper | Minimal API sketch | Priority |
-|---|---|---:|
-| threshold-gated submission writer | `logger.log_submission(path, score, threshold, role="contest")` | P1 |
-| OOF/test prediction artifact helper | `logger.log_predictions(oof=..., test=..., ids=..., role="cv")` | P1 |
-| fold metrics helper | `logger.log_fold_metrics(rows, main_metric="val/r_hit@1cm")` | P1 |
-| contest report block | `ReportSpec(include_submission_gate=True)` | P2 |
+| Priority | Type | Title | Product area | Evidence |
+|---|---|---|---|---|
+| P0 | bug |  |  |  |
+| P1 | helper |  |  |  |
+| P1 | CLI |  |  |  |
+| P2 | report |  |  |  |
 
 ---
 
-# 4. Dashboard / Live Board Feedback
+## 12. Agent-specific Feedback Policy
 
-Live Board를 실제로 실행해 본 뒤 작성합니다.
+When feedback is produced by a coding agent, it must include:
 
-## Live Board Command
-
-```bash
-skilllog watch <project_or_run_dir> --project
+```text
+- task instruction
+- files read
+- files modified
+- commands run
+- tests passed/failed
+- blockers
+- next actions
+- whether SkillLogBoard evidence was sufficient
 ```
 
-## First Impression
+Agent feedback should answer:
 
-| Question | Answer |
+| Question | Required? |
 |---|---|
-| Project/run mode가 명확했는가? | yes / no |
-| Overview에서 현재 상태를 이해할 수 있었는가? | yes / no |
-| Compare에 들어가기 전 어떤 run이 best인지 알 수 있었는가? | yes / no |
-| Artifacts/Reports/Agent 탭이 실제 workflow와 연결되어 보였는가? | yes / no |
-| UI가 외부 사용자에게 보여줄 만했는가? | yes / no |
+| Could the agent identify the best run? | yes |
+| Could the agent identify failed/skipped/running runs? | yes |
+| Could the agent find artifact roles without reading project code? | yes |
+| Could the agent determine whether submission was intentionally skipped? | yes |
+| Could the agent continue from handoff.json? | yes |
+| Could the agent verify report/dashboard outputs? | yes |
 
-## Screen-level Feedback
-
-| Screen | What worked | What was missing | Priority |
-|---|---|---|---|
-| Overview |  |  |  |
-| Runs |  |  |  |
-| Compare |  |  |  |
-| Metric Lab |  |  |  |
-| Artifacts |  |  |  |
-| Reports |  |  |  |
-| Agent |  |  |  |
-| Settings |  |  |  |
-
-## UI Evidence Gaps
-
-| Evidence needed | Current visibility | Suggested UI location |
-|---|---|---|
-| submission gate pass/fail | hidden / note-only / visible | Overview / Run detail / Report |
-| best metric trend | visible / not visible | Overview / Compare |
-| artifact role | ambiguous / clear | Artifacts |
-| agent next action | missing / visible | Agent |
-| run status consistency | mismatch / consistent | Overview / Summary |
+If the answer is `no`, create a backlog item.
 
 ---
 
-# 5. Report Artifact Feedback
+## 13. Live Board Feedback Policy
 
-정적 report/dashboard 산출물에 대한 피드백입니다.
+Live Board feedback must be screen-specific.
 
-## Report Outputs Checked
-
-| File | Exists? | Rendered offline? | Notes |
-|---|---|---|---|
-| dashboard.html | yes / no | yes / no |  |
-| report/report.html | yes / no | yes / no |  |
-| report/report.md | yes / no | n/a |  |
-| report/report_manifest.yaml | yes / no | n/a |  |
-| report/tables/* | yes / no | n/a |  |
-| report/figures/* | yes / no | n/a |  |
-| report/chart_specs/* | yes / no | n/a |  |
-
-## Report Quality
-
-| Question | Answer |
+| Screen | Required feedback |
 |---|---|
-| Report alone explains the run? | yes / no |
-| Config is readable? | yes / no |
-| Main metric is clear? | yes / no |
-| Best metric mode is clear? | yes / no |
-| Artifact provenance is clear? | yes / no |
-| Tables/Figures are useful? | yes / no |
-| Report can be shared without server? | yes / no |
+| Overview | Can the user understand project state in 10 seconds? |
+| Runs | Can the user find best/completed/failed/tagged runs quickly? |
+| Compare | Can the user compare selected runs without noisy output? |
+| Metric Lab | Can the user inspect scalar behavior clearly? |
+| Artifacts | Are artifact roles and provenance visible? |
+| Reports | Can the user find report package and validation status? |
+| Agent | Are next actions, blockers, and handoff visible? |
+| Settings | Is local-first/no-cloud behavior clear? |
 
-## Report Improvement Requests
+Avoid:
 
-| Request | Reason | Priority |
-|---|---|---:|
-|  |  | P0/P1/P2 |
+```text
+- “UI is not pretty”
+```
 
-Examples:
+Use:
 
-| Request | Reason | Priority |
-|---|---|---:|
-| Add submission gate block | Explains why submission.csv is missing | P1 |
-| Add CV summary block | Contest/research workflows rely on fold metrics | P1 |
-| Add artifact role labels | OOF/test/submission artifacts need clear semantics | P1 |
+```text
+- “Compare screen does not expose exclude-tag filter, so non-tree candidate review requires CLI workaround.”
+- “Artifacts screen lists `predictions.npz` but does not show OOF/test roles.”
+```
 
 ---
 
-# 6. Agent Workflow Feedback
+## 14. Report Feedback Policy
 
-agent가 SkillLogBoard를 사용해 연구를 수행하거나 이어받았을 때 작성합니다.
+Report feedback must distinguish:
 
-## Agent Context
+```text
+content
+layout
+portability
+provenance
+automation
+```
 
-| Field | Value |
+Report feedback checklist:
+
+| Question | Expected |
 |---|---|
-| Agent tool | Codex / Claude / Cursor / other |
-| Task |  |
-| Input instruction |  |
-| Files read |  |
-| Files changed |  |
-| Verification commands |  |
-
-## Agent Handoff Quality
-
-| Question | Answer |
-|---|---|
-| Agent could identify current best run? | yes / no |
-| Agent could identify next experiments? | yes / no |
-| Agent could parse metrics and artifacts? | yes / no |
-| Agent could understand failed/skipped runs? | yes / no |
-| Agent had enough safety rules? | yes / no |
-| Agent handoff was machine-readable? | yes / no |
-
-## Missing Agent Evidence
-
-| Missing evidence | Why it matters | Suggested file |
-|---|---|---|
-| next_actions JSON | agent continuation | agent/handoff.json |
-| verification command list | reproducibility | agent/handoff.json |
-| blocked reason | avoid repeated failure | agent/blockers.md |
-| safety scope | prevent risky edits | agent/safety_gate.yaml |
-
-## Agent Backlog
-
-| Backlog | Type | Priority |
-|---|---|---:|
-|  | agent / template / report / CLI / safety | P0/P1/P2 |
+| Does report explain the run without the Live Board? | yes |
+| Does report show main metric and mode? | yes |
+| Does report show best/second/delta when compare data exists? | yes |
+| Does report show submission gate result? | yes, when logged |
+| Does report avoid TODO placeholders? | yes |
+| Does report render offline? | yes |
+| Does report link figures/tables/provenance? | yes |
 
 ---
 
-# 7. Template / Helper Backlog
+## 15. CLI Feedback Policy
 
-이 섹션은 피드백을 곧바로 개발 backlog로 변환하기 위한 영역입니다.
+CLI feedback must include:
 
-## Template Candidates
+```text
+command
+actual output problem
+desired output
+automation impact
+```
 
-| Template | Target user | Required features | Priority |
-|---|---|---|---:|
-| contest_cv | Kaggle/DACON/competition users | CV split, OOF artifact, fold metrics, gated submission | P1 |
-| classification_basic | ML beginners/researchers | train/val metrics, confusion matrix, prediction artifact | P2 |
-| segmentation_basic | vision researchers | mIoU, pixel metrics, mask figures | P2 |
-| agent_research_loop | coding agents | handoff.json, verification commands, backlog update | P1 |
-
-## Helper Candidates
-
-| Helper | API sketch | Product area | Priority |
-|---|---|---|---:|
-| submission gate | `logger.log_submission(path, score, threshold)` | core/report | P1 |
-| prediction bundle | `logger.log_predictions(oof, test, ids, role)` | core/artifact | P1 |
-| fold-aware metrics | `logger.log_cv_results(fold_rows, main_metric)` | core/report | P1 |
-| backlog writer | `logger.log_backlog(sections={...})` | agent/report | P2 |
-| contest report block | `ReportSpec(blocks=["submission_gate", "cv_summary"])` | report | P2 |
-
----
-
-# 8. Feedback-to-Backlog Conversion
-
-피드백을 제품 backlog로 옮길 때 아래 기준을 사용합니다.
-
-## Priority Rule
-
-| Priority | Definition |
-|---|---|
-| P0 | evidence 신뢰성, 데이터 손실, 상태 불일치, 실행 실패 |
-| P1 | 반복 구현이 많고 실제 workflow 생산성을 크게 올리는 기능 |
-| P2 | 사용성/표현력 개선, 특정 workflow convenience |
-| P3 | nice-to-have, polish, long-term idea |
-
-## Type Rule
-
-| Type | Examples |
-|---|---|
-| bug | status mismatch, broken link, missing artifact, wrong metric mode |
-| helper | submission gate, prediction bundle, fold metrics |
-| template | contest_cv, segmentation_basic, agent_research_loop |
-| report | new report block, provenance display, table/figure layout |
-| live | overview card, compare UI, artifact browser |
-| agent | handoff.json, safety gate, validation feedback |
-| docs | quickstart, examples, troubleshooting |
-
-## Backlog Item Format
+Example:
 
 ```markdown
-## [P1][template] contest_cv template
+## CLI Feedback
 
-### Problem
-Contest-style experiments repeatedly require CV split, OOF prediction artifact, fold metrics, and threshold-gated submission handling.
-
-### Evidence
-- alpha-test-project/mosquito
-- repeated manual implementation in contest_mosquito.runner
-- feedback: “contest 전용 submission gate와 OOF artifact convention은 사용자가 직접 구현해야 함.”
-
-### Proposed Solution
-Add a `contest_cv` template or helper scaffold that includes:
-- fold-aware metric logging
-- OOF/test prediction artifact convention
-- threshold-gated submission writer
-- report block for submission gate result
-
-### Acceptance Criteria
-- A synthetic contest example can run end-to-end.
-- No submission file is written below threshold.
-- Report shows submission gate result.
-- OOF/test predictions are registered as typed artifacts.
+- command: `skilllog compare runs --metric val/r_hit@1cm`
+- observed: full leaderboard prints before concise summary
+- impact: agent logs become long and best run is hard to parse
+- desired: `--quiet --top-k 5`
+- priority: P1
 ```
 
 ---
 
-# 9. Machine-readable Feedback Block
+## 16. Feedback-to-Development Slice Policy
 
-사람이 작성한 Markdown과 별도로, agent가 파싱하기 쉬운 JSON block을 남깁니다.
-
-```json
-{
-  "feedback_schema_version": "1.0",
-  "project": "",
-  "run_id": "",
-  "tester_type": "human|agent|mixed",
-  "overall_rating": 0,
-  "main_metric": {
-    "name": "",
-    "value": null,
-    "mode": "max|min"
-  },
-  "worked_well": [],
-  "pain_points": [],
-  "bugs": [
-    {
-      "title": "",
-      "severity": "P0|P1|P2|P3",
-      "expected": "",
-      "actual": "",
-      "evidence_path": ""
-    }
-  ],
-  "feature_requests": [
-    {
-      "title": "",
-      "type": "helper|template|report|live|agent|docs",
-      "priority": "P0|P1|P2|P3",
-      "evidence": "",
-      "suggested_solution": ""
-    }
-  ],
-  "next_actions": []
-}
-```
-
----
-
-# 10. Mosquito Alpha-test Example Feedback
-
-아래는 mosquito alpha-test에서 이미 드러난 피드백을 제품 backlog 형태로 정리한 예시입니다.
-
-## [P0][bug] summary status should match manifest status
-
-### Problem
-
-A completed run can have `manifest.yaml` status as `completed` while `summary.md` still displays `running`.
-
-### Why it matters
-
-Static evidence must be trustworthy. If summary and manifest disagree, reviewers and agents cannot rely on the generated report package.
-
-### Proposed Solution
-
-Ensure summary/dashboard/report generation happens after final manifest status update, or regenerate summary after `logger.finish()` marks the run completed.
-
-### Acceptance Criteria
-
-- Completed runs show `completed` in manifest and summary.
-- Failed runs show `failed` in manifest and summary.
-- Test covers status consistency.
-
----
-
-## [P1][template/helper] contest CV template
-
-### Problem
-
-Contest-style workflows repeatedly need CV split, OOF predictions, test predictions, fold metrics, and gated submission handling.
-
-### Evidence
-
-The mosquito alpha-test implemented these manually in the project runner.
-
-### Proposed Solution
-
-Add a `contest_cv` template or helper set.
-
-### Acceptance Criteria
-
-- Synthetic contest example runs end-to-end.
-- OOF/test predictions are logged as typed artifacts.
-- Fold metrics are logged as report-ready tables.
-- Submission gate result is recorded even when no submission file is saved.
-
----
-
-## [P1][helper] threshold-gated submission writer
-
-### Problem
-
-Submission files should only be saved when validation passes a threshold, but users currently implement this manually.
-
-### Proposed API Sketch
-
-```python
-logger.log_submission(
-    path=submission_path,
-    score=score,
-    threshold=0.70,
-    mode="gte",
-    role="contest_submission",
-)
-```
-
-### Acceptance Criteria
-
-- Below threshold: no submission artifact is copied, but gate result is recorded.
-- Above threshold: submission artifact is saved and indexed.
-- Report shows pass/fail gate status.
-
----
-
-## [P1][artifact convention] OOF/test prediction bundle
-
-### Problem
-
-OOF and test predictions are core contest artifacts, but there is no standard artifact role convention.
-
-### Proposed API Sketch
-
-```python
-logger.log_prediction_bundle(
-    oof_pred=oof_pred,
-    test_pred=test_pred,
-    train_ids=train_ids,
-    test_ids=test_ids,
-    role="cv_predictions",
-)
-```
-
-### Acceptance Criteria
-
-- Artifact index records roles: `oof_prediction`, `test_prediction`, `train_ids`, `test_ids`.
-- Report can display prediction bundle metadata.
-- Agent can identify which artifact is safe for validation and which is final inference.
-
----
-
-## [P1][feedback] richer alpha feedback schema
-
-### Problem
-
-Current alpha feedback can become repetitive boilerplate.
-
-### Proposed Solution
-
-Replace generic feedback lines with structured categories:
+A backlog item is ready to become a `.devmd` slice only when it has:
 
 ```text
-API ergonomics
-artifact convention gap
-report evidence gap
-dashboard evidence gap
-agent handoff gap
-template/helper candidate
+- priority
+- type
+- problem
+- evidence
+- proposed solution
+- target files
+- acceptance criteria
+- verification commands
 ```
 
-### Acceptance Criteria
+If any of these are missing, the item remains `proposed`.
 
-- Each run feedback includes at least one actionable backlog candidate.
-- Feedback can be converted into JSON.
-- Repeated boilerplate is reduced.
+Development slice title format:
+
+```text
+.devmd/<milestone>/
+  01_<short_problem_or_feature>.md
+```
+
+Example:
+
+```text
+.devmd/v1.6_contest_research_workflow_semantics/
+  03_submission_gate_helper.md
+```
 
 ---
 
-# 11. Recommended File Locations
+## 17. Current Known Feedback Themes from Mosquito Alpha Test
 
-For a test project:
+These are examples of how feedback should be converted.
 
-```text
-alpha-test-project/<project_name>/
-  Feedback.md
-  results/
-    backlog/
-      skilllog_alpha_feedback.md
-      product_backlog.md
-      agent_feedback.jsonl
-```
-
-For a run folder:
+### [P0][bug] Status consistency
 
 ```text
-run_dir/
-  feedback.md
-  agent/
-    handoff.md
-    handoff.json
+Problem:
+summary.md can show running while manifest.yaml shows completed.
+
+Product interpretation:
+Static evidence must be internally consistent.
+
+Backlog:
+Fix finalization order or reload final manifest during summary/report generation.
 ```
 
-Recommended usage:
+### [P1][helper] Submission gate
 
 ```text
-- Use `Feedback.md` as the global template.
-- Use `results/backlog/skilllog_alpha_feedback.md` for chronological run feedback.
-- Use `results/backlog/product_backlog.md` for deduplicated product backlog.
-- Use `agent_feedback.jsonl` for machine-readable agent feedback events.
+Problem:
+Submission threshold logic is manually implemented and invisible in report.
+
+Product interpretation:
+Contest workflows need first-class submission gate evidence.
+
+Backlog:
+Add `RunLogger.log_submission_gate(...)`.
 ```
+
+### [P1][artifact] Prediction role metadata
+
+```text
+Problem:
+OOF/test predictions are stored in one NPZ, but roles are only known from project code.
+
+Product interpretation:
+Artifacts need role metadata for reports, Live Board, and agents.
+
+Backlog:
+Add artifact role metadata and prediction bundle helper.
+```
+
+### [P1][CLI] Compact and filtered run discovery
+
+```text
+Problem:
+`index rebuild --json`, `runs list --json`, and compare output are too verbose for agent loops.
+
+Product interpretation:
+Agents need compact, filterable command output.
+
+Backlog:
+Add `--compact`, `--quiet`, `--top-k`, `--include-tags`, `--exclude-tags`.
+```
+
+### [P1][report] Auto findings
+
+```text
+Problem:
+Report Key Findings can remain TODO despite available leaderboard delta.
+
+Product interpretation:
+Report generator should draft deterministic findings from existing evidence.
+
+Backlog:
+Add report auto-findings block.
+```
+
+### [P1][rules] Rule audit
+
+```text
+Problem:
+Contest policy such as test data usage, fold count, threshold, and metric mode is not explicitly audited.
+
+Product interpretation:
+Research evidence should include rule audit status.
+
+Backlog:
+Add `logger.log_rule_audit(...)`.
+```
+
+---
+
+## 18. Governance Rules
+
+### 18.1 Do Not Overfit to One Alpha Project
+
+Feedback from one project can motivate a feature, but implementation should be general enough for similar workflows.
+
+```text
+Good:
+submission gate helper for any threshold-based artifact decision
+
+Bad:
+mosquito-specific submission writer hardcoded to R-Hit@1cm
+```
+
+### 18.2 Do Not Add Heavy Frameworks for Small Semantics
+
+Prefer lightweight helper APIs and metadata conventions.
+
+```text
+Good:
+logger.log_fold_metrics(...)
+
+Bad:
+new full competition framework dependency
+```
+
+### 18.3 Do Not Hide Raw Evidence
+
+Generated summaries and reports should not replace raw files.
+
+```text
+Keep:
+metrics.csv
+manifest.yaml
+artifact_index.json
+report_manifest.yaml
+
+Add:
+report findings
+artifact role metadata
+rule audit
+```
+
+### 18.4 Keep Feedback Traceable
+
+Every accepted backlog item should trace back to:
+
+```text
+feedback file
+run id
+evidence path
+acceptance criteria
+verification command
+```
+
+---
+
+## 19. Final Checklist for a Feedback Review Round
+
+Before closing a feedback review round, confirm:
+
+```text
+[ ] New raw feedback entries were reviewed.
+[ ] Duplicate comments were deduplicated.
+[ ] P0/P1 items have evidence paths.
+[ ] Product areas and types were assigned.
+[ ] Machine-readable JSONL entries were added where useful.
+[ ] `skilllog_product_backlog.md` was updated.
+[ ] Accepted items were linked to dev slices.
+[ ] Deferred/rejected items have reasons.
+[ ] The next alpha-test run knows what to verify.
+```
+
+---
+
+## 20. Recommended Future Commands
+
+Future CLI commands may follow this direction:
+
+```bash
+skilllog feedback compile results/backlog \
+  --input agent_feedback.jsonl \
+  --output skilllog_product_backlog.md
+
+skilllog feedback validate results/backlog/agent_feedback.jsonl
+
+skilllog feedback summarize results/backlog \
+  --by-priority \
+  --by-product-area
+```
+
+These commands are optional future work, but feedback files should be structured so such commands are possible.
