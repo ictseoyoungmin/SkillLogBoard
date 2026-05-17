@@ -26,6 +26,10 @@ def predict_physics(x: np.ndarray, method: str = "cv_last1", **params: float) ->
         return blended_cv(x, weight=float(params.get("weight", 0.75)))
     if method == "finite_diff":
         return finite_difference(x, coefficients=params.get("coefficients", (2.49, -0.43, -0.03, -0.05, 0.02)))
+    if method.startswith("ca_last_beta"):
+        beta = float(params.get("beta", _parse_trailing_float(method, default=0.25)))
+        horizon_steps = float(params.get("horizon_steps", HORIZON_SECONDS / DT_SECONDS))
+        return constant_acceleration_beta(x, beta=beta, horizon_steps=horizon_steps)
     raise ValueError(f"unknown physics method: {method}")
 
 
@@ -68,3 +72,62 @@ def finite_difference(x: np.ndarray, coefficients: tuple[float, ...] | list[floa
     diffs = np.diff(x, axis=1)[:, ::-1, :]
     usable = min(len(coeff), diffs.shape[1])
     return x[:, -1, :] + np.einsum("k,nkc->nc", coeff[:usable], diffs[:, :usable, :])
+
+
+def constant_acceleration_beta(x: np.ndarray, beta: float = 0.25, horizon_steps: float = 2.0) -> np.ndarray:
+    diffs = np.diff(x, axis=1)
+    velocity = diffs[:, -1, :]
+    acceleration = diffs[:, -1, :] - diffs[:, -2, :]
+    return x[:, -1, :] + horizon_steps * velocity + 0.5 * horizon_steps**2 * beta * acceleration
+
+
+def physics_anchor_bank(x: np.ndarray, horizon_steps: float = 2.0) -> tuple[np.ndarray, list[str]]:
+    p0 = x[:, -1, :]
+    velocity = np.diff(x, axis=1)
+    v_last = velocity[:, -1, :]
+    names: list[str] = []
+    anchors: list[np.ndarray] = []
+
+    def add(name: str, pred: np.ndarray) -> None:
+        names.append(name)
+        anchors.append(pred.astype(np.float32))
+
+    add("last", p0)
+    for alpha in [0.65, 0.75, 0.85, 0.90, 0.95, 1.00, 1.05, 1.10, 1.20, 1.30, 1.45]:
+        add(f"cv_alpha_{alpha:.2f}", p0 + horizon_steps * alpha * v_last)
+
+    for window in [2, 3, 4, 5, 7, 10]:
+        v_mean = velocity[:, -window:, :].mean(axis=1)
+        for alpha in [0.85, 1.00, 1.15]:
+            add(f"cv_mean{window}_alpha_{alpha:.2f}", p0 + horizon_steps * alpha * v_mean)
+
+    a_last = velocity[:, -1, :] - velocity[:, -2, :]
+    a_prev = velocity[:, -2, :] - velocity[:, -3, :]
+    a_smooth = 0.70 * a_last + 0.30 * a_prev
+    a_mean3 = (velocity[:, -1, :] - velocity[:, -4, :]) / 3.0
+    for source_name, acceleration in {
+        "last": a_last,
+        "smooth2": a_smooth,
+        "mean3": a_mean3,
+    }.items():
+        for beta in [-0.20, 0.00, 0.10, 0.20, 0.25, 0.35, 0.50, 0.75]:
+            add(
+                f"ca_{source_name}_beta_{beta:.2f}",
+                p0 + horizon_steps * v_last + 0.5 * horizon_steps**2 * beta * acceleration,
+            )
+        for clip in [0.005, 0.010, 0.020, 0.040]:
+            norm = np.linalg.norm(acceleration, axis=-1, keepdims=True).clip(min=1e-6)
+            clipped = acceleration * np.minimum(clip / norm, 1.0)
+            add(
+                f"ca_{source_name}_clip_{clip:.3f}",
+                p0 + horizon_steps * v_last + 0.5 * horizon_steps**2 * clipped,
+            )
+
+    return np.stack(anchors, axis=1).astype(np.float32), names
+
+
+def _parse_trailing_float(text: str, default: float) -> float:
+    try:
+        return float(text.rsplit("_", maxsplit=1)[-1])
+    except ValueError:
+        return default

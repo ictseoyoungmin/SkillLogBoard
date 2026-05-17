@@ -1,0 +1,29 @@
+experiment:
+  name: physics_bucketed_finite_diff
+  seed: 20260517
+  tags:
+  - physics
+  - finite-difference
+  - bucketed
+  - non-tree
+paths:
+  data_root: data
+  results_root: results
+cv:
+  n_splits: 5
+model:
+  type: bucketed_finite_diff
+  params:
+    n_speed_bins: 3
+    n_curvature_bins: 1
+    coefficient_count: 3
+    maxiter: 35
+submission:
+  threshold: 0.7
+__config_dir__: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs
+runtime_args:
+  config: alpha-test-project/mosquito/configs/physics_bucketed_finite_diff.yaml
+  make_submission: false
+  refresh_cache: false
+  limit_train: null
+  limit_test: null

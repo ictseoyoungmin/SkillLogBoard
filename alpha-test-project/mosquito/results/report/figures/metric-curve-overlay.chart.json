@@ -19,6 +19,7 @@
     "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_02-02-01_residual_extra_trees_cv_last1/metrics.csv",
     "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-22-05_jepa_torch_residual/metrics.csv",
     "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_knn_cv_last1/metrics.csv",
-    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv"
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-28-06_residual_ridge_cv_last1/metrics.csv",
+    "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-54-48_physics_bucketed_finite_diff/metrics.csv"
   ]
 }

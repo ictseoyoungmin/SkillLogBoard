@@ -1,18 +1,20 @@
 \begin{tabular}{lllll}
 axis & value & count & best & mean \\
 \hline
-\_\_config\_dir\_\_ & /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs & 7 & 0.6075 & 0.5717000000000001 \\
-cv.n\_splits & 5 & 7 & 0.6075 & 0.5717000000000001 \\
+\_\_config\_dir\_\_ & /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/configs & 8 & 0.6075 & 0.5753750000000001 \\
+cv.n\_splits & 5 & 8 & 0.6075 & 0.5753750000000001 \\
 experiment.name & jepa\_torch\_residual & 1 & 0.4847 & 0.4847 \\
+experiment.name & physics\_bucketed\_finite\_diff & 1 & 0.6011 & 0.6011 \\
 experiment.name & physics\_cv\_last1 & 1 & 0.5787 & 0.5787 \\
 experiment.name & physics\_finite\_diff\_hit\_tuned & 1 & 0.6026 & 0.6026 \\
 experiment.name & residual\_extra\_trees\_cv\_last1 & 1 & 0.6075 & 0.6075 \\
 experiment.name & residual\_knn\_cv\_last1 & 1 & 0.5984 & 0.5984 \\
 experiment.name & residual\_lgbm\_cv\_last1 & 1 & 0.5814 & 0.5814 \\
 experiment.name & residual\_ridge\_cv\_last1 & 1 & 0.5486 & 0.5486 \\
-experiment.seed & 20260517 & 7 & 0.6075 & 0.5717000000000001 \\
+experiment.seed & 20260517 & 8 & 0.6075 & 0.5753750000000001 \\
 experiment.tags & ["jepa", "torch", "residual"] & 1 & 0.4847 & 0.4847 \\
 experiment.tags & ["physics", "baseline"] & 1 & 0.5787 & 0.5787 \\
+experiment.tags & ["physics", "finite-difference", "bucketed", "non-tree"] & 1 & 0.6011 & 0.6011 \\
 experiment.tags & ["physics", "finite-difference", "hit-tuned"] & 1 & 0.6026 & 0.6026 \\
 experiment.tags & ["residual", "extra-trees", "candidate"] & 1 & 0.6075 & 0.6075 \\
 experiment.tags & ["residual", "knn", "non-tree"] & 1 & 0.5984 & 0.5984 \\
@@ -27,6 +29,7 @@ model.model\_kind & lightgbm & 1 & 0.5814 & 0.5814 \\
 model.model\_kind & ridge & 1 & 0.5486 & 0.5486 \\
 model.params.alpha & 0.0001 & 1 & 0.5486 & 0.5486 \\
 model.params.batch\_size & 256 & 1 & 0.4847 & 0.4847 \\
+model.params.coefficient\_count & 3 & 1 & 0.6011 & 0.6011 \\
 model.params.coefficients & [2.4906, -0.4332, -0.0291, -0.0548, 0.017] & 1 & 0.6026 & 0.6026 \\
 model.params.colsample\_bytree & 0.92 & 1 & 0.5814 & 0.5814 \\
 model.params.epochs & 100 & 1 & 0.4847 & 0.4847 \\
@@ -35,10 +38,13 @@ model.params.learning\_rate & 0.018 & 1 & 0.5814 & 0.5814 \\
 model.params.lr & 0.001 & 1 & 0.4847 & 0.4847 \\
 model.params.mask\_prob & 0.35 & 1 & 0.4847 & 0.4847 \\
 model.params.max\_features & 0.5 & 1 & 0.6075 & 0.6075 \\
+model.params.maxiter & 35 & 1 & 0.6011 & 0.6011 \\
 model.params.min\_samples\_leaf & 3 & 1 & 0.6075 & 0.6075 \\
+model.params.n\_curvature\_bins & 1 & 1 & 0.6011 & 0.6011 \\
 model.params.n\_estimators & 1400 & 1 & 0.5814 & 0.5814 \\
 model.params.n\_estimators & 600 & 1 & 0.6075 & 0.6075 \\
 model.params.n\_neighbors & 80 & 1 & 0.5984 & 0.5984 \\
+model.params.n\_speed\_bins & 3 & 1 & 0.6011 & 0.6011 \\
 model.params.num\_leaves & 31 & 1 & 0.5814 & 0.5814 \\
 model.params.p & 2 & 1 & 0.5984 & 0.5984 \\
 model.params.pretrain\_epochs & 35 & 1 & 0.4847 & 0.4847 \\
@@ -46,22 +52,24 @@ model.params.reg\_lambda & 0.35 & 1 & 0.5814 & 0.5814 \\
 model.params.subsample & 0.92 & 1 & 0.5814 & 0.5814 \\
 model.params.weight\_decay & 0.0001 & 1 & 0.4847 & 0.4847 \\
 model.params.weights & distance & 1 & 0.5984 & 0.5984 \\
+model.type & bucketed\_finite\_diff & 1 & 0.6011 & 0.6011 \\
 model.type & jepa\_torch & 1 & 0.4847 & 0.4847 \\
 model.type & physics & 2 & 0.6026 & 0.59065 \\
 model.type & residual & 3 & 0.6075 & 0.5848333333333334 \\
 model.type & residual\_lgbm & 1 & 0.5814 & 0.5814 \\
-paths.data\_root & data & 7 & 0.6075 & 0.5717000000000001 \\
-paths.results\_root & results & 7 & 0.6075 & 0.5717000000000001 \\
+paths.data\_root & data & 8 & 0.6075 & 0.5753750000000001 \\
+paths.results\_root & results & 8 & 0.6075 & 0.5753750000000001 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/jepa\_torch.yaml & 1 & 0.4847 & 0.4847 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/physics.yaml & 1 & 0.5787 & 0.5787 \\
+runtime\_args.config & alpha-test-project/mosquito/configs/physics\_bucketed\_finite\_diff.yaml & 1 & 0.6011 & 0.6011 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/physics\_finite\_diff.yaml & 1 & 0.6026 & 0.6026 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/residual\_extra\_trees.yaml & 1 & 0.6075 & 0.6075 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/residual\_knn.yaml & 1 & 0.5984 & 0.5984 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/residual\_lgbm.yaml & 1 & 0.5814 & 0.5814 \\
 runtime\_args.config & alpha-test-project/mosquito/configs/residual\_ridge.yaml & 1 & 0.5486 & 0.5486 \\
-runtime\_args.limit\_test & None & 7 & 0.6075 & 0.5717000000000001 \\
-runtime\_args.limit\_train & None & 7 & 0.6075 & 0.5717000000000001 \\
-runtime\_args.make\_submission & False & 7 & 0.6075 & 0.5717000000000001 \\
-runtime\_args.refresh\_cache & False & 7 & 0.6075 & 0.5717000000000001 \\
-submission.threshold & 0.7 & 7 & 0.6075 & 0.5717000000000001 \\
+runtime\_args.limit\_test & None & 8 & 0.6075 & 0.5753750000000001 \\
+runtime\_args.limit\_train & None & 8 & 0.6075 & 0.5753750000000001 \\
+runtime\_args.make\_submission & False & 8 & 0.6075 & 0.5753750000000001 \\
+runtime\_args.refresh\_cache & False & 8 & 0.6075 & 0.5753750000000001 \\
+submission.threshold & 0.7 & 8 & 0.6075 & 0.5753750000000001 \\
 \end{tabular}

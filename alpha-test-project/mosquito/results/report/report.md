@@ -2,7 +2,7 @@
 
 ## Summary
 
-- Source runs: `7`
+- Source runs: `8`
 - Metric: `val/r_hit@1cm`
 - Mode: `max`
 
@@ -21,6 +21,7 @@
 | `2026-05-17_20-22-05_jepa_torch_residual` | `jepa_torch_residual` | `completed` |
 | `2026-05-17_20-28-06_residual_knn_cv_last1` | `residual_knn_cv_last1` | `completed` |
 | `2026-05-17_20-28-06_residual_ridge_cv_last1` | `residual_ridge_cv_last1` | `completed` |
+| `2026-05-17_20-54-48_physics_bucketed_finite_diff` | `physics_bucketed_finite_diff` | `completed` |
 
 ## Leaderboard
 

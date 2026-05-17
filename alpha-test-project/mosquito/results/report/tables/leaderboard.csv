@@ -1,8 +1,9 @@
 rank,run_id,run_name,metric_value,best_step,warning_count,error_count
 1,2026-05-17_02-02-01_residual_extra_trees_cv_last1,residual_extra_trees_cv_last1,0.6075,0,0,0
 2,2026-05-17_02-01-33_physics_finite_diff_hit_tuned,physics_finite_diff_hit_tuned,0.6026,0,0,0
-3,2026-05-17_20-28-06_residual_knn_cv_last1,residual_knn_cv_last1,0.5984,0,0,0
-4,2026-05-17_01-37-02_residual_lgbm_cv_last1,residual_lgbm_cv_last1,0.5814,0,0,0
-5,2026-05-17_01-36-23_physics_cv_last1,physics_cv_last1,0.5787,0,0,0
-6,2026-05-17_20-28-06_residual_ridge_cv_last1,residual_ridge_cv_last1,0.5486,0,0,0
-7,2026-05-17_20-22-05_jepa_torch_residual,jepa_torch_residual,0.4847,0,0,0
+3,2026-05-17_20-54-48_physics_bucketed_finite_diff,physics_bucketed_finite_diff,0.6011,0,0,0
+4,2026-05-17_20-28-06_residual_knn_cv_last1,residual_knn_cv_last1,0.5984,0,0,0
+5,2026-05-17_01-37-02_residual_lgbm_cv_last1,residual_lgbm_cv_last1,0.5814,0,0,0
+6,2026-05-17_01-36-23_physics_cv_last1,physics_cv_last1,0.5787,0,0,0
+7,2026-05-17_20-28-06_residual_ridge_cv_last1,residual_ridge_cv_last1,0.5486,0,0,0
+8,2026-05-17_20-22-05_jepa_torch_residual,jepa_torch_residual,0.4847,0,0,0

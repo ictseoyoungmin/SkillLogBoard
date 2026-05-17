@@ -1,8 +1,136 @@
 {
-  "generated_at": "2026-05-17T11:28:34.741481+00:00",
+  "generated_at": "2026-05-17T11:57:06.604070+00:00",
   "root_dir": "alpha-test-project/mosquito/results/skilllog/mosquito-contest",
-  "run_count": 7,
+  "run_count": 8,
   "runs": [
+    {
+      "artifact_count": 3,
+      "baseline": false,
+      "duration": null,
+      "fingerprint": {
+        "artifact_index.json": {
+          "mtime": 1779018936.0,
+          "size": 1099
+        },
+        "manifest.yaml": {
+          "mtime": 1779018936.0,
+          "size": 984
+        },
+        "metrics.csv": {
+          "mtime": 1779018934.0,
+          "size": 568
+        }
+      },
+      "group": "",
+      "key_metrics": {
+        "val/r_hit@1cm": 0.6011
+      },
+      "metric_summaries": [
+        {
+          "best": 46.182042163000006,
+          "count": 1,
+          "first_step": 0,
+          "group": "runtime",
+          "last_step": 0,
+          "last_value": 46.182042163000006,
+          "max": 46.182042163000006,
+          "min": 46.182042163000006,
+          "name": "runtime/sec",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.5865,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.5865,
+          "max": 0.5865,
+          "min": 0.5865,
+          "name": "val/fold_min_r_hit",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.01285362155367234,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.01285362155367234,
+          "max": 0.01285362155367234,
+          "min": 0.01285362155367234,
+          "name": "val/mean_dist",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.008098233438510766,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.008098233438510766,
+          "max": 0.008098233438510766,
+          "min": 0.008098233438510766,
+          "name": "val/median_dist",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.026941575888534856,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.026941575888534856,
+          "max": 0.026941575888534856,
+          "min": 0.026941575888534856,
+          "name": "val/p90_dist",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.04431739161915137,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.04431739161915137,
+          "max": 0.04431739161915137,
+          "min": 0.04431739161915137,
+          "name": "val/p95_dist",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        },
+        {
+          "best": 0.6011,
+          "count": 1,
+          "first_step": 0,
+          "group": "val",
+          "last_step": 0,
+          "last_value": 0.6011,
+          "max": 0.6011,
+          "min": 0.6011,
+          "name": "val/r_hit@1cm",
+          "source_hash": "999023645349a199d57521fd5b4aad84cc8f5283802efb4a7f0ff061da793b76",
+          "source_mtime": 1779018934.0
+        }
+      ],
+      "path": "alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-54-48_physics_bucketed_finite_diff",
+      "run_id": "2026-05-17_20-54-48_physics_bucketed_finite_diff",
+      "started_at": "2026-05-17T20:54:48.969033+09:00",
+      "status": "completed",
+      "tags": [
+        "physics",
+        "finite-difference",
+        "bucketed",
+        "non-tree"
+      ],
+      "updated_at": 1779018890.44,
+      "warning_count": 0
+    },
     {
       "artifact_count": 3,
       "baseline": false,

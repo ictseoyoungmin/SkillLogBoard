@@ -18,7 +18,12 @@ from contest_mosquito.backlog import append_feedback, write_experiment_backlog
 from contest_mosquito.data import load_contest_data, write_submission
 from contest_mosquito.ensemble import run_optional_ensemble
 from contest_mosquito.jepa import evaluate_jepa_torch
-from contest_mosquito.models import evaluate_physics, evaluate_residual_model
+from contest_mosquito.models import (
+    evaluate_bucketed_finite_difference,
+    evaluate_physics,
+    evaluate_residual_model,
+)
+from contest_mosquito.pseudo_future import evaluate_pseudo_future_residual
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -89,12 +94,34 @@ def run_experiment(config: dict[str, Any], args: argparse.Namespace) -> int:
                 model_kind=str(model_cfg.get("model_kind", "lightgbm")),
                 model_params=dict(model_cfg.get("params", {})),
             )
+        elif model_type == "bucketed_finite_diff":
+            params = dict(model_cfg.get("params", {}))
+            result = evaluate_bucketed_finite_difference(
+                data.train_x,
+                data.train_y,
+                data.test_x,
+                cv_splits=int(cv_cfg.get("n_splits", 5)),
+                seed=seed,
+                n_speed_bins=int(params.get("n_speed_bins", 3)),
+                n_curvature_bins=int(params.get("n_curvature_bins", 1)),
+                coefficient_count=int(params.get("coefficient_count", 3)),
+                maxiter=int(params.get("maxiter", 35)),
+            )
         elif model_type == "jepa_torch":
             result = evaluate_jepa_torch(
                 data.train_x,
                 data.train_y,
                 data.test_x,
                 base_method=str(model_cfg.get("base_method", "cv_last1")),
+                cv_splits=int(cv_cfg.get("n_splits", 5)),
+                seed=seed,
+                params=dict(model_cfg.get("params", {})),
+            )
+        elif model_type == "pseudo_future_residual":
+            result = evaluate_pseudo_future_residual(
+                data.train_x,
+                data.train_y,
+                data.test_x,
                 cv_splits=int(cv_cfg.get("n_splits", 5)),
                 seed=seed,
                 params=dict(model_cfg.get("params", {})),

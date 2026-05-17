@@ -1,0 +1,37 @@
+project: mosquito-contest
+run_name: physics_bucketed_finite_diff
+run_id: 2026-05-17_20-54-48_physics_bucketed_finite_diff
+run_dir: /mnt/f/NowWorking/SkillLogDashboard/alpha-test-project/mosquito/results/skilllog/mosquito-contest/2026-05-17_20-54-48_physics_bucketed_finite_diff
+created_at: '2026-05-17T20:54:48.969033+09:00'
+updated_at: '2026-05-17T20:55:32.365172+09:00'
+status: completed
+framework: numpy/sklearn/torch
+task_type: trajectory-regression
+model_name: null
+dataset_name: null
+seed: null
+main_metric:
+  name: val/r_hit@1cm
+  mode: max
+best_metric:
+  name: val/r_hit@1cm
+  mode: max
+  best_value: 0.6011
+  best_step: 0
+  timestamp: '2026-05-17T20:55:30.658386+09:00'
+files:
+  manifest: manifest.yaml
+  config: config.yaml
+  metrics: metrics.csv
+  events: events.jsonl
+  system: system.json
+  git: git.json
+  artifact_index: artifact_index.json
+  summary: summary.md
+  dashboard: dashboard.html
+tags:
+- physics
+- finite-difference
+- bucketed
+- non-tree
+error_summary: null
